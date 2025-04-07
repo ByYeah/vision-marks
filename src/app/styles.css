@@ -1,0 +1,1857 @@
+/* Estilo general para el cuerpo */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f0f0f0;
+}
+
+/* Contenedor principal */
+.container {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  gap: 8px;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* Animaciones de la modal*/
+@keyframes modalSlideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+}
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideOut {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+}
+
+/* Estilo del overlay del modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Contenido del modal con animación */
+.modal-content {
+  background: white;
+  padding: 23.75px;
+  border-radius: 9.5px;
+  width: 390px;
+  max-width: 90%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  animation: modalSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  margin: 0 auto;
+}
+
+.modal-overlay.closing .modal-content {
+  animation: modalSlideOut 0.2s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+
+/* Título del modal */
+.modal-content h3 {
+  margin: 0 0 20.9px 0;
+  font-size: 1.235rem;
+  color: #2d3748;
+  font-weight: 600;
+  text-align: center;
+  padding-bottom: 15px;
+  padding-top: 2px;
+}
+
+/* Cuerpo del modal */
+.modal-body {
+  margin: 0 14.25px 19px 14.25px;
+  padding: 0 7.6px;	
+}
+
+/* Campos del formulario */
+.modal-field {
+  margin-bottom: 19px;
+  padding: 0 4.75px;
+  margin-right: 20px;
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.modal-field label {
+  display: block;
+  margin-bottom: 7.6px;
+  font-size: 0.874rem;
+  color: #4a5568;
+  font-weight: 500;
+  line-height: 8px;
+  margin-left: 7.6px;
+}
+
+.modal-body input,
+.modal-body textarea {
+  width: 100%;
+  padding: 11px 10px;
+  font-size: 0.95rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: border-color 0.2s;
+  transition: all 0.25s ease;
+  background-color: #f8fafc;
+}
+
+.modal-body input:focus,
+.modal-body textarea:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+  background-color: white;
+}
+
+/* Botones de acción mejorados */
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+}
+
+.modal-actions button {
+  padding: 10px 20px;
+  font-size: 0.92rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.cancel-button {
+  background-color: #f1f5f9;
+  color: #64748b;
+}
+
+.cancel-button:hover {
+  background-color: #e2e8f0;
+  color: #475569;
+}
+
+.confirm-button {
+  background-color: #0d7d43;
+  color: white;
+}
+
+.confirm-button:hover {
+  background-color: #0a6939;
+  transform: translateY(-1px);
+}
+
+.confirm-button.red {
+  background-color: #ef4444;
+}
+
+.confirm-button.red:hover {
+  background-color: #dc2626;
+}
+
+/* Encabezado */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  grid-column: span 6 / span 6;
+  border-radius: 30px;
+}
+
+.header .title {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.header .search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header .search-input {
+  width: 300px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.header .settings-icon,
+.header .account-icon {
+  cursor: pointer;
+  color: #8f8f8f;
+  font-size: 20px;
+}
+
+/* Sidebar */
+.sidebar {
+  background-color: #fff;
+  padding: 25px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 25px;
+  height: 80vh;
+  grid-row: span 5 / span 5;
+  grid-row-start: 2;
+  width: 300px;
+  margin: 20px;
+  margin-left: 30px;
+}
+
+.sidebar h3 {
+  font-size: 22px;
+  margin-top: 5px;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: center;
+  padding-right: 20px;
+}
+
+.sidebar button {
+  padding: 9px 13px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.sidebar .add-bookmark-button {
+  background-color: #6196ce;
+  color: white;
+  width: 98%;
+  box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar .add-bookmark-button:hover {
+  background-color: #396799;
+}
+
+/* Item del botón añadir marcadores)*/
+.bookmark-icon {
+  fill: #ffffffda;
+  position: relative;
+  top: 1px;
+  filter: drop-shadow(1px 1px 2px rgb(255, 255, 255));
+  -webkit-filter: drop-shadow(2.8px 2.8px 4px rgb(255, 255, 255));
+}
+
+.sidebar ul {
+  padding-inline-start: 0;
+  margin-top: 16px;
+}
+
+.bookmark-item {
+  display: flex;
+  align-items: center;
+  /* Alinea todos los elementos verticalmente */
+  justify-content: space-between;
+  /* Distribuye el espacio entre los elementos */
+  width: 98%;
+  /* Ocupa todo el ancho disponible */
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: grab;
+  position: relative;
+  /* Necesario para posicionar el menú relativo al marcador */
+
+}
+
+.bookmark-item img.favicon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  /* Espacio entre el ícono y el texto */
+  object-fit: contain;
+  /* Asegura que el ícono no se distorsione */
+}
+
+.bookmark-item a {
+  flex-grow: 1;
+  /* El texto ocupa el espacio restante */
+  text-decoration: none;
+  color: #464545;
+  font-size: 14px;
+  overflow: hidden;
+  /* Evita que el texto se desborde */
+  white-space: nowrap;
+  /* Evita saltos de línea */
+  text-overflow: ellipsis;
+  /* Agrega puntos suspensivos si el texto es demasiado largo */
+}
+
+.favorite-button,
+.menu-button {
+  background: none;
+  /* Sin fondo por defecto */
+  border: none;
+  /* Sin borde */
+  cursor: pointer;
+  padding: 0;
+  /* Sin relleno adicional */
+  display: flex;
+  align-items: center;
+  /* Alinea verticalmente el ícono */
+  margin-left: 8px;
+  /* Espacio entre el texto y los botones */
+}
+
+.favorite-button img {
+  width: 16px;
+  height: 16px;
+  filter: grayscale(1);
+  /* Efecto de escala de grises para indicar estado inactivo */
+  opacity: 0.8;
+  /* Transparencia inicial */
+  transition: transform 0.2s ease, filter 0.2s ease, opacity 0.2s ease;
+
+}
+
+.favorite-button img[src*="star-filled"] {
+  filter: none;
+  /* Elimina el efecto de escala de grises */
+  opacity: 1;
+  /* Sin transparencia */
+
+}
+
+.favorite-button:hover img {
+  transform: scale(1.2);
+  /* Aumenta ligeramente el tamaño */
+  filter: brightness(1.2);
+  /* Brillo adicional */
+  opacity: 1;
+  /* Elimina la transparencia */
+}
+
+/* Menú desplegable flotante */
+.menu {
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  transform: translateY(-50%);
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  display: none;
+  min-width: 150px;
+}
+
+.menu.active {
+  display: block;
+  /* Visible cuando está activo */
+}
+
+.menu button {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  word-spacing: 3px;
+}
+
+.menu button:hover {
+  background-color: #e2d7d7;
+}
+
+.menu button:hover .pencil-icon {
+  fill: #2ab308;
+  transform: scale(1.3);
+}
+
+.menu button:hover .eraser-icon {
+  fill: #a42ac2;
+  transform: scale(1.3);
+}
+
+/* Botón de menú (tres puntos) */
+.menu-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+  position: relative;
+  /* Necesario para posicionar el menú flotante */
+}
+
+.menu-button:hover {
+  color: #000000;
+}
+
+/* Items del menú (tres puntos)*/
+.pencil-icon {
+  fill: #ffffffda;
+  position: relative;
+  top: 4.5px;
+  filter: drop-shadow(1px 1px 2px rgb(226, 219, 219));
+  -webkit-filter: drop-shadow(1px 1px 2px rgb(155, 233, 11));
+}
+
+/* Items del menú (tres puntos)*/
+.eraser-icon {
+  fill: #ffffffda;
+  position: relative;
+  top: 4.5px;
+  filter: drop-shadow(1px 1px 2px rgb(226, 219, 219));
+  -webkit-filter: drop-shadow(1px 1px 2px rgb(164, 42, 194));
+}
+
+/* Carpetas */
+.folders {
+  background-color: #fff;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 25px;
+  width: 1000px;
+  height: 100px;
+  grid-column: span 3 / span 3;
+  grid-row-start: 2;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+/* Botón de añadir carpeta */
+.add-folder-button {
+  display: flex;
+  align-items: center;
+  /* Centra el ícono verticalmente */
+  justify-content: center;
+  /* Centra el ícono horizontalmente */
+  width: 70px;
+  /* Ancho del botón */
+  height: 70px;
+  /* Altura del botón */
+  background: transparent;
+  /* Fondo transparente */
+  border: 2px solid #000000;
+  /* Borde visible */
+  border-radius: 50%;
+  /* Forma circular */
+  cursor: pointer;
+  /* Cursor de puntero */
+  transition: all 0.3s ease;
+  /* Transición suave para todos los cambios */
+  order: 1;
+  /* Orden inicial: después de las carpetas */
+}
+
+.add-folder-button:hover {
+  background: #b6b8b9;
+  /* Cambia el fondo al pasar el cursor */
+  border-color: #b6b8b9;
+  /* Cambia el color del borde */
+  transform: scale(1.1);
+  /* Aumenta ligeramente el tamaño */
+}
+
+.add-folder-button:hover svg {
+  fill: #ffffff;
+  /* Cambia el color del SVG a blanco */
+}
+
+.add-folder-button:active {
+  transform: scale(0.9);
+  /* Reduce el tamaño al hacer clic */
+}
+
+/* Contenedor de carpetas */
+.folder-row {
+  display: flex;
+  /* Diseño flexible */
+  align-items: center;
+  /* Centra verticalmente */
+  justify-content: flex-start;
+  /* Alinea elementos a la izquierda */
+  gap: 8px;
+  /* Espaciado entre elementos */
+  flex-wrap: wrap;
+  /* Permite que los elementos se ajusten en varias líneas si es necesario */
+}
+
+/* Contenedor de la carpeta */
+.folder-item {
+  display: flex;
+  flex-direction: column;
+  /* Alinea el ícono y el nombre verticalmente */
+  align-items: center;
+  /* Centra los elementos horizontalmente */
+  justify-content: center;
+  /* Centra los elementos verticalmente */
+  width: 95px;
+  /* Ancho del ícono */
+  height: 100px;
+  /* Altura del ícono */
+  margin: 4px;
+  /* Espaciado entre carpetas */
+  cursor: pointer;
+  /* Cursor de puntero */
+  border-radius: 8px;
+  /* Bordes redondeados */
+  background-color: transparent;
+  /* Fondo transparente */
+  box-shadow: none;
+  /* Elimina la sombra para que no haya efecto visual */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  /* Transiciones suaves */
+  order: 0;
+  /* Orden inicial: antes del botón */
+}
+
+.folder-item:hover {
+  transform: scale(1.05);
+  /* Efecto de escala al pasar el cursor */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  /* Sombra más pronunciada */
+}
+
+/* Contenedor del ícono de carpeta */
+.folder-icon-container {
+  display: flex;
+  align-items: center;
+  /* Centra el ícono verticalmente */
+  justify-content: center;
+  /* Centra el ícono horizontalmente */
+  width: 70px;
+  /* Ancho del ícono */
+  height: 60px;
+  /* Altura del ícono */
+  margin-bottom: 8px;
+  /* Espaciado entre el ícono y el nombre */
+  filter: drop-shadow(4px 4px 5px rgba(245, 4, 4, 0.5));
+  -webkit-filter: drop-shadow(4px 4px 5px rgba(20, 2, 2, 0.5));
+}
+
+/* Ícono de carpeta */
+.folder-icon {
+  width: 100px;
+  /* Tamaño del ícono */
+  height: 100px;
+  /* Tamaño del ícono */
+  object-fit: cover;
+  /* Ajusta la imagen dentro del contenedor */
+}
+
+/* Nombre de la carpeta */
+.folder-name {
+  font-size: 16px;
+  /* Tamaño del texto */
+  text-align: center;
+  /* Alineación del texto */
+  color: #333;
+  /* Color del texto */
+  margin-top: 4px;
+  /* Espaciado superior */
+}
+
+/* Botón de añadir carpeta */
+.add-folder-button {
+  display: flex;
+  align-items: center;
+  /* Centra el ícono verticalmente */
+  justify-content: center;
+  /* Centra el ícono horizontalmente */
+  width: 70px;
+  /* Ancho del botón */
+  height: 70px;
+  /* Altura del botón */
+  background: transparent;
+  /* Fondo transparente */
+  border: none;
+  /* Sin borde */
+  cursor: pointer;
+  /* Cursor de puntero */
+  transition: transform 0.2s ease;
+  /* Transición suave */
+}
+
+.add-folder-button svg {
+  width: 40px;
+  /* Tamaño del SVG */
+  height: 40px;
+  /* Tamaño del SVG */
+  fill: #000000;
+  /* Color inicial del SVG */
+  transition: fill 0.2s ease;
+  /* Transición suave para el cambio de color */
+}
+
+.add-folder-button:hover svg {
+  fill: #007bff;
+  /* Cambia el color al pasar el cursor */
+}
+
+.add-folder-button:active svg {
+  transform: scale(0.9);
+  /* Efecto de escala al hacer clic */
+}
+
+/* Contenido de Carpeta */
+.folder-content {
+  background-color: #fff;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 25px;
+  width: 1000px;
+  height: 65vh;
+  grid-column: span 3 / span 3;
+  grid-row: span 4 / span 4;
+  grid-column-start: 2;
+  grid-row-start: 3;
+  font-size: 16px;
+  color: #888;
+  text-align: center;
+}
+
+/* Barra superior de la carpeta */
+.folder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ddd;
+  border-radius: 8px 8px 0 0;
+  position: relative;
+}
+
+.folder-info h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.folder-actions {
+  display: flex;
+  gap: 10px;
+  /* Espaciado entre los botones */
+}
+
+.folder-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  color: #888;
+  transition: color 0.2s ease;
+}
+
+.folder-actions button:hover {
+  color: #333;
+}
+
+/* Estilo base para el SVG Editar*/
+.edit-icon {
+  fill: #ffffff;
+  transition: transform 0.3s ease, fill 0.3s ease;
+  filter: drop-shadow(1px 1px 2px rgb(226, 219, 219));
+  -webkit-filter: drop-shadow(1px 1px 2px rgb(155, 233, 11));
+}
+
+/* Cambio de color y animación al pasar el mouse */
+.edit-icon:hover {
+  fill: #2ab308;
+  transform: scale(1.5);
+  -webkit-transform: scale(1.5);
+  -moz-transform: scale(1.5);
+  -ms-transform: scale(1.5);
+  -o-transform: scale(1.5);
+}
+
+/* Estilo base para el SVG Favorito*/
+.favorite-icon {
+  fill: #ffffff;
+  transition: transform 0.3s ease, fill 0.3s ease;
+  filter: drop-shadow(1px 1px 2px rgb(255, 255, 255));
+  -webkit-filter: drop-shadow(2.8px 2.8px 4px rgb(122, 120, 5));
+}
+
+/* Cambio de color y animación al pasar el mouse */
+.favorite-icon:hover {
+  fill: #e6e205;
+  transform: scale(1.5);
+  -webkit-transform: scale(1.5);
+  -moz-transform: scale(1.5);
+  -ms-transform: scale(1.5);
+  -o-transform: scale(1.5);
+}
+
+/* Cambio de color cuando está marcado como favorito */
+.favorite-icon.favorited {
+  fill: #e6e205;
+  /* Color permanente cuando está marcado como favorito */
+  transform: scale(1.1);
+  /* Ligera animación de escala */
+}
+
+/* Estilo base para el SVG Diseño*/
+.change-design-icon {
+  fill: #ffffff;
+  transition: transform 0.3s ease, fill 0.3s ease;
+  filter: drop-shadow(1px 1px 2px rgb(255, 255, 255));
+  -webkit-filter: drop-shadow(2.8px 2.8px 4px rgb(4, 154, 173));
+}
+
+/* Cambio de color y animación al pasar el mouse */
+.change-design-icon:hover {
+  fill: #059fe6;
+  transform: scale(1.5);
+  -webkit-transform: scale(1.5);
+  -moz-transform: scale(1.5);
+  -ms-transform: scale(1.5);
+  -o-transform: scale(1.5);
+}
+
+/* Menu de diseño */
+.design-menu {
+  position: absolute;
+  top: 100%;
+  /* Debajo del botón */
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  width: 500px;
+  font-size: 14px;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  background: #f9f9f9;
+  border-right: 1px solid #ccc;
+}
+
+.tab:last-child {
+  border-right: none;
+}
+
+.tab.active {
+  background: #007bff;
+  color: white;
+}
+
+.tab-content {
+  padding: 16px;
+  font-size: 14px;
+  /* Tamaño de fuente más pequeño */
+}
+
+.preview-tab .design-preview {
+  display: flex;
+  gap: 10px;
+}
+
+/* Cuadrícula de miniaturas */
+.design-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  /* 4 columnas */
+  grid-template-rows: repeat(2, 1fr);
+  /* 2 filas */
+  gap: 15px;
+  /* Espaciado entre miniaturas */
+  grid-column: span 6 / span 6;
+  margin-top: 20px;
+  width: 100%;
+  /* Asegura que ocupe todo el ancho disponible */
+  aspect-ratio: 0;
+  /* Proporción cuadrada para mantener las dimensiones correctas */
+}
+
+/* Miniaturas */
+.design-thumbnail {
+  position: relative;
+  border: 2px dashed #ccc;
+  /* Borde visible para celdas vacías */
+  border-radius: 8px;
+  overflow: hidden;
+  width: 100%;
+  height: 0;
+  padding-top: 100%;
+  /* Crea una proporción cuadrada (1:1) */
+  background-color: #ccc8c86c;
+  /* Fondo claro para celdas vacías */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image-thumbnail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: none;
+  /* Elimina el borde cuando hay una imagen */
+}
+
+/* Miniatura seleccionada */
+.design-thumbnail.selected {
+  transform: scale(1.05);
+  /* Aumento de tamaño */
+  border: 4px solid #3584ce85;
+  /* Borde azul neón */
+  box-shadow: 0 0 10px #0084ff;
+  /* Sombra azul neón */
+}
+
+/* Botón de selección */
+.select-button {
+  position: relative;
+  /* Cambiamos a posición relativa */
+  margin-top: 25px;
+  /* Espacio entre la cuadrícula y el botón */
+  align-self: flex-end;
+  /* Alinea el botón a la derecha */
+  padding: 15px 30px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  /* Bordes redondeados */
+  cursor: pointer;
+  font-size: 18px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* Sombra suave */
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  /* Transición suave */
+  width: fit-content;
+  /* Ajusta el ancho del botón al contenido */
+  margin-left: auto;
+  /* Coloca el botón en la esquina inferior derecha */
+}
+
+.select-button:hover {
+  transform: scale(1.05);
+  /* Efecto de escala al pasar el cursor */
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  /* Sombra más pronunciada */
+}
+
+/*Zona de carga*/
+.drop-zone {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  margin-top: 16px;
+}
+
+.drop-zone:hover {
+  border-color: #007bff;
+}
+
+.upload-tab .drop-zone {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  color: #888;
+  margin-top: 16px;
+
+}
+
+.upload-tab .drop-zone:hover {
+  border-color: #007bff;
+  color: #007bff;
+}
+
+.upload-button {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  /* Tamaño de fuente más pequeño */
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* Estilo base para el SVG Borrar*/
+.delete-folder-icon {
+  fill: #ffffff;
+  transition: transform 0.3s ease, fill 0.3s ease;
+  filter: drop-shadow(1px 1px 2px rgb(255, 255, 255));
+  -webkit-filter: drop-shadow(2.8px 2.8px 4px rgb(122, 5, 5));
+}
+
+/* Cambio de color y animación al pasar el mouse */
+.delete-folder-icon:hover {
+  fill: #e62424;
+  transform: scale(1.5);
+  -webkit-transform: scale(1.5);
+  -moz-transform: scale(1.5);
+  -ms-transform: scale(1.5);
+  -o-transform: scale(1.5);
+}
+
+/* Estilo base para el SVG Borrar*/
+.delete-button {
+  position: absolute;
+  top: 1px;
+  /* Posición en la esquina superior */
+  right: 1px;
+  /* Posición en la esquina derecha */
+  color: white;
+  border: none;
+  border-radius: 50%;
+  /* Forma circular */
+  width: 25px;
+  /* Tamaño del botón */
+  height: 25px;
+  /* Tamaño del botón */
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  /* Asegura que esté sobre la imagen */
+}
+
+
+/* Cambio de color y animación al pasar el mouse */
+.delete-button:hover {
+  transform: scale(1.5);
+  -webkit-transform: scale(1.5);
+  -moz-transform: scale(1.5);
+  -ms-transform: scale(1.5);
+  -o-transform: scale(1.5);
+}
+
+/* SVG del ícono de eliminación */
+.delete-icon {
+  fill: rgba(7, 115, 134, 0.425);
+  /* Color del ícono */
+  transition: transform 0.3s ease, fill 0.3s ease;
+}
+
+/* Línea divisoria */
+.divider {
+  background-color: #ddd;
+  margin: 15px 0;
+}
+
+/* Botón de añadir marcador */
+.add-bookmarkFolder-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px;
+  background-color: #6196ce;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-bottom: 10px;
+  transition: background-color 0.2s ease;
+  box-shadow: 10px 10px 15px rgba(0, 0, 0, 0.3);
+}
+
+.add-bookmarkFolder-button:hover {
+  background-color: #37679b;
+}
+
+/* Item del botón añadir marcadores)*/
+.folder-bookmark-icon {
+  fill: #ffffffda;
+  position: relative;
+  top: 1px;
+  filter: drop-shadow(1px 1px 2px rgb(255, 255, 255));
+  -webkit-filter: drop-shadow(2.8px 2.8px 4px rgb(255, 255, 255));
+}
+
+/* Contenedor de marcadores */
+.bookmarkFolder-item {
+  display: flex;
+  align-items: center;
+  /* Centra verticalmente todos los elementos */
+  justify-content: space-between;
+  /* Distribuye el espacio entre los elementos */
+  width: 98%;
+  /* Ocupa todo el ancho disponible */
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  cursor: grab;
+  position: relative;
+  /* Necesario para posicionar el menú relativo al marcador */
+
+}
+
+.bookmarkFolder-item img.favicon {
+  width: 16px;
+  height: 16px;
+  margin-right: 0px;
+  object-fit: contain;
+}
+
+.bookmarkFolder-item a {
+  flex-grow: 1;
+  /* El texto ocupa el espacio restante */
+  text-decoration: none;
+  color: #464545;
+  font-size: 14px;
+  overflow: hidden;
+  /* Evita que el texto se desborde */
+  white-space: nowrap;
+  /* Evita saltos de línea */
+  text-overflow: ellipsis;
+  /* Agrega puntos suspensivos si el texto es demasiado largo */
+  margin-left: 0px;
+  /* Espaciado entre el ícono y el texto */
+}
+
+/* Botón de favorito */
+.favoriteFolder-button,
+.menuFolder-button {
+  background: none;
+  /* Sin fondo por defecto */
+  border: none;
+  /* Sin borde */
+  cursor: pointer;
+  padding: 0;
+  /* Sin relleno adicional */
+  display: flex;
+  align-items: center;
+  /* Alinea verticalmente el ícono */
+  margin-left: 15px;
+  /* Espaciado entre el texto y los botones */
+}
+
+.favoriteFolder-button img {
+  width: 16px;
+  height: 16px;
+  filter: grayscale(1);
+  /* Efecto de escala de grises para indicar estado inactivo */
+  opacity: 0.8;
+  /* Transparencia inicial */
+  transition: transform 0.2s ease, filter 0.2s ease, opacity 0.2s ease;
+}
+
+.favoriteFolder-button img[src*="star-filled"] {
+  filter: none;
+  /* Elimina el efecto de escala de grises */
+  opacity: 1;
+  /* Sin transparencia */
+}
+
+.favoriteFolder-button:hover img {
+  transform: scale(1.2);
+  /* Aumenta ligeramente el tamaño */
+  filter: brightness(1.2);
+  /* Brillo adicional */
+  opacity: 1;
+  /* Elimina la transparencia */
+}
+
+/* Botón de menú (tres puntos) */
+.menuFolder-button {
+  font-size: 20px;
+  /* Tamaño del ícono de menú */
+  padding-left: 10px;
+  padding-right: 12px;
+}
+
+/* Menú desplegable */
+.menuFolder {
+  position: absolute;
+  /* Posición absoluta relativa al contenedor padre */
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  display: none;
+  min-width: 150px;
+}
+
+.menuFolder.active {
+  display: block;
+}
+
+.menuFolder button {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.menuFolder button:hover {
+  background-color: #f0f0f0;
+}
+
+/* Estilo para el divisor */
+.menu div {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu div button {
+  text-align: left;
+  font-size: 14px;
+  padding: 4px 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.menu div button:hover {
+  background-color: #f0f0f0;
+}
+
+/* Estilo para el submenú */
+.submenu {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  /* Aparece al lado del botón principal */
+  min-width: 150px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.submenu button {
+  display: block;
+  width: 100%;
+  padding: 8px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.submenu button:hover {
+  background-color: #f0f0f0;
+}
+
+/*Contenedor 5 widgets*/
+.item.area-5 {
+  background-color: #fff;
+  width: 370px;
+  height: 270px;
+  grid-column: span 2 / span 2;
+  grid-row: span 2 / span 2;
+  grid-column-start: 5;
+  grid-row-start: 2;
+  padding: 25px;
+  margin: 20px;
+  margin-bottom: 0px;
+  border-radius: 25px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  /* Centra horizontalmente */
+  align-items: center;
+  /* Centra verticalmente */
+  position: relative;
+}
+
+/*Contenedor 6 widgets*/
+.item.area-6 {
+  background-color: #fff;
+  grid-column: span 2 / span 2;
+  grid-row: span 2 / span 2;
+  grid-column-start: 5;
+  grid-row-start: 4;
+  padding: 25px;
+  margin: 20px;
+  margin-top: 15px;
+  width: 370px;
+  height: 270px;
+  margin-bottom: 0px;
+  border-radius: 25px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  /* Centra horizontalmente */
+  align-items: center;
+  /* Centra verticalmente */
+  position: relative;
+}
+
+/* Contenedor del widget */
+.widget-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Botón de cierre */
+.close-button {
+  position: absolute;
+  top: 2.5px;
+  right: 10px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.close-button svg {
+  width: 24px;
+  height: 24px;
+  fill: #333;
+}
+
+/* Cuadrícula de selección de widgets */
+.widget-grid {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  grid-gap: 5px;
+  justify-content: center;
+  /* Centra la cuadrícula horizontalmente */
+  align-content: center;
+  /* Centra la cuadrícula verticalmente */
+}
+
+.widget-option {
+  width: 50px;
+  height: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  filter: drop-shadow(1px 1px 2px rgb(255, 255, 255));
+  -webkit-filter: drop-shadow(2.8px 2.8px 4px rgb(51, 51, 51));
+}
+
+.widget-option:hover {
+  transform: scale(1.2);
+  background-color: #bac4c5;
+  /*Cambiodecoloralpasarelcursor*/
+  -webkit-transform: scale(1.2);
+  -moz-transform: scale(1.2);
+  -ms-transform: scale(1.2);
+  -o-transform: scale(1.2);
+}
+
+.widget-option svg {
+  width: 45px;
+  height: 45px;
+  fill: #6196ce;
+  filter: drop-shadow(1px 1px 2px rgb(255, 255, 255));
+  -webkit-filter: drop-shadow(1px 1px 1px rgb(48, 46, 46));
+}
+
+/* Widget desplegado */
+.widget-display {
+  width: 380px;
+  height: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+/* Deshabilitar la cuadrícula cuando un widget está seleccionado */
+.widget-grid.disabled {
+  display: none;
+}
+
+/* Estilo para los widgets deshabilitados (ya seleccionados) */
+.widget-option.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/***********************************************************/
+
+/* Estilos generales para el widget de calendario */
+.calendar-widget {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-calendar {
+  width: 100%;
+  max-height: none;
+  height: 100%;
+  font-size: 12px;
+  /* Reduce el tamaño de la letra */
+}
+
+.custom-calendar .react-calendar__navigation {
+  margin-bottom: 10px;
+  /* Espaciado entre la navegación y el calendario */
+}
+
+.custom-calendar .react-calendar__month-view__days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  /* 7 columnas para los días de la semana */
+}
+
+.custom-calendar abbr[title] {
+  text-decoration: none;
+  /* Elimina el subrayado de los días */
+  font-size: 12px;
+  /* Reduce el tamaño de la letra de los días */
+}
+
+/***********************************************************/
+
+/* Contenedor del widget de notas */
+.notes-widget {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9f9f9;
+  overflow: hidden;
+}
+
+/* Menú principal */
+.notes-menu {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #ddd;
+  border-bottom: 1px solid #ccc;
+}
+
+.menu-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.menu-buttons button {
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.notes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.note-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.note-item span {
+  flex-grow: 1;
+}
+
+.note-item button {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+
+/* Editor de notas */
+.note-editor {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.note-editor header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background-color: #ddd;
+  border-bottom: 1px solid #ccc;
+}
+
+.note-editor textarea {
+  flex-grow: 1;
+  padding: 10px;
+  border: none;
+  resize: none;
+  font-size: 16px;
+  overflow-y: auto;
+}
+
+/***********************************************************/
+
+/* Contenedor principal del mosaico */
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  /* 3 columnas */
+  gap: 3px;
+  /* Separación de 3px entre los cuadros */
+  width: 100%;
+  max-width: 350px;
+  /* Ancho máximo del contenedor */
+  margin: 0 auto;
+  /* Centrar el contenedor */
+  background-color: #ff69b4;
+  /* Color rosa para las líneas */
+}
+
+/* Cuadro individual */
+.photo-box {
+  position: relative;
+  width: 100%;
+  /* Ocupa todo el espacio disponible */
+  height: 0;
+  padding-top: 100%;
+  /* Relación de aspecto 1:1 (cuadrado) */
+  background-color: #ffffff;
+  /* Fondo blanco para los cuadros vacíos */
+  overflow: hidden;
+  transition: transform 0.3s ease, z-index 0.3s ease;
+  cursor: pointer;
+}
+
+/* Efecto hover: Agrandar el cuadro */
+.photo-box:hover {
+  transform: scale(1.3);
+  z-index: 10;
+  -webkit-transform: scale(1.3);
+  -moz-transform: scale(1.3);
+  -ms-transform: scale(1.3);
+  -o-transform: scale(1.3);
+}
+
+/* Estilo para cuadros con imagen */
+.photo-box img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: auto;
+  height: 100%;
+  /* Ajustar altura para centrar verticalmente */
+  transform: translate(-50%, -50%);
+  /* Centrar la imagen */
+  object-fit: cover;
+  /* Recortar la imagen si es necesario */
+}
+
+/* Ícono de cámara para cuadros vacíos */
+.photo-box span {
+  font-size: 24px;
+  color: #ccc;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/***********************************************************/
+
+/*Widger Pomodoro*/
+.pomodoro-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 90%;
+  /* Ancho ajustado al 90% */
+  max-width: 400px;
+  /* Ancho máximo */
+  margin: 0 auto;
+  /* Centrar el widget */
+  background-color: #f9f9f9;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  /* Para posicionar el botón de configuración */
+}
+
+/* Alinear el temporizador en el modo por defecto */
+.pomodoro-widget:not(.tonota-style) .timer {
+  font-size: 48px;
+  font-weight: bold;
+  color: #333;
+  margin: auto;
+  /* Centrar verticalmente */
+  flex-grow: 1;
+  /* Expandir para ocupar el espacio disponible */
+}
+
+/* Contenedor principal para alinear elementos */
+.pomodoro-widget:not(.tonota-style) {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* Distribuir espacio uniformemente */
+  height: 100%;
+  /* Altura completa para permitir el espaciado */
+}
+
+/* Título en el modo por defecto */
+.pomodoro-widget:not(.tonota-style) .widget-title {
+  text-align: center;
+  /* Alinear el título al centro */
+  margin-bottom: 20px;
+  /* Espacio entre el título y el temporizador */
+}
+
+/* Botones en el modo por defecto */
+.pomodoro-widget:not(.tonota-style) .controls {
+  display: flex;
+  justify-content: center;
+  /* Alinear los botones al centro */
+  gap: 16px;
+  /* Espacio entre los botones */
+  margin-top: 20px;
+  /* Espacio entre el temporizador y los botones */
+}
+
+.pomodoro-widget.tonota-style .widget-title {
+  text-align: left;
+  /* Alinear el título a la izquierda */
+  margin-bottom: 15px;
+  /* Espacio entre el título y el contenido */
+}
+
+.pomodoro-widget.tonota-style .timer-and-image {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  /* Alinear el temporizador y la imagen */
+  margin-bottom: 20px;
+  /* Espacio entre la imagen y los botones */
+}
+
+.pomodoro-widget.tonota-style .timer {
+  font-size: 48px;
+  font-weight: bold;
+  color: #333;
+  margin-right: 30px;
+  /* Espacio entre el temporizador y la imagen */
+}
+
+.pomodoro-widget.tonota-style .timer-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  /* Ajustar la imagen dentro del espacio */
+  transition: transform 0.3s ease;
+  /* Transición suave para la animación */
+}
+
+.pomodoro-widget.tonota-style .controls {
+  display: flex;
+  justify-content: flex-start;
+  /* Alinear los botones a la izquierda */
+  gap: 32px;
+  /* Espacio entre los botones */
+}
+
+.pomodoro-widget.tonota-style .controls button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #0d7d43;
+  color: white;
+}
+
+.pomodoro-widget.tonota-style .controls button:hover {
+  background-color: #0b6c3a;
+}
+
+.settings-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+  color: #0d7d43;
+}
+
+/* Menú de configuración */
+.settings-menu {
+  position: absolute;
+  top: 40px;
+  right: 10px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  width: 180px;
+  /* Ancho reducido */
+}
+
+.settings-menu label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+  /* Tamaño de fuente reducido */
+  text-align: center;
+  /* Alinear el texto al centro */
+}
+
+.settings-menu select {
+  width: 100%;
+  /* Ajustar al ancho del menú */
+  padding: 5px;
+  font-size: 12px;
+  /* Tamaño de fuente reducido */
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  /* Espacio entre el select y el switch */
+}
+
+/* Estilo "toggle switch" */
+.switch-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.switch-container input[type="checkbox"] {
+  display: none;
+  /* Ocultar el checkbox real */
+}
+
+.switch-label {
+  font-size: 12px;
+  color: #333;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  /* Ocultar el checkbox real */
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  /* Color desactivado */
+  transition: background-color 0.3s ease;
+  /* Animación suave */
+  border-radius: 10px;
+  /* Bordes redondeados */
+}
+
+.slider::before {
+  content: "";
+  position: absolute;
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  /* Color del círculo */
+  transition: transform 0.3s ease;
+  /* Animación suave */
+  border-radius: 50%;
+  /* Forma circular */
+}
+
+input:checked+.slider {
+  background-color: #0d7d43;
+  /* Color activado */
+}
+
+input:checked+.slider::before {
+  transform: translateX(20px);
+  /* Mover el círculo hacia la derecha */
+}
+
+.timer {
+  font-size: 48px;
+  font-weight: bold;
+  margin: 20px 0;
+  color: #333;
+}
+
+.controls button {
+  padding: 10px 20px;
+  margin: 5px;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #0d7d43;
+  color: white;
+}
+
+.controls button:hover {
+  background-color: #0b6c3a;
+}
+
+/* Animación de movimiento vertical */
+@keyframes tilt {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+    /* Centro */
+  }
+
+  25% {
+    transform: translateY(-7px);
+    /*Sube*/
+  }
+
+  50% {
+    transform: translateY(0px);
+    /* Baja al centro */
+  }
+
+  75% {
+    transform: translateY(7px);
+    /*Baja*/
+  }
+
+  100% {
+    transform: translateY(0px);
+    /* Sube al centro */
+  }
+}
+
+/* Aplicar la animación cuando la clase "animate" está presente */
+.timer-image.animate {
+  animation: tilt 4s infinite ease-in-out;
+  /* Duración de 4 segundos, infinita, con transición suave */
+}
+
+/***********************************************************/
+
+.area-7 {
+  background-color: #ffffff;
+  grid-column: span 2 / span 2;
+  grid-column-start: 5;
+  grid-row-start: 6;
+  width: 370px;
+  height: 38px;
+  padding: 25px;
+  margin: 20px;
+  border-radius: 25px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
