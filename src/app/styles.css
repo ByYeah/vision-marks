@@ -1317,7 +1317,7 @@ body {
   top: 2.5px;
   right: 10px;
   cursor: pointer;
-  z-index: 10;
+  z-index: 1;
 }
 
 .close-button svg {
