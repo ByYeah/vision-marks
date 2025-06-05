@@ -7,6 +7,7 @@ import NotesWidget from "./../components/NotesWidget";
 import PhotoGridWidget from "./../components/PhotoGridWidget";
 import PomodoroWidget from "./../components/PomodoroWidget";
 import Modal from "./../components/Modal";
+import SettingsModal from "./../components/SettingsModal";
 
 const getPreview = async (url) => {
   const res = await fetch(`/api/preview?url=${encodeURIComponent(url)}`);
@@ -15,7 +16,7 @@ const getPreview = async (url) => {
 };
 
 export default function App() {
-  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [folders, setFolders] = useState([]); // Arreglo de carpetas
   const [bookmarks, setBookmarks] = useState([]); // Arreglo de marcadores
@@ -788,7 +789,7 @@ export default function App() {
             <input type="text" className="search-input" placeholder="Buscar..." />
             <button
               className="icon-button"
-              onClick={() => setShowSettingsMenu(!showSettingsMenu)}
+              onClick={() => setShowSettings(true)}
               aria-label="Configuración">
               <svg
                 className="settings-icon"
@@ -819,16 +820,8 @@ export default function App() {
             </button>
           </div>
 
-          {/* Menú de Configuración */}
-          {showSettingsMenu && (
-            <div className="modal-menu settings-menu">
-              <ul>
-                <li>Opción 1</li>
-                <li>Opción 2</li>
-                <li>Opción 3</li>
-              </ul>
-            </div>
-          )}
+          {/* Modal de configuración */}
+          <SettingsModal isOpen={showSettings} onClose={() => setShowSettings(false)} />
 
           {/* Menú de Cuenta */}
           {showAccountMenu && (

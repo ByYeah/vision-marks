@@ -1,6 +1,16 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, Children } from "react";
 
-const Modal = ({ isOpen, onClose, title, onConfirm, type, fields = [], initialValues = {}, content }) => {
+const Modal = ({
+    isOpen,
+    onClose,
+    title,
+    onConfirm,
+    type = "",
+    fields = [],
+    initialValues = {},
+    content,
+    children,
+    modalClassName }) => {
     const [formData, setFormData] = useState(() => {
         const initialData = {};
         fields.forEach(field => {
@@ -74,28 +84,32 @@ const Modal = ({ isOpen, onClose, title, onConfirm, type, fields = [], initialVa
 
     return (
         <div className={`modal-overlay ${isClosing ? 'closing' : ''}`} onClick={handleClose}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className={`modal-content ${modalClassName || ''}`} onClick={(e) => e.stopPropagation()}>
                 <h3>{title}</h3>
                 <div className="modal-body">
-                    {type.includes("delete") ? (
-                        <div>{content}</div>
+                    {type?.includes("delete") ? (
+                        <div>{content || children}</div>
                     ) : (
                         <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
-                            {fields.map((field) => (
-                                <div key={field.name} className="modal-field">
-                                    <label htmlFor={field.name}>{field.label}</label>
-                                    <input
-                                        id={field.name}
-                                        type={field.type}
-                                        name={field.name}
-                                        value={formData[field.name] || ''}
-                                        onChange={handleChange}
-                                        placeholder={field.placeholder}
-                                        autoComplete="off"
-                                        required={field.required}
-                                    />
-                                </div>
-                            ))}
+                            {fields.length > 0 ? (
+                                fields.map((field) => (
+                                    <div key={field.name} className="modal-field">
+                                        <label htmlFor={field.name}>{field.label}</label>
+                                        <input
+                                            id={field.name}
+                                            type={field.type}
+                                            name={field.name}
+                                            value={formData[field.name] || ''}
+                                            onChange={handleChange}
+                                            placeholder={field.placeholder}
+                                            autoComplete="off"
+                                            required={field.required}
+                                        />
+                                    </div>
+                                ))
+                            ) : (
+                                <>{children}</> // Aquí va tu contenido personalizado
+                            )}
                             <button type="submit" style={{ display: 'none' }}>Submit</button>
                         </form>
                     )}
@@ -109,7 +123,7 @@ const Modal = ({ isOpen, onClose, title, onConfirm, type, fields = [], initialVa
                         className="confirm-button"
                         onClick={handleSubmit}
                     >
-                        {type.includes("delete") ? "Eliminar" : "Confirmar"}
+                        {type?.includes("delete") ? "Eliminar" : "Confirmar"}
                     </button>
                 </div>
             </div>

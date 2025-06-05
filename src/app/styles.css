@@ -147,6 +147,88 @@ body {
   font-weight: 500;
 }
 
+/* Estilo específico para la modal de configuración */
+.settings-modal {
+  width: 800px !important;
+  height: 460px !important;
+  max-width: 95% !important;
+  padding: 30px;
+}
+
+/* Mantén el diseño en dos columnas */
+.settings-modal-content {
+  display: flex;
+  gap: 35px;
+}
+
+.settings-sidebar {
+  width: 180px;
+  flex-shrink: 0;
+}
+
+.settings-sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.settings-sidebar li {
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.settings-sidebar li:hover {
+  background-color: #f5f5f5;
+}
+
+.settings-sidebar li.active {
+  background-color: #e0e0e0;
+  font-weight: bold;
+}
+
+.settings-tab-content {
+  flex: 1;
+}
+
+/* Ajuste solo para la modal de configuración */
+.settings-modal .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.settings-modal .confirm-button,
+.settings-modal .cancel-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  min-width: 100px;
+}
+
+.settings-modal .confirm-button {
+  background-color: #0ea5e9; /* Azul claro */
+  color: white;
+  border: none;
+}
+
+.settings-modal .cancel-button {
+  background-color: transparent;
+  color: #666;
+  border: 1px solid #ccc;
+}
+
+.settings-modal .modal-body {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  height: 320px; /* Ajusta si necesitas más scroll */
+  overflow-y: auto;
+}
+
 .cancel-button {
   background-color: #f1f5f9;
   color: #64748b;
@@ -226,7 +308,7 @@ body {
   fill: #ffffffda;
   position: relative;
   filter: drop-shadow(1px 1px 2px rgb(226, 219, 219));
-  -webkit-filter: drop-shadow(1px 1px 2px rgb(4, 67, 240));
+  -webkit-filter: drop-shadow(1px 1px 2px rgb(97, 156, 223));
 }
 
 /* Items del menú (tres puntos)*/
@@ -234,7 +316,7 @@ body {
   fill: #ffffffda;
   position: relative;
   filter: drop-shadow(1px 1px 2px rgb(226, 219, 219));
-  -webkit-filter: drop-shadow(1px 1px 2px rgb(4, 67, 240));
+  -webkit-filter: drop-shadow(1px 1px 2px rgb(97,156, 223));
 }
 
 /* Menús modales */
@@ -1907,4 +1989,63 @@ input:checked+.slider::before {
   margin: 20px;
   border-radius: 25px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/***********************************************************/
+
+.layout-cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 520px;
+}
+
+.layout-card {
+  display: flex;
+  align-items: center;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 12px;
+  height: 80px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.layout-card-left {
+  width: 35px;
+  height: 35px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.layout-card-left img {
+  width: 35px;
+  height: 35px;
+  object-fit: contain;
+}
+
+.layout-card-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.layout-card-right p {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.layout-card:hover {
+  background-color: #f3f4f6;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.layout-card.active {
+  background-color: #bfdbfe !important;
+  border-color: #93c5fd;
 }
