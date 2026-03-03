@@ -22,9 +22,21 @@ const AppState = {
 
 // Inicialización de la aplicación
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('📑 BookmarkManager iniciado');
-    initEventListeners();
-    renderInitialState();
+    console.log('📑 Vmarks iniciado');
+    
+    // Cargar estado
+    StateManager.loadState();
+    
+    // Renderizar inicial
+    RenderManager.renderAll();
+    
+    // Inicializar eventos
+    EventsManager.init();
+    
+    // Suscribirse a cambios de estado
+    StateManager.subscribe((state) => {
+        console.log('Estado actualizado:', state);
+    });
 });
 
 /**
