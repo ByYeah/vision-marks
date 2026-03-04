@@ -1454,6 +1454,11 @@ body {
     color: var(--text-secondary);
 }
 
+[data-theme="dark"] .grid-item-btn:hover,
+[data-theme="amoled"] .grid-item-btn:hover {
+    background: var(--primary-color) !important;
+}
+
 .btn-reset {
     grid-column: 1 / -1;
     padding: 6px 12px;
@@ -1490,9 +1495,12 @@ CONTENEDORES - Modo Oscuro y AMOLED
 
 /* Modo Oscuro: fondos más oscuros, texto blanco, borde que contraste */
 [data-theme="dark"] .container-item {
-    background: var(--bg-secondary) !important; /* #2d3748 */
-    color: var(--text-primary) !important; /* #f7fafc */
-    border-color: var(--border-color) !important; /* #4a5568 */
+    background: var(--bg-secondary) !important;
+    /* #2d3748 */
+    color: var(--text-primary) !important;
+    /* #f7fafc */
+    border-color: var(--border-color) !important;
+    /* #4a5568 */
 }
 
 [data-theme="dark"] .container-header {
@@ -1543,6 +1551,112 @@ CONTENEDORES - Modo Oscuro y AMOLED
 [data-theme="amoled"] .btn-back:hover {
     background: var(--primary-color) !important;
     color: white !important;
+}
+
+[data-container="global"][data-property="primary"] {
+    /* Hereda estilos base de .color-picker-wrapper */
+}
+
+[data-theme="dark"] .modal-form input[type="text"],
+[data-theme="dark"] .modal-form input[type="url"],
+[data-theme="dark"] .modal-form input[type="search"],
+[data-theme="dark"] .modal-form select,
+[data-theme="dark"] .modal-form textarea {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .modal-form input[type="text"]::placeholder,
+[data-theme="dark"] .modal-form input[type="url"]::placeholder,
+[data-theme="dark"] .modal-form input[type="search"]::placeholder,
+[data-theme="dark"] .modal-form select::placeholder,
+[data-theme="dark"] .modal-form textarea::placeholder {
+    color: var(--text-muted) !important;
+}
+
+/* Inputs de texto en modales - modo AMOLED */
+[data-theme="amoled"] .modal-form input[type="text"],
+[data-theme="amoled"] .modal-form input[type="url"],
+[data-theme="amoled"] .modal-form input[type="search"],
+[data-theme="amoled"] .modal-form select,
+[data-theme="amoled"] .modal-form textarea {
+    background: #1a1a1a !important;
+    color: #ffffff !important;
+    border-color: #333333 !important;
+}
+
+[data-theme="amoled"] .modal-form input[type="text"]::placeholder,
+[data-theme="amoled"] .modal-form input[type="url"]::placeholder,
+[data-theme="amoled"] .modal-form input[type="search"]::placeholder,
+[data-theme="amoled"] .modal-form select::placeholder,
+[data-theme="amoled"] .modal-form textarea::placeholder {
+    color: #666666 !important;
+}
+
+[data-theme="dark"] .grid-item-btn.delete:hover,
+[data-theme="amoled"] .grid-item-btn.delete:hover {
+    background: #e53e3e !important;
+    color: white !important;
+    transform: scale(1.2) !important;
+    box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.3) !important;
+}
+
+/* Nombre de carpeta - modo oscuro */
+[data-theme="dark"] .folder-name {
+    color: var(--text-primary) !important;
+}
+
+/* Nombre de carpeta - modo AMOLED */
+[data-theme="amoled"] .folder-name {
+    color: #ffffff !important;
+}
+
+/* Icono de carpeta - asegurar contraste */
+[data-theme="dark"] .folder-icon,
+[data-theme="amoled"] .folder-icon {
+    filter: none !important;
+    opacity: 1 !important;
+}
+
+/* Chat input - modo oscuro */
+[data-theme="dark"] .chat-input-area input {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .chat-input-area input::placeholder {
+    color: var(--text-muted) !important;
+}
+
+/* Chat input - modo AMOLED */
+[data-theme="amoled"] .chat-input-area input {
+    background: #1a1a1a !important;
+    color: #ffffff !important;
+    border-color: #333333 !important;
+}
+
+[data-theme="amoled"] .chat-input-area input::placeholder {
+    color: #666666 !important;
+}
+
+/* Botón send chat - asegurar contraste en hover */
+[data-theme="dark"] .btn-send:hover,
+[data-theme="amoled"] .btn-send:hover {
+    background: var(--primary-dark) !important;
+}
+
+[data-theme="dark"] .form-group label,
+[data-theme="dark"] .form-group small,
+[data-theme="dark"] .color-picker-wrapper label {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="amoled"] .form-group label,
+[data-theme="amoled"] .form-group small,
+[data-theme="amoled"] .color-picker-wrapper label {
+    color: #b0b0b0 !important;
 }
 
 /* ============================================

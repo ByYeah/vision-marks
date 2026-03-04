@@ -322,6 +322,16 @@ const ModalManager = (() => {
                 <div class="settings-section" id="section-colors">
                     <h3>Colores</h3>
                     <p>Personaliza por contenedor</p>
+
+                    <div class="color-picker-group">
+                        <h4>Color Principal</h4>
+                        <div class="color-picker-wrapper">
+                            <label>Primario:</label>
+                            <input type="color" class="color-input" data-container="global" data-property="primary" value="${currentSettings.colors?.primary || '#667eea'}">
+                            <input type="text" class="hex-input" value="${currentSettings.colors?.primary || '#667eea'}" placeholder="#667eea">
+                        </div>
+                        <button type="button" class="btn-reset" data-reset="global-primary">↺ Restablecer</button>
+                    </div>
                     
                     <div class="color-picker-group">
                         <h4>Favoritos</h4>
@@ -485,21 +495,36 @@ const ModalManager = (() => {
             // Reset individual
             modal.querySelectorAll('.btn-reset[data-reset]').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    const container = e.target.dataset.reset;
-                    const defaults = SettingsManager.getDefaults();
-                    const colors = defaults.containers[container].colors;
+                    const resetTarget = e.target.dataset.reset;
 
-                    const group = e.target.closest('.color-picker-group');
-                    group.querySelectorAll('.color-input').forEach(input => {
-                        const prop = input.dataset.property;
-                        if (colors[prop]) {
-                            input.value = colors[prop];
-                            const hex = input.closest('.color-picker-wrapper').querySelector('.hex-input');
-                            if (hex) hex.value = colors[prop];
-                        }
-                    });
-                    SettingsManager.updateContainerColors(container, colors);
-                    showNotification(`Colores de "${container}" restablecidos`);
+                    if (resetTarget === 'global-primary') {
+                        // Restablecer color primario
+                        const defaults = SettingsManager.getDefaults();
+                        const primary = defaults.colors?.primary || '#667eea';
+                        const group = e.target.closest('.color-picker-group');
+                        const colorInput = group.querySelector('.color-input[data-property="primary"]');
+                        const hexInput = group.querySelector('.hex-input');
+                        if (colorInput) colorInput.value = primary;
+                        if (hexInput) hexInput.value = primary;
+                        SettingsManager.updateContainerColors('global', { primary });
+                        showNotification('Color principal restablecido');
+                    } else {
+                        // Resto del código para contenedores individuales...
+                        const container = resetTarget;
+                        const defaults = SettingsManager.getDefaults();
+                        const colors = defaults.containers[container].colors;
+                        const group = e.target.closest('.color-picker-group');
+                        group.querySelectorAll('.color-input').forEach(input => {
+                            const prop = input.dataset.property;
+                            if (colors[prop]) {
+                                input.value = colors[prop];
+                                const hex = input.closest('.color-picker-wrapper').querySelector('.hex-input');
+                                if (hex) hex.value = colors[prop];
+                            }
+                        });
+                        SettingsManager.updateContainerColors(container, colors);
+                        showNotification(`Colores de "${container}" restablecidos`);
+                    }
                 });
             });
 

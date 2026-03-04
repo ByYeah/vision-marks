@@ -2,6 +2,9 @@ const SettingsManager = (() => {
     const DEFAULT_SETTINGS = {
         layout: 'double',
         theme: 'light',
+        colors: {
+            primary: '#667eea'  // ← Color primario global
+        },
         containers: {
             favbookmarks: {
                 display: 'list',  // ← Default explícito
@@ -118,16 +121,27 @@ const SettingsManager = (() => {
     }
 
     function updateContainerColors(container, colors) {
-        if (settings.containers[container]) {
-            settings.containers[container].colors = { ...settings.containers[container].colors, ...colors };
-
+        if (container === 'global') {
+            // Actualizar color primario global
+            if (colors.primary) {
+                settings.colors = settings.colors || {};
+                settings.colors.primary = colors.primary;
+                applyPrimaryColor();
+            }
+        } else if (settings.containers[container]) {
+            settings.containers[container].colors = {
+                ...settings.containers[container].colors,
+                ...colors
+            };
             applyContainerColors(container, settings.containers[container].colors);
         }
+        saveSettings();
     }
 
     function applySettings() {
         applyLayout();
         applyTheme();
+        applyPrimaryColor();
         Object.keys(settings.containers).forEach(container => {
             applyContainerDisplay(container, settings.containers[container].display);
             applyContainerColors(container, settings.containers[container].colors);
@@ -189,6 +203,24 @@ const SettingsManager = (() => {
                 document.documentElement.style.setProperty(prop, value);
             });
         }
+    }
+
+    function applyPrimaryColor() {
+        const primary = settings.colors?.primary || '#667eea';
+        document.documentElement.style.setProperty('--primary-color', primary);
+
+        // Calcular variaciones para hover/active
+        const darkened = darkenColor(primary, 10); // 10% más oscuro
+        document.documentElement.style.setProperty('--primary-dark', darkened);
+    }
+
+    function darkenColor(hex, percent) {
+        const num = parseInt(hex.replace('#', ''), 16);
+        const amt = Math.round(2.55 * percent);
+        const R = Math.max((num >> 16) - amt, 0);
+        const G = Math.max((num >> 8 & 0x00FF) - amt, 0);
+        const B = Math.max((num & 0x0000FF) - amt, 0);
+        return '#' + (0x1000000 + R * 0x10000 + G * 0x100 + B).toString(16).slice(1);
     }
 
     function applyContainerDisplay(container, display) {
