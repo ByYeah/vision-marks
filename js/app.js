@@ -1,9 +1,3 @@
-/**
- * BookmarkManager - App Principal
- * Fase 1: Estructura básica del layout
- */
-
-// Estado global de la aplicación
 const AppState = {
     containers: {
         favbookmarks: { enabled: true, minimized: false },
@@ -22,17 +16,28 @@ const AppState = {
 
 // Inicialización de la aplicación
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('📑 Vmarks iniciado');
-    
+
     // Cargar estado
     StateManager.loadState();
-    
+
+    // Debug: mostrar settings actuales
+    setTimeout(() => {
+        if (window.SettingsManager) {
+            const s = SettingsManager.getSettings();
+            console.log('⚙️ Settings actuales:', {
+                layout: s.layout,
+                favDisplay: s.containers.favbookmarks.display,
+                theme: s.theme
+            });
+        }
+    }, 200);
+
     // Renderizar inicial
     RenderManager.renderAll();
-    
+
     // Inicializar eventos
     EventsManager.init();
-    
+
     // Suscribirse a cambios de estado
     StateManager.subscribe((state) => {
         console.log('Estado actualizado:', state);
@@ -47,34 +52,34 @@ function initEventListeners() {
     document.querySelectorAll('[data-action="toggleContainer"]').forEach(btn => {
         btn.addEventListener('click', handleToggleContainer);
     });
-    
+
     // Botones de añadir (preparación para F2)
     document.querySelectorAll('[data-action="addBookmark"], [data-action="addFolder"]').forEach(btn => {
         btn.addEventListener('click', handleAddAction);
     });
-    
+
     // Chat
     const chatInput = document.getElementById('chatInput');
     const btnSendChat = document.getElementById('btnSendChat');
-    
+
     if (chatInput && btnSendChat) {
         btnSendChat.addEventListener('click', handleChatSend);
         chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleChatSend();
         });
     }
-    
+
     // Búsqueda
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
         searchInput.addEventListener('input', handleSearch);
     }
-    
+
     // Settings y Profile (preparación)
     document.getElementById('settingsBtn')?.addEventListener('click', () => {
         console.log('Abrir settings');
     });
-    
+
     document.getElementById('profileBtn')?.addEventListener('click', () => {
         console.log('Abrir profile');
     });
@@ -86,13 +91,13 @@ function initEventListeners() {
 function handleToggleContainer(e) {
     const container = e.target.closest('.container-item');
     if (!container) return;
-    
+
     const containerType = container.dataset.container;
     container.classList.toggle('minimized');
-    
+
     // Actualizar estado
     AppState.containers[containerType].minimized = container.classList.contains('minimized');
-    
+
     // Actualizar icono
     const btn = e.target.closest('.btn-toggle');
     const svg = btn.querySelector('svg');
@@ -101,7 +106,7 @@ function handleToggleContainer(e) {
     } else {
         svg.innerHTML = '<polyline points="6 9 12 15 18 9"></polyline>';
     }
-    
+
     saveState();
 }
 
@@ -111,9 +116,9 @@ function handleToggleContainer(e) {
 function handleAddAction(e) {
     const action = e.target.closest('[data-action]').dataset.action;
     const target = e.target.closest('[data-action]').dataset.target;
-    
+
     console.log(`Acción: ${action}, Target: ${target}`);
-    
+
     // En F2 se abrirán los modales correspondientes
     alert(`En la Fase 2 se abrirá el modal para: ${action} en ${target}`);
 }
@@ -124,18 +129,18 @@ function handleAddAction(e) {
 function handleChatSend() {
     const chatInput = document.getElementById('chatInput');
     const chatMessages = document.getElementById('chatMessages');
-    
+
     if (!chatInput || !chatMessages) return;
-    
+
     const message = chatInput.value.trim();
     if (!message) return;
-    
+
     // Añadir mensaje del usuario
     addChatMessage(message, 'user');
-    
+
     // Limpiar input
     chatInput.value = '';
-    
+
     // Respuesta simulada (en F3 se conectará con la API)
     setTimeout(() => {
         addChatMessage('Esta es una respuesta simulada. En la Fase 3 conectaré con la API para analizar tus marcadores.', 'bot');
@@ -148,11 +153,11 @@ function handleChatSend() {
 function addChatMessage(text, sender) {
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
-    
+
     const messageDiv = document.createElement('div');
     messageDiv.className = `chat-message ${sender}`;
     messageDiv.innerHTML = `<p>${text}</p>`;
-    
+
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
