@@ -1,6 +1,17 @@
 const EventsManager = (() => {
     function init() {
-        //Incializar estado de botones de añadir
+        SettingsManager.loadSettings();
+
+        // 2. Forzar render inicial con settings aplicados
+        setTimeout(() => {
+            // 3. Forzar render inicial con settings aplicados
+            if (window.RenderManager) {
+                RenderManager.renderAll();
+                console.log('✅ Render inicial con settings aplicados');
+            }
+        }, 100);
+
+        // Inicializar estado del botón de InFolder
         const btnAddInFolder = document.querySelector('[data-container="infolder"] .btn-add');
         if (btnAddInFolder && !StateManager.getState().currentFolder) {
             btnAddInFolder.disabled = true;
@@ -23,11 +34,20 @@ const EventsManager = (() => {
             FoldersManager.backToFolders();
         });
 
+        // Botón de settings
+        document.getElementById('settingsBtn')?.addEventListener('click', () => {
+            const modal = ModalManager.createSettingsModal();
+            ModalManager.openModal(modal);
+        });
+
         // Búsqueda
         document.getElementById('searchInput')?.addEventListener('input', handleSearch);
 
         // Chat
         setupChat();
+
+        // Cargar settings
+        SettingsManager.loadSettings();
     }
 
     function handleAddBookmark(e) {
