@@ -52,6 +52,7 @@ const SettingsManager = (() => {
             }
         }
         applySettings();
+        startAutoThemeWatcher();
     }
 
     function deepMerge(target, source) {
@@ -105,6 +106,9 @@ const SettingsManager = (() => {
         settings.theme = theme;
         saveSettings();
         applyTheme();
+        if (theme === 'auto') {
+            startAutoThemeWatcher();
+        }
     }
 
     function updateContainerDisplay(container, display) {
@@ -168,6 +172,15 @@ const SettingsManager = (() => {
     }
 
     function applyTheme() {
+        let theme = settings.theme;
+
+        //Si es 'auto', determinar tema según hora
+        if (theme === 'auto') {
+            const hour = new Date().getHours();
+            // 6 AM a 6 PM = claro, 6 PM a 6 AM = oscuro
+            theme = (hour >= 6 && hour < 18) ? 'light' : 'dark';
+        }
+
         document.body.setAttribute('data-theme', settings.theme);
 
         const themes = {
@@ -203,6 +216,14 @@ const SettingsManager = (() => {
                 document.documentElement.style.setProperty(prop, value);
             });
         }
+    }
+
+    function startAutoThemeWatcher() {
+        if (settings.theme !== 'auto') return;
+
+        setInterval(() => {
+            applyTheme();
+        }, 60000); // Verificar cada minuto
     }
 
     function applyPrimaryColor() {
