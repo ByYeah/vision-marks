@@ -1,5 +1,5 @@
 const StateManager = (() => {
-    const MAX_FAVORITES = 16;
+    const MAX_FAVORITES = 32;
     let state = {
         bookmarks: [],
         folders: [],
