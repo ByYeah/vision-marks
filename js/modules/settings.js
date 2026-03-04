@@ -185,16 +185,16 @@ const SettingsManager = (() => {
     }
 
     function applyTheme() {
-        let theme = settings.theme;
+        let themeToApply = settings.theme;
 
         //Si es 'auto', determinar tema según hora
-        if (theme === 'auto') {
+        if (settings.theme === 'auto') {
             const hour = new Date().getHours();
             // 6 AM a 6 PM = claro, 6 PM a 6 AM = oscuro
-            theme = (hour >= 6 && hour < 18) ? 'light' : 'dark';
+            themeToApply = (hour >= 6 && hour < 18) ? 'light' : 'dark';
         }
 
-        document.body.setAttribute('data-theme', settings.theme);
+        document.body.setAttribute('data-theme', themeToApply);
 
         const themes = {
             dark: {
@@ -224,8 +224,8 @@ const SettingsManager = (() => {
             }
         };
 
-        if (themes[settings.theme]) {
-            Object.entries(themes[settings.theme]).forEach(([prop, value]) => {
+        if (themes[themeToApply]) {
+            Object.entries(themes[themeToApply]).forEach(([prop, value]) => {
                 document.documentElement.style.setProperty(prop, value);
             });
         }
