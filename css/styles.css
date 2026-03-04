@@ -772,6 +772,26 @@ body {
     display: none;
 }
 
+.grid-item-btn svg {
+    width: 14px;
+    height: 14px;
+    display: block;
+    pointer-events: none; /* Evita que el SVG capture clicks */
+}
+
+.btn-bookmark-action.btn-delete:hover {
+    background: #e53e3e !important;
+    color: white !important;
+    transform: scale(1.1);
+}
+
+/* Hover rojo - Carpetas */
+.btn-folder-action.btn-delete:hover {
+    background: #e53e3e !important;
+    color: white !important;
+    transform: scale(1.1);
+}
+
 /* ============================================
    FOLDERS GRID
    ============================================ */
