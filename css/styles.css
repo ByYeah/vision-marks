@@ -1413,6 +1413,23 @@ body {
     width: 70px;
 }
 
+[data-theme="amoled"] .display-mode-btn {
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+[data-theme="amoled"] .display-mode-btn:hover {
+    border-color: var(--primary-color);
+    background: var(--bg-tertiary);
+}
+
+[data-theme="amoled"] .display-mode-btn.active {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+}
+
 [data-theme="dark"] .color-picker-wrapper,
 [data-theme="amoled"] .color-picker-wrapper {
     background: var(--bg-secondary);
@@ -1465,6 +1482,67 @@ body {
     justify-content: center;
     color: var(--text-muted);
     font-size: 0.9rem;
+}
+
+/* ============================================
+CONTENEDORES - Modo Oscuro y AMOLED
+============================================ */
+
+/* Modo Oscuro: fondos más oscuros, texto blanco, borde que contraste */
+[data-theme="dark"] .container-item {
+    background: var(--bg-secondary) !important; /* #2d3748 */
+    color: var(--text-primary) !important; /* #f7fafc */
+    border-color: var(--border-color) !important; /* #4a5568 */
+}
+
+[data-theme="dark"] .container-header {
+    background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary)) !important;
+    border-bottom-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .container-header h2 {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .container-body {
+    background: var(--bg-secondary) !important;
+}
+
+/* Modo AMOLED: negro puro, texto blanco, borde sutil */
+[data-theme="amoled"] .container-item {
+    background: #0a0a0a !important;
+    color: #ffffff !important;
+    border-color: #333333 !important;
+}
+
+[data-theme="amoled"] .container-header {
+    background: linear-gradient(135deg, #1a1a1a, #0a0a0a) !important;
+    border-bottom-color: #333333 !important;
+}
+
+[data-theme="amoled"] .container-header h2 {
+    color: #ffffff !important;
+}
+
+[data-theme="amoled"] .container-body {
+    background: #0a0a0a !important;
+}
+
+/* Botones de acción en dark/amoled */
+[data-theme="dark"] .btn-add,
+[data-theme="dark"] .btn-back,
+[data-theme="amoled"] .btn-add,
+[data-theme="amoled"] .btn-back {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .btn-add:hover,
+[data-theme="dark"] .btn-back:hover,
+[data-theme="amoled"] .btn-add:hover,
+[data-theme="amoled"] .btn-back:hover {
+    background: var(--primary-color) !important;
+    color: white !important;
 }
 
 /* ============================================
