@@ -2,15 +2,20 @@ const RenderManager = (() => {
     let currentPage = 1;
     const itemsPerPage = 16; // 8 filas × 2 columnas
 
-    function renderFavorites() {
+    function renderFavorites(forceDisplayMode = null) {
         const container = document.getElementById('favBookmarksList');
         const emptyState = document.getElementById('emptyFavBookmarks');
         const containerBody = document.querySelector('[data-container="favbookmarks"] .container-body');
+        const containerEl = document.querySelector('[data-container="favbookmarks"]');
 
         if (!container) return;
 
-        const settings = SettingsManager.getSettings();
-        const displayMode = settings.containers?.favbookmarks?.display || 'list';
+        // Determinar el modo de visualización: si se fuerza uno, usarlo, si no, leer del DOM
+        let displayMode = forceDisplayMode;
+        if (!displayMode) {
+            displayMode = containerEl?.getAttribute('data-display') || 'list';
+        }
+
         const favoritesCount = StateManager.getFavoritesCount();
         const maxFavorites = StateManager.getMaxFavorites();
 
@@ -21,7 +26,7 @@ const RenderManager = (() => {
             return;
         }
 
-        // LIST mode - asegurar scroll
+        // LIST mode
         if (containerBody) {
             containerBody.style.overflow = 'auto';
             containerBody.style.display = 'block';
@@ -35,7 +40,6 @@ const RenderManager = (() => {
             if (emptyState) {
                 emptyState.innerHTML = `<p>No hay favoritos aún<br><small>Máximo: ${maxFavorites}</small></p>`;
                 emptyState.style.display = 'flex';
-                // Asegurar que no haya scroll cuando está vacío
                 if (containerBody) containerBody.style.overflow = 'hidden';
             }
             updateFavoritesButton(favoritesCount, maxFavorites);
@@ -456,6 +460,20 @@ const RenderManager = (() => {
         renderInFolder,
         updateFolderNavigation,
         renderFavoritesGrid,
-        resetPage
+        resetPage,
+        updateFavoritesButton
     };
 })();
+
+window.addEventListener('containerDisplayChanged', (e) => {
+    if (e.detail.container === 'favbookmarks') {
+        // Usar RenderManager.renderFavorites, no la función suelta
+        setTimeout(() => {
+            if (e.detail.display === 'grid-8') {
+                RenderManager.renderFavoritesGrid(e.detail.display);
+            } else {
+                RenderManager.renderFavorites();
+            }
+        }, 0);
+    }
+});

@@ -526,22 +526,23 @@ const ModalManager = (() => {
 
             // Guardar cambios
             modal.querySelector('[data-action="save"]')?.addEventListener('click', () => {
-                console.log('💾 Guardando settings...');
 
+                // Guardar layout y tema...
                 const selLayout = modal.querySelector('.layout-option.active');
                 if (selLayout) SettingsManager.updateLayout(selLayout.dataset.layout);
 
                 const selTheme = modal.querySelector('.theme-option.active');
                 if (selTheme) SettingsManager.updateTheme(selTheme.dataset.theme);
 
+                // Guardar modos de visualización
                 ['favbookmarks', 'folders', 'infolder'].forEach(container => {
                     const btn = modal.querySelector(`.display-mode-btn[data-container="${container}"].active`);
                     if (btn) {
-                        console.log(`🔧 ${container} → ${btn.dataset.mode}`);
                         SettingsManager.updateContainerDisplay(container, btn.dataset.mode);
                     }
                 });
 
+                // Guardar colores...
                 modal.querySelectorAll('.color-input').forEach(input => {
                     const c = input.dataset.container;
                     const p = input.dataset.property;
@@ -549,24 +550,12 @@ const ModalManager = (() => {
                 });
 
                 SettingsManager.saveSettings();
-
-                // Forzar re-render COMPLETO e INMEDIATO
-                if (window.RenderManager) {
-                    setTimeout(() => {
-                        console.log('🎨 Forzando re-render completo...');
-                        RenderManager.renderAll();
-                    }, 50);
-                }
-
                 closeModal(modal);
                 showNotification('Configuración guardada ✨');
             });
-
             // Cerrar
             modal.querySelector('[data-action="close"]')?.addEventListener('click', () => closeModal(modal));
-
         }, 100); // Timeout aumentado
-
         return modal;
     }
 

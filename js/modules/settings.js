@@ -37,7 +37,6 @@ const SettingsManager = (() => {
                     }
                 });
             } catch (e) {
-                console.error('Error cargando settings:', e);
                 settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
             }
         }
@@ -100,15 +99,20 @@ const SettingsManager = (() => {
     function updateContainerDisplay(container, display) {
         if (settings.containers[container]) {
             settings.containers[container].display = display;
-            saveSettings();
             applyContainerDisplay(container, display);
+
+            // Disparar evento personalizado
+            const event = new CustomEvent('containerDisplayChanged', {
+                detail: { container, display }
+            });
+            window.dispatchEvent(event);
         }
     }
 
     function updateContainerColors(container, colors) {
         if (settings.containers[container]) {
             settings.containers[container].colors = { ...settings.containers[container].colors, ...colors };
-            saveSettings();
+
             applyContainerColors(container, settings.containers[container].colors);
         }
     }
@@ -120,9 +124,16 @@ const SettingsManager = (() => {
             applyContainerDisplay(container, settings.containers[container].display);
             applyContainerColors(container, settings.containers[container].colors);
         });
-        // Forzar re-render inmediato
+
+        // Forzar re-render inmediato SIN setTimeout
         if (window.RenderManager) {
-            setTimeout(() => window.RenderManager.renderAll(), 50);
+            const favDisplay = settings.containers.favbookmarks.display;
+            RenderManager.resetPage();
+            if (favDisplay === 'grid-8') {
+                RenderManager.renderFavoritesGrid(favDisplay);
+            } else {
+                RenderManager.renderFavorites(favDisplay);
+            }
         }
     }
 
@@ -163,20 +174,22 @@ const SettingsManager = (() => {
         }
     }
 
-  function applyContainerDisplay(container,display){
-    const containerEl=document.querySelector(`[data-container="${container}"]`);
-    if (containerEl){
-        containerEl.setAttribute('data-display',display);
-        if (container==='favbookmarks' && window.RenderManager){
-            if (display==='grid-8'){
-                RenderManager.renderFavoritesGrid(display);
-            } else {
-                // Resetear paginación al cambiar a lista
-                if (typeof RenderManager.resetPage==='function'){
-                    RenderManager.resetPage();
-                }
-                RenderManager.renderFavorites();
-            }
+    function applyContainerDisplay(container, display) {
+    const containerEl = document.querySelector(`[data-container="${container}"]`);
+    
+    if (containerEl) {
+        // Actualizar atributo DOM
+        containerEl.setAttribute('data-display', display);
+        
+        // Disparar evento personalizado (esto reemplaza la lógica directa)
+        const event = new CustomEvent('containerDisplayChanged', {
+            detail: { container, display }
+        });
+        window.dispatchEvent(event);
+        
+        // Para otros contenedores que no sean favbookmarks, puedes mantener lógica específica
+        if (container !== 'favbookmarks' && window.RenderManager) {
+            // Aquí iría la lógica para otros contenedores si es necesaria
         }
     }
 }
