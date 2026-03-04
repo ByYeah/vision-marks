@@ -185,7 +185,12 @@ const ModalManager = (() => {
     // Modal tipo: Confirmación
     function createConfirmModal(title, message, onConfirm) {
         const actions = [
-            { text: 'Cancelar', class: 'btn-secondary', action: 'cancel' },
+            {
+                text: 'Cancelar', class: 'btn-secondary', action: 'cancel', onClick: (e) => {
+                    const modal = e.target.closest('.modal-overlay');
+                    if (modal) closeModal(modal);
+                }
+            },
             { text: 'Eliminar', class: 'btn-danger', action: 'confirm', onClick: onConfirm }
         ];
         return createModal('confirmModal', title, `<p>${message}</p>`, actions);

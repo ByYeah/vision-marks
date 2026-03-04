@@ -114,7 +114,6 @@ const RenderManager = (() => {
         const showTitle = false;
 
 
-        // HTML con clases CORRECTAS (sin espacios corruptos)
         const html = `<div class="favorites-grid ${gridClass}">${displayFavorites.map(b => `
         <div class="favorite-grid-item ${gridClass}" data-bookmark-id="${b.id}" title="${escapeHtml(b.title)}">
             <img src="${b.icon}" alt="" class="bookmark-icon" onerror="this.src='assets/icons/default-bookmark.png'">
