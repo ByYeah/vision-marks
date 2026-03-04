@@ -287,6 +287,9 @@ const ModalManager = (() => {
                         <div class="theme-option ${currentSettings.theme === 'dark' ? 'active' : ''}" data-theme="dark">
                             <div class="theme-preview dark"></div><div class="layout-name">Oscuro</div>
                         </div>
+                        <div class="theme-option ${currentSettings.theme === 'amoled' ? 'active' : ''}" data-theme="amoled">
+                            <div class="theme-preview amoled"></div><div class="layout-name">AMOLED</div>
+                        </div>
                         <div class="theme-option ${currentSettings.theme === 'auto' ? 'active' : ''}" data-theme="auto">
                             <div class="theme-preview auto"></div><div class="layout-name">Auto</div>
                         </div>

@@ -30,6 +30,14 @@ const SettingsManager = (() => {
             try {
                 const parsed = JSON.parse(saved);
                 settings = deepMerge(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), parsed);
+
+                // Validar temas permitidos
+                const validThemes = ['light', 'dark', 'auto', 'amoled'];
+                if (!validThemes.includes(settings.theme)) {
+                    settings.theme = DEFAULT_SETTINGS.theme;
+                }
+
+                // Validar displays permitidos
                 const validDisplays = ['list', 'grid-8', 'grid'];
                 Object.keys(settings.containers).forEach(key => {
                     if (!validDisplays.includes(settings.containers[key].display)) {
@@ -164,6 +172,15 @@ const SettingsManager = (() => {
                 '--text-primary': '#2d3748',
                 '--text-secondary': '#718096',
                 '--border-color': '#e2e8f0'
+            },
+            amoled: {
+                '--bg-primary': '#000000',
+                '--bg-secondary': '#0a0a0a',
+                '--bg-tertiary': '#1a1a1a',
+                '--text-primary': '#ffffff',
+                '--text-secondary': '#b0b0b0',
+                '--text-muted': '#666666',
+                '--border-color': '#333333'
             }
         };
 
@@ -175,24 +192,24 @@ const SettingsManager = (() => {
     }
 
     function applyContainerDisplay(container, display) {
-    const containerEl = document.querySelector(`[data-container="${container}"]`);
-    
-    if (containerEl) {
-        // Actualizar atributo DOM
-        containerEl.setAttribute('data-display', display);
-        
-        // Disparar evento personalizado (esto reemplaza la lógica directa)
-        const event = new CustomEvent('containerDisplayChanged', {
-            detail: { container, display }
-        });
-        window.dispatchEvent(event);
-        
-        // Para otros contenedores que no sean favbookmarks, puedes mantener lógica específica
-        if (container !== 'favbookmarks' && window.RenderManager) {
-            // Aquí iría la lógica para otros contenedores si es necesaria
+        const containerEl = document.querySelector(`[data-container="${container}"]`);
+
+        if (containerEl) {
+            // Actualizar atributo DOM
+            containerEl.setAttribute('data-display', display);
+
+            // Disparar evento personalizado (esto reemplaza la lógica directa)
+            const event = new CustomEvent('containerDisplayChanged', {
+                detail: { container, display }
+            });
+            window.dispatchEvent(event);
+
+            // Para otros contenedores que no sean favbookmarks, puedes mantener lógica específica
+            if (container !== 'favbookmarks' && window.RenderManager) {
+                // Aquí iría la lógica para otros contenedores si es necesaria
+            }
         }
     }
-}
 
     function applyContainerColors(container, colors) {
         const containerEl = document.querySelector(`[data-container="${container}"]`);
