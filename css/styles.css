@@ -627,8 +627,8 @@ body {
 /* Acciones hover (editar/eliminar) */
 .grid-item-actions {
     position: absolute;
-    top: 3px;
-    right: 3px;
+    top: 5px;
+    right: 5px;
     display: flex;
     gap: 2px;
     opacity: 0;
@@ -643,28 +643,34 @@ body {
 
 /* Botones de acción - REDUCIDOS */
 .grid-item-btn {
-    width: 17px;
-    height: 17px;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 10px;
-    padding: 0;
-    background: var(--primary-color);
-    pointer-events: auto;
-    transition: transform var(--transition-fast);
-}
-
-.grid-item-btn.delete {
-    background: #e53e3e;
+    width: 24px !important;
+    height: 24px !important;
+    border: none !important;
+    background: var(--bg-secondary) !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--text-secondary) !important;
+    transition: all var(--transition-fast) !important;
+    font-size: 12px !important;
+    padding: 0 !important;
+    pointer-events: auto !important;
 }
 
 .grid-item-btn:hover {
-    transform: scale(1.2);
+    background: var(--primary-color) !important;
+    color: white !important;
+    transform: scale(1.1) !important;
+}
+.grid-item-btn.delete {
+    background: var(--bg-secondary) !important;
+    color: var(--text-secondary) !important;
+}
+.grid-item-btn.delete:hover {
+    background: #e53e3e !important;
+    color: white !important;
 }
 
 /* Indicador de páginas (solo cuando hay >16 items) */
