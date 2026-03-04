@@ -18,7 +18,7 @@ const BookmarksManager = (() => {
     function openBookmarkModal(folderId = null, bookmarkId = null, forceFavorite = false) {
         const bookmark = bookmarkId ? StateManager.getBookmarkById(bookmarkId) : null;
         const modal = ModalManager.createBookmarkModal(bookmark, folderId, forceFavorite);
-        
+
         // Handle form submission
         setTimeout(() => {
             const form = modal.querySelector('#bookmarkForm');
@@ -27,7 +27,7 @@ const BookmarksManager = (() => {
 
             saveBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
-                
+
                 const formData = new FormData(form);
                 const url = formData.get('url');
                 let title = formData.get('title');
@@ -124,7 +124,7 @@ const BookmarksManager = (() => {
                 return;
             }
         }
-        
+
         StateManager.toggleFavorite(bookmarkId);
         RenderManager.renderAll();
     }
@@ -136,3 +136,5 @@ const BookmarksManager = (() => {
         fetchBookmarkIcon
     };
 })();
+
+window.BookmarksManager = BookmarksManager;

@@ -14,19 +14,14 @@ const RenderManager = (() => {
         const favoritesCount = StateManager.getFavoritesCount();
         const maxFavorites = StateManager.getMaxFavorites();
 
-        console.log('🎨 renderFavorites - displayMode:', displayMode);
-
         // GRID mode
         if (displayMode === 'grid-8') {
-            console.log('📐 Renderizando GRID 8×8');
             renderFavoritesGrid('grid-8');
             updateFavoritesButton(favoritesCount, maxFavorites);
             return;
         }
 
         // LIST mode - asegurar scroll
-        console.log('📋 Renderizando LISTA');
-
         if (containerBody) {
             containerBody.style.overflow = 'auto';
             containerBody.style.display = 'block';
@@ -81,8 +76,6 @@ const RenderManager = (() => {
         const container = document.getElementById('favBookmarksList');
         const emptyState = document.getElementById('emptyFavBookmarks');
         const containerBody = document.querySelector('[data-container="favbookmarks"] .container-body');
-
-        console.log('📐 renderFavoritesGrid - mode:', mode);
 
         if (!container) return;
 
@@ -141,23 +134,15 @@ const RenderManager = (() => {
 
         container.innerHTML = html + pageIndicator;
 
-        // Adjuntar eventos con setTimeout para asegurar DOM ready
-        setTimeout(() => {
-            attachGridEvents(container);
-
-            // Solo añadir wheel listener si hay más de 1 página
+        attachGridEvents(container);
+        // Si necesitas el wheel listener, añádelo después sin setTimeout
+        if (totalPages > 1) {
             const containerBody = document.querySelector('[data-container="favbookmarks"] .container-body');
-            if (containerBody && totalPages > 1) {
-                // Remover listener previo para evitar duplicados
+            if (containerBody) {
                 containerBody.removeEventListener('wheel', handleGridWheel);
                 containerBody.addEventListener('wheel', handleGridWheel, { passive: false });
-            } else if (containerBody) {
-                // Si solo hay 1 página, remover el listener
-                containerBody.removeEventListener('wheel', handleGridWheel);
             }
-
-            console.log(`Grid renderizado - Página ${currentPage}/${totalPages}`);
-        }, 10);
+        }
     }
 
     // Controles de paginación
@@ -222,7 +207,7 @@ const RenderManager = (() => {
 
     // Delegación de eventos para GRID
     function attachGridEvents(container) {
-        // Usar addEventListener en vez de onclick
+        // NO clonar ni reemplazar - usar delegation directa
         container.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -231,24 +216,20 @@ const RenderManager = (() => {
             const deleteBtn = e.target.closest('.grid-item-btn.delete');
             const gridItem = e.target.closest('.favorite-grid-item');
 
-            // EDITAR - clase correcta 'delete' no 'delet e'
+            // EDITAR - llamada directa, SIN setTimeout
             if (editBtn) {
                 const id = editBtn.dataset.bookmarkId;
-                console.log('✏️ Editar bookmark:', id);
-                if (window.BookmarksManager) {
+                if (window.BookmarksManager && typeof BookmarksManager.openBookmarkModal === 'function') {
                     BookmarksManager.openBookmarkModal(null, id);
                 }
                 return;
             }
 
-            // ELIMINAR
+            // ELIMINAR - llamada directa, SIN setTimeout
             if (deleteBtn) {
                 const id = deleteBtn.dataset.bookmarkId;
-                console.log('🗑️ Eliminar bookmark:', id);
-                if (window.BookmarksManager) {
-                    if (confirm('¿Eliminar este marcador de favoritos?')) {
-                        BookmarksManager.deleteBookmark(id);
-                    }
+                if (window.BookmarksManager && typeof BookmarksManager.deleteBookmark === 'function') {
+                    BookmarksManager.deleteBookmark(id);
                 }
                 return;
             }
@@ -259,10 +240,9 @@ const RenderManager = (() => {
                 const b = StateManager.getBookmarkById(id);
                 if (b) window.open(b.url, '_blank');
             }
-        }, true); // Capturing phase para mayor compatibilidad
-
-        console.log('Event listeners de grid asignados correctamente');
+        }, { capture: true });
     }
+
     function renderFolders() {
         const container = document.getElementById('foldersGrid');
         if (!container) return;
