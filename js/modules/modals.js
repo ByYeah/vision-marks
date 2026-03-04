@@ -219,6 +219,14 @@ const ModalManager = (() => {
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
                     Colores
                 </button>
+                <button class="settings-menu-item" data-section="typography">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="4 7 4 4 20 4 20 7"/>
+                        <line x1="9" y1="20" x2="15" y2="20"/>
+                        <line x1="12" y1="4" x2="12" y2="20"/>
+                    </svg>
+                    Tipografía
+                </button>
             </div>
             <div class="settings-content">
                 <!-- Layouts -->
@@ -292,6 +300,34 @@ const ModalManager = (() => {
                         </div>
                         <div class="theme-option ${currentSettings.theme === 'auto' ? 'active' : ''}" data-theme="auto">
                             <div class="theme-preview auto"></div><div class="layout-name">Auto</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Typography -->
+                <div class="settings-section" id="section-typography">
+                    <h3>Tipografía</h3>
+                    <p>Fuente de la interfaz</p>
+                    <div class="font-options">
+                        <div class="font-option ${currentSettings.fontFamily === 'Montserrat' ? 'active' : ''}" data-font="Montserrat">
+                            <div class="font-preview" style="font-family:'Montserrat'">Montserrat</div>
+                            <div class="layout-desc">Actual</div>
+                        </div>
+                        <div class="font-option ${currentSettings.fontFamily === 'Inter' ? 'active' : ''}" data-font="Inter">
+                            <div class="font-preview" style="font-family:'Inter'">Inter</div>
+                            <div class="layout-desc">Moderna</div>
+                        </div>
+                        <div class="font-option ${currentSettings.fontFamily === 'Roboto' ? 'active' : ''}" data-font="Roboto">
+                            <div class="font-preview" style="font-family:'Roboto'">Roboto</div>
+                            <div class="layout-desc">Clásica</div>
+                        </div>
+                        <div class="font-option ${currentSettings.fontFamily === 'Open Sans' ? 'active' : ''}" data-font="Open Sans">
+                            <div class="font-preview" style="font-family:'Open Sans'">Open Sans</div>
+                            <div class="layout-desc">Legible</div>
+                        </div>
+                        <div class="font-option ${currentSettings.fontFamily === 'Lato' ? 'active' : ''}" data-font="Lato">
+                            <div class="font-preview" style="font-family:'Lato'">Lato</div>
+                            <div class="layout-desc">Elegante</div>
                         </div>
                     </div>
                 </div>
@@ -440,6 +476,14 @@ const ModalManager = (() => {
 
             syncVisualSelection();
 
+            // Font selection
+            modal.querySelectorAll('.font-option').forEach(opt => {
+                opt.addEventListener('click', () => {
+                    modal.querySelectorAll('.font-option').forEach(o => o.classList.remove('active'));
+                    opt.classList.add('active');
+                });
+            });
+
             // Color pickers - Sincronización bidireccional
             function syncColorInputs() {
                 modal.querySelectorAll('.color-picker-wrapper').forEach(wrapper => {
@@ -561,6 +605,11 @@ const ModalManager = (() => {
 
                 const selTheme = modal.querySelector('.theme-option.active');
                 if (selTheme) SettingsManager.updateTheme(selTheme.dataset.theme);
+
+                const selFont = modal.querySelector('.font-option.active');
+                if (selFont) {
+                    SettingsManager.updateFontFamily(selFont.dataset.font);
+                }
 
                 // Guardar modos de visualización
                 ['favbookmarks', 'folders', 'infolder'].forEach(container => {

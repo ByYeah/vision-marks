@@ -2,6 +2,7 @@ const SettingsManager = (() => {
     const DEFAULT_SETTINGS = {
         layout: 'double',
         theme: 'light',
+        fontFamily: 'Montserrat',
         colors: {
             primary: '#667eea'  // ← Color primario global
         },
@@ -47,6 +48,11 @@ const SettingsManager = (() => {
                         settings.containers[key].display = DEFAULT_SETTINGS.containers[key].display;
                     }
                 });
+
+                const validFonts = ['Montserrat', 'Inter', 'Roboto', 'Open Sans', 'Lato'];
+                if (!validFonts.includes(settings.fontFamily)) {
+                    settings.fontFamily = DEFAULT_SETTINGS.fontFamily;
+                }
             } catch (e) {
                 settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
             }
@@ -111,6 +117,12 @@ const SettingsManager = (() => {
         }
     }
 
+    function updateFontFamily(font) {
+        settings.fontFamily = font;
+        saveSettings();
+        applyFontFamily();
+    }
+
     function updateContainerDisplay(container, display) {
         if (settings.containers[container]) {
             settings.containers[container].display = display;
@@ -146,6 +158,7 @@ const SettingsManager = (() => {
         applyLayout();
         applyTheme();
         applyPrimaryColor();
+        applyFontFamily();
         Object.keys(settings.containers).forEach(container => {
             applyContainerDisplay(container, settings.containers[container].display);
             applyContainerColors(container, settings.containers[container].colors);
@@ -226,6 +239,12 @@ const SettingsManager = (() => {
         }, 60000); // Verificar cada minuto
     }
 
+    function applyFontFamily() {
+        const font = settings.fontFamily || 'Montserrat';
+        document.documentElement.style.setProperty('--font-family', font);
+        document.body.style.fontFamily = font;
+    }
+
     function applyPrimaryColor() {
         const primary = settings.colors?.primary || '#667eea';
         document.documentElement.style.setProperty('--primary-color', primary);
@@ -293,6 +312,7 @@ const SettingsManager = (() => {
         updateTheme,
         updateContainerDisplay,
         updateContainerColors,
-        applySettings
+        applySettings,
+        updateFontFamily
     };
 })();

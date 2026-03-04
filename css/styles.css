@@ -1660,6 +1660,52 @@ CONTENEDORES - Modo Oscuro y AMOLED
 }
 
 /* ============================================
+   Fuentes 
+   ============================================ */
+   
+/* Font Options */
+.font-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+}
+
+.font-option {
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-md);
+    cursor: pointer;
+    text-align: center;
+    transition: all var(--transition-fast);
+}
+
+.font-option:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.font-option.active {
+    border-color: var(--primary-color);
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.font-preview {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+/* Variable de fuente */
+:root {
+    --font-family: 'Montserrat', sans-serif;
+}
+
+body {
+    font-family: var(--font-family), -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ============================================
    MODALES (base)
    ============================================ */
 .modal-overlay {
