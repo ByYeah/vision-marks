@@ -1,0 +1,215 @@
+const SettingsManager = (() => {
+    const DEFAULT_SETTINGS = {
+        layout: 'double',
+        theme: 'light',
+        containers: {
+            favbookmarks: {
+                display: 'list',  // ← Default explícito
+                colors: { background: '#ffffff', border: '#e2e8f0', text: '#2d3748' }
+            },
+            folders: {
+                display: 'grid',
+                colors: { background: '#ffffff', border: '#e2e8f0', text: '#2d3748' }
+            },
+            infolder: {
+                display: 'list',
+                colors: { background: '#ffffff', border: '#e2e8f0', text: '#2d3748' }
+            },
+            chat: {
+                display: 'list',
+                colors: { background: '#ffffff', border: '#e2e8f0', text: '#2d3748' }
+            }
+        }
+    };
+
+    let settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+
+    function loadSettings() {
+        const saved = localStorage.getItem('vmarks_settings');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                settings = deepMerge(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), parsed);
+                const validDisplays = ['list', 'grid-8', 'grid'];
+                Object.keys(settings.containers).forEach(key => {
+                    if (!validDisplays.includes(settings.containers[key].display)) {
+                        settings.containers[key].display = DEFAULT_SETTINGS.containers[key].display;
+                    }
+                });
+            } catch (e) {
+                console.error('Error cargando settings:', e);
+                settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+            }
+        }
+        applySettings();
+    }
+
+    function deepMerge(target, source) {
+        const output = Object.assign({}, target);
+        if (isObject(target) && isObject(source)) {
+            Object.keys(source).forEach(key => {
+                if (isObject(source[key])) {
+                    if (!(key in target)) Object.assign(output, { [key]: source[key] });
+                    else output[key] = deepMerge(target[key], source[key]);
+                } else {
+                    Object.assign(output, { [key]: source[key] });
+                }
+            });
+        }
+        return output;
+    }
+
+    function isObject(item) {
+        return (item && typeof item === 'object' && !Array.isArray(item));
+    }
+
+    function saveSettings() {
+        localStorage.setItem('vmarks_settings', JSON.stringify(settings));
+    }
+
+    function getSettings() {
+        return settings;
+    }
+
+    function getDefaults() {
+        return JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+    }
+
+    function resetToDefaults() {
+        settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+        saveSettings();
+        applySettings();
+        if (window.RenderManager) {
+            window.RenderManager.renderAll();
+        }
+        return true;
+    }
+
+    function updateLayout(layout) {
+        settings.layout = layout;
+        saveSettings();
+        applyLayout();
+    }
+
+    function updateTheme(theme) {
+        settings.theme = theme;
+        saveSettings();
+        applyTheme();
+    }
+
+    function updateContainerDisplay(container, display) {
+        if (settings.containers[container]) {
+            settings.containers[container].display = display;
+            saveSettings();
+            applyContainerDisplay(container, display);
+        }
+    }
+
+    function updateContainerColors(container, colors) {
+        if (settings.containers[container]) {
+            settings.containers[container].colors = { ...settings.containers[container].colors, ...colors };
+            saveSettings();
+            applyContainerColors(container, settings.containers[container].colors);
+        }
+    }
+
+    function applySettings() {
+        applyLayout();
+        applyTheme();
+        Object.keys(settings.containers).forEach(container => {
+            applyContainerDisplay(container, settings.containers[container].display);
+            applyContainerColors(container, settings.containers[container].colors);
+        });
+        // Forzar re-render inmediato
+        if (window.RenderManager) {
+            setTimeout(() => window.RenderManager.renderAll(), 50);
+        }
+    }
+
+    function applyLayout() {
+        const grid = document.querySelector('.dashboard-grid');
+        if (grid) {
+            grid.classList.remove('layout-double', 'layout-extended', 'layout-widgets', 'layout-free');
+            grid.classList.add(`layout-${settings.layout}`);
+        }
+    }
+
+    function applyTheme() {
+        document.body.setAttribute('data-theme', settings.theme);
+
+        const themes = {
+            dark: {
+                '--bg-primary': '#1a202c',
+                '--bg-secondary': '#2d3748',
+                '--bg-tertiary': '#4a5568',
+                '--text-primary': '#f7fafc',
+                '--text-secondary': '#e2e8f0',
+                '--border-color': '#4a5568'
+            },
+            light: {
+                '--bg-primary': '#f7fafc',
+                '--bg-secondary': '#ffffff',
+                '--bg-tertiary': '#edf2f7',
+                '--text-primary': '#2d3748',
+                '--text-secondary': '#718096',
+                '--border-color': '#e2e8f0'
+            }
+        };
+
+        if (themes[settings.theme]) {
+            Object.entries(themes[settings.theme]).forEach(([prop, value]) => {
+                document.documentElement.style.setProperty(prop, value);
+            });
+        }
+    }
+
+  function applyContainerDisplay(container,display){
+    const containerEl=document.querySelector(`[data-container="${container}"]`);
+    if (containerEl){
+        containerEl.setAttribute('data-display',display);
+        if (container==='favbookmarks' && window.RenderManager){
+            if (display==='grid-8'){
+                RenderManager.renderFavoritesGrid(display);
+            } else {
+                // Resetear paginación al cambiar a lista
+                if (typeof RenderManager.resetPage==='function'){
+                    RenderManager.resetPage();
+                }
+                RenderManager.renderFavorites();
+            }
+        }
+    }
+}
+
+    function applyContainerColors(container, colors) {
+        const containerEl = document.querySelector(`[data-container="${container}"]`);
+        if (containerEl) {
+            if (colors.background) {
+                containerEl.style.background = colors.background;
+            }
+            if (colors.border) {
+                containerEl.style.borderColor = colors.border;
+            }
+            if (colors.text) {
+                containerEl.style.color = colors.text;
+                // También aplicar a hijos
+                containerEl.querySelectorAll('h2, .bookmark-title, .folder-name').forEach(el => {
+                    el.style.color = colors.text;
+                });
+            }
+        }
+    }
+
+    return {
+        loadSettings,
+        saveSettings,
+        getSettings,
+        getDefaults,
+        resetToDefaults,
+        updateLayout,
+        updateTheme,
+        updateContainerDisplay,
+        updateContainerColors,
+        applySettings
+    };
+})();
