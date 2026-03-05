@@ -21,31 +21,30 @@
     <header class="topbar">
         <div class="topbar-container">
             <div class="logo">
-                <h1>📑 Bookmarks</h1>
+                <h1>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true"
+                        style="width:1.2em;height:1.2em;vertical-align:middle;margin-right:8px">
+                        <path fill="currentColor" fill-rule="nonzero"
+                            d="M17.25 2A2.75 2.75 0 0 1 20 4.75V19.25a2.75 2.75 0 0 1-2.75 2.75H6.75A2.75 2.75 0 0 1 4 19.249V4.75c0-1.26.846-2.32 2-2.647V3.75c-.304.228-.5.59-.5 1v14.498c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25V4.75c0-.69-.56-1.25-1.25-1.25L15 3.5V2zM14 2v8.139c0 .747-.8 1.028-1.29.764l-.082-.052-2.126-1.285-2.078 1.251c-.5.36-1.33.14-1.417-.558L7 10.14V2zm-1.5 1.5h-4v5.523l1.573-.949a.92.92 0 0 1 .818-.024l1.609.974z" />
+                    </svg>
+                    Bookmarks
+                </h1>
             </div>
+
             <div class="search-bar">
                 <input type="text" placeholder="Buscar marcadores..." id="searchInput">
-                <button class="search-btn" aria-label="Buscar">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <path d="m21 21-4.35-4.35"></path>
-                    </svg>
-                </button>
             </div>
+
+            <!-- Acciones: Settings + Profile -->
             <div class="topbar-actions">
+                <!-- Botón Configuración -->
                 <button class="icon-btn" id="settingsBtn" aria-label="Configuración" title="Configuración">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="3"></circle>
-                        <path
-                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                        </path>
-                    </svg>
+                    <span class="icon-wrapper" data-svg="config"></span>
                 </button>
-                <button class="icon-btn" id="profileBtn" aria-label="Perfil">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
+
+                <!-- Botón Perfil -->
+                <button class="icon-btn" id="profileBtn" aria-label="Perfil" title="Perfil">
+                    <span class="icon-wrapper" data-svg="profile"></span>
                 </button>
             </div>
         </div>
@@ -58,15 +57,14 @@
             <!-- FavBookmarks -->
             <div class="container-item" data-container="favbookmarks">
                 <div class="container-header">
-                    <h2>⭐ Favoritos</h2>
+                    <h2>
+                        <span class="icon-wrapper" data-svg="favorite" data-svg-class="icon-container"></span>
+                        Favoritos
+                    </h2>
                     <div class="container-actions">
                         <button class="btn-add" data-action="addBookmark" data-target="favbookmarks"
                             title="Añadir marcador">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
+                            <span class="icon-wrapper" data-svg="add"></span>
                         </button>
                     </div>
                 </div>
@@ -85,14 +83,13 @@
             <!-- Folders -->
             <div class="container-item" data-container="folders">
                 <div class="container-header">
-                    <h2>📁 Carpetas</h2>
+                    <h2>
+                        <span class="icon-wrapper" data-svg="folder" data-svg-class="icon-container"></span>
+                        Carpetas
+                    </h2>
                     <div class="container-actions">
                         <button class="btn-add" data-action="addFolder" data-target="folders" title="Nueva carpeta">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
+                            <span class="icon-wrapper" data-svg="add"></span>
                         </button>
                     </div>
                 </div>
@@ -112,17 +109,10 @@
                     <div class="container-actions">
                         <button class="btn-add" data-action="addBookmark" data-target="infolder"
                             title="Añadir marcador">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
+                            <span class="icon-wrapper" data-svg="add"></span>
                         </button>
                         <button class="btn-back hidden" id="btnBackToFolders" title="Volver a carpetas">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <polyline points="15 18 9 12 15 6"></polyline>
-                            </svg>
+                            <span class="icon-wrapper" data-svg="back"></span>
                         </button>
                     </div>
                 </div>
@@ -141,7 +131,10 @@
             <!-- Chat -->
             <div class="container-item" data-container="chat">
                 <div class="container-header">
-                    <h2>💬 Asistente</h2>
+                    <h2>
+                        <span class="icon-wrapper" data-svg="chat" data-svg-class="icon-container"></span>
+                        Asistente
+                    </h2>
                     <div class="container-actions">
                         <!-- Sin botones en chat por ahora -->
                     </div>
@@ -156,11 +149,7 @@
                         <div class="chat-input-area">
                             <input type="text" placeholder="Pregunta sobre tus marcadores..." id="chatInput">
                             <button class="btn-send" id="btnSendChat">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
-                                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                                </svg>
+                                <span class="icon-wrapper" data-svg="send"></span>
                             </button>
                         </div>
                     </div>
@@ -170,15 +159,20 @@
             <!-- Widgets -->
             <div class="container-item" data-container="widgets-1" style="display:none;">
                 <div class="container-header">
-                    <h2>📊 Widget 1</h2>
+                    <h2>
+                        <span class="icon-wrapper" data-svg="widget" data-svg-class="icon-container"></span>
+                        Widget 1
+                    </h2>
                     <div class="container-actions">
-                        <button class="btn-add" title="Configurar">⚙️</button>
+                        <button class="btn-add" title="Configurar widget">
+                            <span class="icon-wrapper" data-svg="config"></span>
+                        </button>
                     </div>
                 </div>
                 <div class="container-content">
                     <div class="container-body">
                         <div class="widget-placeholder">
-                            <p>Widget 1 - Personalizable</p>
+                            <p>Widget 1</p>
                         </div>
                     </div>
                 </div>
@@ -187,15 +181,20 @@
 
             <div class="container-item" data-container="widgets-2" style="display:none;">
                 <div class="container-header">
-                    <h2>📈 Widget 2</h2>
+                    <h2>
+                        <span class="icon-wrapper" data-svg="widget" data-svg-class="icon-container"></span>
+                        Widget 2
+                    </h2>
                     <div class="container-actions">
-                        <button class="btn-add" title="Configurar">⚙️</button>
+                        <button class="btn-add" title="Configurar widget">
+                            <span class="icon-wrapper" data-svg="config"></span>
+                        </button>
                     </div>
                 </div>
                 <div class="container-content">
                     <div class="container-body">
                         <div class="widget-placeholder">
-                            <p>Widget 2 - Personalizable</p>
+                            <p>Widget 2</p>
                         </div>
                     </div>
                 </div>
@@ -203,23 +202,20 @@
 
             <div class="container-item" data-container="widgets-3" style="display:none;">
                 <div class="container-header">
-                    <h2>📉 Widget 3</h2>
+                    <h2>
+                        <span class="icon-wrapper" data-svg="widget" data-svg-class="icon-container"></span>
+                        Widget 3
+                    </h2>
                     <div class="container-actions">
                         <button class="btn-add" title="Configurar widget">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path
-                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                                </path>
-                            </svg>
+                            <span class="icon-wrapper" data-svg="config"></span>
                         </button>
                     </div>
                 </div>
                 <div class="container-content">
                     <div class="container-body">
                         <div class="widget-placeholder">
-                            <p>Widget 3 - Personalizable</p>
+                            <p>Widget 3</p>
                         </div>
                     </div>
                 </div>
@@ -227,23 +223,20 @@
 
             <div class="container-item" data-container="widgets-4" style="display:none;">
                 <div class="container-header">
-                    <h2>📊 Widget 4</h2>
+                    <h2>
+                        <span class="icon-wrapper" data-svg="widget" data-svg-class="icon-container"></span>
+                        Widget 4
+                    </h2>
                     <div class="container-actions">
                         <button class="btn-add" title="Configurar widget">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path
-                                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                                </path>
-                            </svg>
+                            <span class="icon-wrapper" data-svg="config"></span>
                         </button>
                     </div>
                 </div>
                 <div class="container-content">
                     <div class="container-body">
                         <div class="widget-placeholder">
-                            <p>Widget 4 - Personalizable</p>
+                            <p>Widget 4</p>
                         </div>
                     </div>
                 </div>
@@ -264,6 +257,7 @@
     <script src="js/modules/folders.js"></script>
     <script src="js/modules/render.js"></script>
     <script src="js/modules/events.js"></script>
+    <script src="js/utils/svg-loader.js"></script>
     <script src="js/app.js" defer></script>
 </body>
 

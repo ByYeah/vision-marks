@@ -77,8 +77,9 @@ body {
     margin: 0 auto;
     display: flex;
     align-items: center;
-    gap: var(--spacing-md);
     height: 100%;
+    justify-content: space-between;
+    position: relative;
 }
 
 .logo h1 {
@@ -88,10 +89,14 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    cursor: default;
 }
 
 .search-bar {
-    flex: 1;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40%;
     max-width: 600px;
     display: flex;
     gap: var(--spacing-xs);
@@ -135,6 +140,62 @@ body {
 .topbar-actions {
     display: flex;
     gap: var(--spacing-xs);
+}
+
+.topbar .logo h1 svg,
+.topbar-actions .icon-btn svg {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    fill: currentColor;
+    /*←Heredacolordeltexto*/stroke: currentColor;
+    transition: fill var(--transition-fast), stroke var(--transition-fast);
+    -webkit-transition: fill var(--transition-fast), stroke var(--transition-fast);
+    -moz-transition: fill var(--transition-fast), stroke var(--transition-fast);
+    -ms-transition: fill var(--transition-fast), stroke var(--transition-fast);
+    -o-transition: fill var(--transition-fast), stroke var(--transition-fast);
+}
+
+/* Logo: SVG al lado del texto */
+.topbar .logo h1 {
+    display: flex;
+    align-items: center;
+}
+
+/* Botones de acción: solo SVG, sin texto */
+.topbar-actions .icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Hover en botones: el contenedor cambia, no el icono */
+.topbar-actions .icon-btn:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    -webkit-transform: translateY(-2px);
+    -moz-transform: translateY(-2px);
+    -ms-transform: translateY(-2px);
+    -o-transform: translateY(-2px);
+}
+
+/* Icono del título con degradado */
+.logo h1 svg {
+  color: var(--primary-color); /* Fallback */
+}
+
+/* Si quieres degradado real en el SVG (solo navegadores modernos) */
+@supports (background-clip: text) {
+  .logo h1 {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .logo h1 svg {
+    color: var(--primary-color);
+  }
 }
 
 .icon-btn {
@@ -346,18 +407,75 @@ body {
 }
 
 .container-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 2px;
     font-size: 1rem;
     font-weight: 600;
     color: var(--text-primary) !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    cursor: default;
+}
+
+.container-header h2 svg {
+    display: flex;
+    align-items: center;
+    font-size: 1.3rem;
+    color: var(--text-primary) !important;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.icon-wrapper svg {
+    display: block;
+    fill: currentColor;
+    stroke: currentColor;
+    transition: fill var(--transition-fast), stroke var(--transition-fast);
+}
+
+/* Tamaño por contexto */
+.icon-wrapper[data-svg-class="icon-gradient"] svg {
+    width: 1.2em;
+    height: 1.2em;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.icon-wrapper[data-svg-class="icon-container"] svg {
+    width: 1em;
+    height: 1em;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.icon-btn .icon-wrapper svg {
+    width: 20px;
+    height: 20px;
+}
+
+.btn-add .icon-wrapper svg,
+.btn-back .icon-wrapper svg {
+    width: 16px;
+    height: 16px;
+}
+
+.container-item:hover .icon-container svg {
+    fill: var(--primary-color) !important;
+    stroke: var(--primary-color) !important;
 }
 
 body:not([data-theme="dark"]):not([data-theme="amoled"]) .layout-name,
 body:not([data-theme="dark"]):not([data-theme="amoled"]) .theme-option .layout-name {
     color: #2d3748 !important;
-    /* ← Color oscuro para modo claro */
 }
 
 .container-actions {
@@ -460,6 +578,7 @@ body:not([data-theme="dark"]):not([data-theme="amoled"]) .theme-option .layout-n
     justify-content: center;
     min-height: 150px;
     height: 100%;
+    cursor: default;
 }
 
 /* ============================================
@@ -1682,7 +1801,6 @@ body[data-theme="amoled"] .color-picker-wrapper {
     --text-primary: #f7fafc !important;
     --text-secondary: #e2e8f0 !important;
     --text-muted: #a0aec0 !important;
-    --border-color: #4a5568 !important;
 }
 
 /* Tema AMOLED */
@@ -1693,7 +1811,6 @@ body[data-theme="amoled"] .color-picker-wrapper {
     --text-primary: #ffffff !important;
     --text-secondary: #b0b0b0 !important;
     --text-muted: #666666 !important;
-    --border-color: #333333 !important;
 }
 
 [data-theme="dark"] .modal-form input,
@@ -2008,6 +2125,8 @@ body[data-theme="amoled"] .color-picker-wrapper {
     .search-bar {
         order: 3;
         width: 100%;
+        position: static;
+        transform: none;
     }
 
     .logo h1 {

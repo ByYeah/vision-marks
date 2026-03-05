@@ -44,9 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-/**
- * Inicializar event listeners
- */
+ // Inicializar event listeners
 function initEventListeners() {
     // Toggle containers
     document.querySelectorAll('[data-action="toggleContainer"]').forEach(btn => {
@@ -85,9 +83,7 @@ function initEventListeners() {
     });
 }
 
-/**
- * Manejar toggle de contenedores
- */
+// Manejar toggle de contenedores
 function handleToggleContainer(e) {
     const container = e.target.closest('.container-item');
     if (!container) return;
@@ -110,9 +106,7 @@ function handleToggleContainer(e) {
     saveState();
 }
 
-/**
- * Manejar acciones de añadir (placeholder para F2)
- */
+// Manejar acciones de añadir (bookmark, folder)
 function handleAddAction(e) {
     const action = e.target.closest('[data-action]').dataset.action;
     const target = e.target.closest('[data-action]').dataset.target;
@@ -123,9 +117,7 @@ function handleAddAction(e) {
     alert(`En la Fase 2 se abrirá el modal para: ${action} en ${target}`);
 }
 
-/**
- * Manejar envío de chat
- */
+// Manejar envío de chat
 function handleChatSend() {
     const chatInput = document.getElementById('chatInput');
     const chatMessages = document.getElementById('chatMessages');
@@ -147,9 +139,7 @@ function handleChatSend() {
     }, 500);
 }
 
-/**
- * Añadir mensaje al chat
- */
+// Añadir mensaje al chat
 function addChatMessage(text, sender) {
     const chatMessages = document.getElementById('chatMessages');
     if (!chatMessages) return;
@@ -162,26 +152,21 @@ function addChatMessage(text, sender) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-/**
- * Manejar búsqueda
- */
+// Manejar búsqueda
 function handleSearch(e) {
     const query = e.target.value.trim().toLowerCase();
     console.log('Búsqueda:', query);
     // En F2 se implementará la lógica de búsqueda
 }
 
-/**
- * Renderizar estado inicial
- */
+// Renderizar estado inicial (si es necesario)
 function renderInitialState() {
     // Aquí se renderizarán los datos iniciales
     console.log('Renderizando estado inicial...');
 }
 
-/**
- * Guardar estado en localStorage
- */
+
+// Guardar estado en localStorage
 function saveState() {
     try {
         localStorage.setItem('bookmarkManagerState', JSON.stringify({
@@ -193,9 +178,7 @@ function saveState() {
     }
 }
 
-/**
- * Cargar estado desde localStorage
- */
+// Cargar estado desde localStorage
 function loadState() {
     try {
         const saved = localStorage.getItem('bookmarkManagerState');
@@ -211,3 +194,13 @@ function loadState() {
 
 // Cargar estado al iniciar
 loadState();
+
+// Cargar iconos SVG después del DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+    // ... código existente ...
+    
+    // Cargar iconos SVG externos
+    if (typeof SvgLoader !== 'undefined') {
+        SvgLoader.loadAll();
+    }
+});
