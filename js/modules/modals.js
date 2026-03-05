@@ -241,6 +241,13 @@ const ModalManager = (() => {
                     </svg>
                     Tipografía
                 </button>
+                <div class="settings-sidebar-divider"></div>
+                    <button class="settings-menu-item" data-section="about">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="nonzero" d="M12 17.002a2.501 2.501 0 1 1 0 5.002A2.501 2.501 0 0 1 12 17m0 1.5a1.001 1.001 0 1 0 0 2.002 1.001 1.001 0 0 0 0-2.003m-.001-16.5a3.875 3.875 0 0 1 3.875 3.876c0 2.833-.99 6.554-1.535 8.398a2.43 2.43 0 0 1-2.338 1.728A2.43 2.43 0 0 1 9.66 14.27l-.223-.777c-.554-1.995-1.313-5.163-1.313-7.616a3.875 3.875 0 0 1 3.875-3.876m0 1.5a2.375 2.375 0 0 0-2.375 2.376c0 2.561.927 6.108 1.475 7.97a.93.93 0 0 0 .902.656c.427 0 .786-.27.9-.654l.157-.544c.55-1.94 1.316-5.072 1.316-7.428A2.375 2.375 0 0 0 12 3.502"/>
+                        </svg>
+                        Acerca de
+                    </button>
             </div>
             <div class="settings-content">
                 <!-- Layouts -->
@@ -367,6 +374,62 @@ const ModalManager = (() => {
                                 <button class="display-mode-btn ${currentSettings.containers.folders.display === 'list' ? 'active' : ''}" data-container="folders" data-mode="list">Lista</button>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+            <!-- Sección "Acerca de" -->
+                <div class="settings-section" id="section-about">
+                    <h3>Acerca de Vision Marks</h3>
+                    <p>Gestor ligero de marcadores web</p>
+                    
+                    <div style="display:flex;flex-direction:column;gap:var(--spacing-md);padding:var(--spacing-md);background:var(--bg-tertiary);border-radius:var(--border-radius)">
+                        <!-- Versión -->
+                        <div>
+                            <strong style="color:var(--text-primary)">Versión</strong>
+                            <p style="color:var(--text-secondary);margin:4px 0 0 0">1.0.0 (Fase 1)</p>
+                        </div>
+                        
+                        <!-- Creador -->
+                        <div>
+                            <strong style="color:var(--text-primary)">Creador</strong>
+                            <p style="color:var(--text-secondary);margin:4px 0 0 0">ByYeah</p>
+                        </div>
+                        
+                        <!-- Repo GitHub - enlace más grande -->
+                        <div>
+                            <strong style="color:var(--text-primary)">Repositorio</strong>
+                            <p style="margin:4px 0 0 0">
+                                <a href="https://github.com/ByYeah/vision-marks" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                class="repo-link"
+                                style="color:var(--primary-color);text-decoration:none;font-size:1.05rem;display:inline-flex;align-items:center;gap:6px">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                                    </svg>
+                                    github.com/ByYeah/vision-marks
+                                </a>
+                            </p>
+                        </div>
+                        
+                        <!-- Botón Reportar bug - más grande, sin subrayado -->
+                        <div style="margin-top:var(--spacing-sm)">
+                            <a href="https://github.com/ByYeah/vision-marks/issues" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            class="btn-report-bug"
+                            style="display:inline-flex;align-items:center;gap:8px;padding:0.65rem 1.25rem;font-size:0.95rem;background:var(--primary-color);color:white;border:none;border-radius:var(--border-radius-sm);cursor:pointer;text-decoration:none;transition:all var(--transition-fast)">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                    <path d="M10.5 2.751a.75.75 0 0 0-1.5 0v.752c0 .633.196 1.22.53 1.703A3.75 3.75 0 0 0 7.01 8.49h-.257a2.25 2.25 0 0 1-2.24-2.259l.006-1.486a.75.75 0 1 0-1.5-.006l-.007 1.486A3.75 3.75 0 0 0 6.747 9.99H7v1.51H2.75a.75.75 0 0 0 0 1.5H7v1.992h-.253a3.75 3.75 0 0 0-3.735 3.766l.007 1.485a.75.75 0 0 0 1.5-.006l-.007-1.485a2.25 2.25 0 0 1 2.241-2.26h.473a5.002 5.002 0 0 0 9.548 0h.473a2.25 2.25 0 0 1 2.24 2.26l-.006 1.485a.75.75 0 0 0 1.5.006l.006-1.485a3.75 3.75 0 0 0-3.734-3.766H17V13h4.251a.75.75 0 0 0 0-1.5H17V9.99h.253a3.75 3.75 0 0 0 3.735-3.765l-.007-1.486a.75.75 0 1 0-1.5.006l.006 1.486a2.25 2.25 0 0 1-2.24 2.26h-.256a3.75 3.75 0 0 0-2.52-3.285c.333-.483.529-1.07.529-1.703v-.752a.75.75 0 0 0-1.5 0v.752a1.5 1.5 0 0 1-3 0zm-2 6.002a2.25 2.25 0 0 1 2.25-2.25h2.5a2.25 2.25 0 0 1 2.25 2.25v6.248a3.5 3.5 0 1 1-7 0z"/>
+                                </svg>
+                                Reportar un bug
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer con copyright -->
+                    <div style="margin-top:auto;padding-top:var(--spacing-md);border-top:1px solid var(--border-color);text-align:center;color:var(--text-muted);font-size:0.85rem">
+                        <p>© 2026 Vision Marks. Proyecto de código abierto.</p>
                     </div>
                 </div>
 

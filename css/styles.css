@@ -148,7 +148,8 @@ body {
     height: 20px;
     vertical-align: middle;
     fill: currentColor;
-    /*←Heredacolordeltexto*/stroke: currentColor;
+    /*←Heredacolordeltexto*/
+    stroke: currentColor;
     transition: fill var(--transition-fast), stroke var(--transition-fast);
     -webkit-transition: fill var(--transition-fast), stroke var(--transition-fast);
     -moz-transition: fill var(--transition-fast), stroke var(--transition-fast);
@@ -182,24 +183,26 @@ body {
 
 /* Icono del título con degradado */
 .logo h1 {
-  display: flex;
-  align-items: center;
-  font-size: 1.5rem;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: var(--primary-color); /* ← Fallback para el SVG */
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: var(--primary-color);
+    /* ← Fallback para el SVG */
 }
 
 /* SVG dentro del h1 - usa currentColor */
 .logo h1 svg {
-  width: 1.2em;
-  height: 1.2em;
-  vertical-align: middle;
-  margin-right: 8px;
-  fill: currentColor !important; /* ← Fuerza herencia del color */
+    width: 1.2em;
+    height: 1.2em;
+    vertical-align: middle;
+    margin-right: 8px;
+    fill: currentColor !important;
+    /* ← Fuerza herencia del color */
 }
 
 .icon-btn {
@@ -1135,6 +1138,71 @@ body:not([data-theme="dark"]):not([data-theme="amoled"]) .theme-option .layout-n
     border-radius: 2px;
 }
 
+.settings-sidebar-divider {
+    height: 1px;
+    background: var(--border-color);
+    margin: var(--spacing-md) 0;
+    opacity: 0.5;
+}
+
+/* Opcional: estilo especial para el botón "Acerca de" */
+.settings-menu-item[data-section="about"] {
+    margin-top: var(--spacing-xs);
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.settings-menu-item[data-section="about"]:hover {
+    color: var(--text-primary);
+    background: var(--bg-primary);
+}
+
+.settings-menu-item[data-section="about"].active {
+    background: var(--primary-color);
+    color: white;
+}
+
+#section-about .repo-link {
+    text-decoration: none !important;
+    font-size: 1.05rem !important;
+    font-weight: 500;
+    transition: opacity var(--transition-fast);
+}
+
+#section-about .repo-link:hover {
+    opacity: 0.85;
+}
+
+/* Botón Reportar bug - hover effect */
+#section-about .btn-report-bug {
+    box-shadow: var(--shadow-sm);
+}
+
+#section-about .btn-report-bug:hover {
+    background: var(--primary-dark) !important;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Asegurar que el SVG dentro del botón herede el color */
+#section-about .btn-report-bug svg,
+#section-about .repo-link svg {
+    fill: currentColor !important;
+    flex-shrink: 0;
+}
+
+/* Modo oscuro/AMOLED - asegurar contraste */
+[data-theme="dark"] #section-about .repo-link,
+[data-theme="amoled"] #section-about .repo-link {
+    color: var(--primary-color) !important;
+}
+
+[data-theme="dark"] #section-about .btn-report-bug,
+[data-theme="amoled"] #section-about .btn-report-bug {
+    background: var(--primary-color) !important;
+    color: white !important;
+}
+
 .settings-menu-item {
     padding: var(--spacing-sm) var(--spacing-md);
     border: none;
@@ -1679,7 +1747,6 @@ body[data-theme="amoled"] .color-picker-wrapper {
     --text-secondary: #b0b0b0 !important;
     --border-color: #333333 !important;
 }
-
 
 .form-group {
     display: flex;
