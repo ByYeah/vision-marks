@@ -181,21 +181,25 @@ body {
 }
 
 /* Icono del título con degradado */
-.logo h1 svg {
-  color: var(--primary-color); /* Fallback */
+.logo h1 {
+  display: flex;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: var(--primary-color); /* ← Fallback para el SVG */
 }
 
-/* Si quieres degradado real en el SVG (solo navegadores modernos) */
-@supports (background-clip: text) {
-  .logo h1 {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .logo h1 svg {
-    color: var(--primary-color);
-  }
+/* SVG dentro del h1 - usa currentColor */
+.logo h1 svg {
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: middle;
+  margin-right: 8px;
+  fill: currentColor !important; /* ← Fuerza herencia del color */
 }
 
 .icon-btn {
