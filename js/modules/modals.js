@@ -204,23 +204,37 @@ const ModalManager = (() => {
         <div class="settings-container">
             <div class="settings-sidebar">
                 <button class="settings-menu-item active" data-section="layouts">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <line x1="3" y1="9" x2="21" y2="9"/>
+                        <line x1="9" y1="21" x2="9" y2="9"/>
+                    </svg>
                     Layouts
                 </button>
+                <!-- Temas -->
                 <button class="settings-menu-item" data-section="themes">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="nonzero" d="M3.839 5.857c2.941-3.915 9.03-5.054 13.364-2.36 4.28 2.661 5.854 7.777 4.1 12.578-1.654 4.532-6.015 6.328-9.159 4.048-1.177-.854-1.634-1.925-1.854-3.664l-.106-.988-.045-.397c-.123-.934-.311-1.353-.704-1.572-.536-.298-.893-.305-1.596-.033l-.351.146-.179.078c-1.014.44-1.688.595-2.541.416l-.2-.047-.164-.047c-2.789-.864-3.202-4.647-.565-8.158m.984 6.717.123.036.134.031c.44.087.814.015 1.437-.242l.602-.257c1.202-.493 1.986-.541 3.046.05.917.511 1.275 1.298 1.457 2.66l.054.459.054.532.047.422c.172 1.361.485 2.09 1.248 2.644 2.275 1.65 5.534.308 6.87-3.349 1.516-4.152.174-8.514-3.484-10.789-3.674-2.284-8.899-1.307-11.373 1.987-2.074 2.763-1.82 5.28-.215 5.816m11.225-1.994a1.25 1.25 0 1 1 2.415-.647 1.25 1.25 0 0 1-2.415.647m.494 3.488a1.25 1.25 0 1 1 2.415-.647 1.25 1.25 0 0 1-2.415.647M14.07 7.577a1.25 1.25 0 1 1 2.415-.647 1.25 1.25 0 0 1-2.415.647m-.028 8.998a1.25 1.25 0 1 1 2.415-.647 1.25 1.25 0 0 1-2.415.647m-3.497-9.97a1.25 1.25 0 1 1 2.415-.647 1.25 1.25 0 0 1-2.415.647"/>
+                    </svg>
                     Temas
                 </button>
+                <!-- Contenedores -->
                 <button class="settings-menu-item" data-section="containers">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="nonzero" d="M18.251 2.498a3.25 3.25 0 0 1 3.245 3.066l.005.184v12.004a3.25 3.25 0 0 1-3.25 3.25h-12a3.25 3.25 0 0 1-3.246-3.066L3 17.752V5.748a3.25 3.25 0 0 1 3.25-3.25zm-6.751 7-7 .001v8.253l.007.16a1.75 1.75 0 0 0 1.743 1.59h5.25zm8.5 6-7 .001v4.002h5.25a1.75 1.75 0 0 0 1.75-1.75zm-1.749-11.5H13v10.001h7l.001-8.25-.007-.162a1.75 1.75 0 0 0-1.743-1.589m-6.751 0H6.25l-.143.006a1.75 1.75 0 0 0-1.606 1.744L4.5 8h7z"/>
+                    </svg>
                     Contenedores
                 </button>
+                <!-- Colores -->
                 <button class="settings-menu-item" data-section="colors">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                        <path d="M5.75 2a.75.75 0 0 0-.75.75v11.5a2.25 2.25 0 0 0 2.25 2.25H9.5v3a2.5 2.5 0 0 0 5 0v-3h2.25A2.25 2.25 0 0 0 19 14.25V2.75a.75.75 0 0 0-.75-.75zm.75 9V3.5h6v1.752a.75.75 0 0 0 1.5 0V3.5h1v2.751a.75.75 0 0 0 1.5 0V3.5h1V11zm0 3.25V12.5h11v1.75a.75.75 0 0 1-.75.75h-3a.75.75 0 0 0-.75.75v3.75a1 1 0 1 1-2 0v-3.75a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 1-.75-.75"/>
+                    </svg>
                     Colores
                 </button>
+                <!-- Tipografía -->
                 <button class="settings-menu-item" data-section="typography">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <polyline points="4 7 4 4 20 4 20 7"/>
                         <line x1="9" y1="20" x2="15" y2="20"/>
                         <line x1="12" y1="4" x2="12" y2="20"/>
