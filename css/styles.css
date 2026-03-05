@@ -105,6 +105,7 @@ body {
     font-size: 0.95rem;
     transition: all var(--transition-fast);
     background: var(--bg-primary);
+    color: var(--text-primary);
 }
 
 .search-bar input:focus {
@@ -1257,7 +1258,7 @@ body:not([data-theme="dark"]):not([data-theme="amoled"]) .theme-option .layout-n
     height: 80px;
     border-radius: var(--border-radius-sm);
     margin-bottom: var(--spacing-sm);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-color) !important;
 }
 
 .theme-preview.light {
@@ -1775,6 +1776,16 @@ body[data-theme="amoled"] .color-picker-wrapper {
 [data-theme="amoled"] .form-group input::placeholder,
 [data-theme="amoled"] .form-group textarea::placeholder {
     color: var(--text-muted) !important;
+}
+
+/* ============================================
+   SEARCH BAR - Modo oscuro
+   ============================================ */
+[data-theme="dark"] .search-bar input,
+[data-theme="amoled"] .search-bar input {
+    background: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
 }
 
 /* ============================================
