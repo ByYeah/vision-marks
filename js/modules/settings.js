@@ -22,6 +22,26 @@ const SettingsManager = (() => {
             chat: {
                 display: 'list',
                 colors: { background: '#ffffff', border: '#e2e8f0', text: '#2d3748' }
+            },
+            'widgets-1': {
+                display: 'list',
+                colors: { background: '#ffffff', border: '#e2e8f0', text: '#2d3748' },
+                enabled: false
+            },
+            'widgets-2': {
+                display: 'list',
+                colors: { background: '#ffffff', border: '#e2e8f0', text: '#2d3748' },
+                enabled: false
+            },
+            'widgets-3': {
+                display: 'list',
+                colors: { background: '#ffffff', border: '#e2e8f0', text: '#2d3748' },
+                enabled: false
+            },
+            'widgets-4': {
+                display: 'list',
+                colors: { background: '#ffffff', border: '#e2e8f0', text: '#2d3748' },
+                enabled: false
             }
         }
     };
@@ -106,7 +126,15 @@ const SettingsManager = (() => {
         settings.layout = layout;
         saveSettings();
         applyLayout();
+
+        // Solo forzar renderizado, NO estilos manuales
+        if (window.RenderManager) {
+            setTimeout(() => {
+                RenderManager.renderAll();
+            }, 50);
+        }
     }
+
 
     function updateTheme(theme) {
         settings.theme = theme;
@@ -181,6 +209,20 @@ const SettingsManager = (() => {
         if (grid) {
             grid.classList.remove('layout-double', 'layout-extended', 'layout-widgets', 'layout-free');
             grid.classList.add(`layout-${settings.layout}`);
+
+            // IMPORTANTE: Limpiar estilos inline que puedan haber quedado
+            grid.style.display = '';
+            grid.style.gridTemplateColumns = '';
+            grid.style.gridTemplateRows = '';
+        }
+
+        // Limpiar estilos inline de los contenedores cuando no estamos en widgets
+        if (settings.layout !== 'widgets') {
+            document.querySelectorAll('[data-container="folders"], [data-container="infolder"], [data-container="widgets-1"], [data-container="widgets-2"]').forEach(el => {
+                el.style.marginTop = '';
+                el.style.height = '';
+                el.style.marginBottom = '';
+            });
         }
     }
 

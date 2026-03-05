@@ -264,10 +264,10 @@ const ModalManager = (() => {
                             <div class="layout-preview-item" title="Carpetas"></div>
                             <div class="layout-preview-item" title="Contenido"></div>
                             <div class="layout-preview-item" title="Widget 1"></div>
-                            <div class="layout-preview-item" title="Widget 2" style="grid-column: 3; grid-row: 2 / -1;"></div>
+                            <div class="layout-preview-item" title="Widget 2"></div>
                         </div>
                         <div class="layout-name">Widgets</div>
-                        <div class="layout-desc">Columna derecha dividida</div>
+                        <div class="layout-desc">Doble con 2 widgets</div>
                     </div>
                     
                     <!-- Layout Libre: Bento Box 4x4 -->
@@ -277,9 +277,11 @@ const ModalManager = (() => {
                             <div class="layout-preview-item" title="Carpetas"></div>
                             <div class="layout-preview-item" title="Contenido"></div>
                             <div class="layout-preview-item" title="Chat"></div>
+                            <div class="layout-preview-item" title="Widget 1"></div>
+                            <div class="layout-preview-item" title="Widget 2"></div>
                         </div>
                         <div class="layout-name">Libre</div>
-                        <div class="layout-desc">Bento box</div>
+                        <div class="layout-desc">Bento box libre</div>
                     </div>
                 </div>
             </div>
