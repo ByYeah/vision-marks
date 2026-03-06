@@ -324,6 +324,13 @@ const ModalManager = (() => {
                         <div class="theme-option ${currentSettings.theme === 'auto' ? 'active' : ''}" data-theme="auto">
                             <div class="theme-preview auto"></div><div class="layout-name">Auto</div>
                         </div>
+                        <div class="theme-option ${currentSettings.theme === 'custom' ? 'active' : ''}" data-theme="custom">
+                            <div class="theme-preview custom"></div><div class="layout-name">Personalizado</div>
+                        </div>
+                    </div>
+
+                    <div id="customColorsNotice" style="margin-top:var(--spacing-md);padding:var(--spacing-sm);background:var(--bg-tertiary);border-radius:var(--border-radius-sm);font-size:0.85rem;color:var(--text-secondary);display:none">
+                        💡 Los colores personalizados solo se aplican en el tema <strong>Personalizado</strong>.
                     </div>
                 </div>
 
@@ -437,53 +444,74 @@ const ModalManager = (() => {
                 <div class="settings-section" id="section-colors">
                     <h3>Colores</h3>
                     <p>Personaliza por contenedor</p>
-
-                    <div class="color-picker-group">
-                        <h4>Color Principal</h4>
-                        <div class="color-picker-wrapper">
-                            <label>Primario:</label>
-                            <input type="color" class="color-input" data-container="global" data-property="primary" value="${currentSettings.colors?.primary || '#667eea'}">
-                            <input type="text" class="hex-input" value="${currentSettings.colors?.primary || '#667eea'}" placeholder="#667eea">
-                        </div>
-                        <button type="button" class="btn-reset" data-reset="global-primary">↺ Restablecer</button>
+                    
+                    <!-- AVISO: Solo en custom -->
+                    <div id="customColorsNotice" style="margin-bottom:var(--spacing-md);padding:var(--spacing-sm);background:var(--bg-tertiary);border-radius:var(--border-radius-sm);font-size:0.85rem;color:var(--text-secondary);display:none">
+                        💡 Los colores de contenedores solo se aplican en el tema <strong>Personalizado</strong>. El color primario siempre está disponible.
                     </div>
                     
-                    <div class="color-picker-group">
-                        <h4>Favoritos</h4>
-                        <div class="color-picker-wrapper">
-                            <label>Fondo:</label>
-                            <input type="color" class="color-input" data-container="favbookmarks" data-property="background" value="${currentSettings.containers.favbookmarks.colors.background}">
-                            <input type="text" class="hex-input" value="${currentSettings.containers.favbookmarks.colors.background}" placeholder="#ffffff">
+                    <!-- GENERAL - Siempre visible (solo color primario) -->
+                    <div class="color-section-general">
+                        <div class="color-picker-group">
+                            <h4>General</h4>
+                            <div class="color-picker-wrapper">
+                                <label>Primario:</label>
+                                <input type="color" class="color-input" data-container="global" data-property="primary"
+                                    value="${currentSettings.colors?.primary || '#667eea'}">
+                                <input type="text" class="hex-input" value="${currentSettings.colors?.primary || '#667eea'}" placeholder="#667eea">
+                            </div>
+                            <button type="button" class="btn-reset" data-reset="global-primary">↺ Restablecer General</button>
                         </div>
-                        <div class="color-picker-wrapper">
-                            <label>Borde:</label>
-                            <input type="color" class="color-input" data-container="favbookmarks" data-property="border" value="${currentSettings.containers.favbookmarks.colors.border}">
-                            <input type="text" class="hex-input" value="${currentSettings.containers.favbookmarks.colors.border}" placeholder="#e2e8f0">
-                        </div>
-                        <div class="color-picker-wrapper">
-                            <label>Texto:</label>
-                            <input type="color" class="color-input" data-container="favbookmarks" data-property="text" value="${currentSettings.containers.favbookmarks.colors.text}">
-                            <input type="text" class="hex-input" value="${currentSettings.containers.favbookmarks.colors.text}" placeholder="#2d3748">
-                        </div>
-                        <button type="button" class="btn-reset" data-reset="favbookmarks">↺ Restablecer</button>
                     </div>
                     
-                    <div class="color-picker-group">
-                        <h4>Carpetas</h4>
-                        <div class="color-picker-wrapper">
-                            <label>Fondo:</label>
-                            <input type="color" class="color-input" data-container="folders" data-property="background" value="${currentSettings.containers.folders.colors.background}">
-                            <input type="text" class="hex-input" value="${currentSettings.containers.folders.colors.background}" placeholder="#ffffff">
-                        </div>
-                        <div class="color-picker-wrapper">
-                            <label>Borde:</label>
-                            <input type="color" class="color-input" data-container="folders" data-property="border" value="${currentSettings.containers.folders.colors.border}">
-                            <input type="text" class="hex-input" value="${currentSettings.containers.folders.colors.border}" placeholder="#e2e8f0">
-                        </div>
-                        <button type="button" class="btn-reset" data-reset="folders">↺ Restablecer</button>
+                    <!-- CARDS GRID - Contenedores individuales (solo en custom) -->
+                    <div class="color-cards-grid">
+                        ${['favbookmarks', 'folders', 'infolder', 'chat', 'widgets-1', 'widgets-2'].map(container => {
+            const label = {
+                'favbookmarks': 'Favoritos',
+                'folders': 'Carpetas',
+                'infolder': 'Contenido',
+                'chat': 'Asistente',
+                'widgets-1': 'Widget 1',
+                'widgets-2': 'Widget 2'
+            }[container];
+            const colors = currentSettings.containers[container]?.colors || { background: '#ffffff', border: '#e2e8f0', text: '#2d3748', header: '#667eea' };
+            const isCustom = currentSettings.theme === 'custom';
+            return `
+                            <div class="color-card" data-container="${container}">
+                                <div class="color-card-header">
+                                    <h4>${label}</h4>
+                                    <button type="button" class="btn-reset btn-reset-small" data-reset="${container}" ${!isCustom ? 'disabled' : ''}>↺</button>
+                                </div>
+                                <div class="color-card-body" style="${!isCustom ? 'opacity:0.5;pointer-events:none;' : ''}">
+                                    <div class="color-picker-wrapper">
+                                        <label>Header:</label>
+                                        <input type="color" class="color-input" data-container="${container}" data-property="header" value="${colors.header}" ${!isCustom ? 'disabled' : ''}>
+                                        <input type="text" class="hex-input" value="${colors.header}" placeholder="#667eea" ${!isCustom ? 'disabled' : ''}>
+                                    </div>
+                                    <div class="color-picker-wrapper">
+                                        <label>Fondo:</label>
+                                        <input type="color" class="color-input" data-container="${container}" data-property="background" value="${colors.background}" ${!isCustom ? 'disabled' : ''}>
+                                        <input type="text" class="hex-input" value="${colors.background}" placeholder="#ffffff" ${!isCustom ? 'disabled' : ''}>
+                                    </div>
+                                    <div class="color-picker-wrapper">
+                                        <label>Borde:</label>
+                                        <input type="color" class="color-input" data-container="${container}" data-property="border" value="${colors.border}" ${!isCustom ? 'disabled' : ''}>
+                                        <input type="text" class="hex-input" value="${colors.border}" placeholder="#e2e8f0" ${!isCustom ? 'disabled' : ''}>
+                                    </div>
+                                    <div class="color-picker-wrapper">
+                                        <label>Texto:</label>
+                                        <input type="color" class="color-input" data-container="${container}" data-property="text" value="${colors.text}" ${!isCustom ? 'disabled' : ''}>
+                                        <input type="text" class="hex-input" value="${colors.text}" placeholder="#2d3748" ${!isCustom ? 'disabled' : ''}>
+                                    </div>
+                                </div>
+                            </div>
+                            `;
+        }).join('')}
                     </div>
                     
-                    <div style="margin-top:auto;padding-top:1rem;border-top:1px solid var(--border-color);grid-column:1/-1">
+                    <!-- Reset general -->
+                    <div style="margin-top:var(--spacing-md);padding-top:var(--spacing-md);border-top:1px solid var(--border-color)">
                         <button type="button" class="btn-reset" id="btnResetAll" style="width:100%">↺ Restablecer TODO</button>
                     </div>
                 </div>
@@ -514,6 +542,11 @@ const ModalManager = (() => {
                         const parent = el.closest('.layouts-grid, .theme-options, .display-mode-selector');
                         if (parent) parent.querySelectorAll(`.${selector}`).forEach(o => o.classList.remove('active'));
                         el.classList.add('active');
+
+                        if (selector === 'theme-option') {
+                            currentSettings.theme = el.dataset.theme;
+                            updateColorsSectionVisibility();
+                        }
                     });
                 });
             });
@@ -529,7 +562,10 @@ const ModalManager = (() => {
 
                 // Themes
                 modal.querySelectorAll('.theme-option').forEach(opt => {
-                    opt.classList.toggle('active', opt.dataset.theme === s.theme);
+                    opt.addEventListener('click', () => {
+                        currentSettings.theme = opt.dataset.theme;
+                        updateColorsSectionVisibility();
+                    });
                 });
 
                 // Container displays
@@ -552,8 +588,36 @@ const ModalManager = (() => {
                     }
                 });
             }
-
             syncVisualSelection();
+
+            function updateColorsSectionVisibility() {
+                const isCustom = currentSettings.theme === 'custom';
+                const notice = modal.querySelector('#customColorsNotice');
+                const cards = modal.querySelectorAll('.color-card');
+
+                // Mostrar/ocultar aviso
+                if (notice) {
+                    notice.style.display = isCustom ? 'none' : 'block';
+                }
+
+                // Habilitar/deshabilitar cards de contenedores
+                cards.forEach(card => {
+                    const body = card.querySelector('.color-card-body');
+                    const resetBtn = card.querySelector('.btn-reset-small');
+                    const inputs = card.querySelectorAll('input');
+
+                    if (isCustom) {
+                        if (body) body.style.cssText = 'opacity:1;pointer-events:auto;';
+                        if (resetBtn) resetBtn.disabled = false;
+                        inputs.forEach(input => input.disabled = false);
+                    } else {
+                        if (body) body.style.cssText = 'opacity:0.5;pointer-events:none;';
+                        if (resetBtn) resetBtn.disabled = true;
+                        inputs.forEach(input => input.disabled = true);
+                    }
+                });
+            }
+            updateColorsSectionVisibility();
 
             // Font selection
             modal.querySelectorAll('.font-option').forEach(opt => {
@@ -618,35 +682,50 @@ const ModalManager = (() => {
             // Reset individual
             modal.querySelectorAll('.btn-reset[data-reset]').forEach(btn => {
                 btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+
                     const resetTarget = e.target.dataset.reset;
+                    const defaults = SettingsManager.getDefaults();
 
                     if (resetTarget === 'global-primary') {
                         // Restablecer color primario
-                        const defaults = SettingsManager.getDefaults();
                         const primary = defaults.colors?.primary || '#667eea';
                         const group = e.target.closest('.color-picker-group');
-                        const colorInput = group.querySelector('.color-input[data-property="primary"]');
-                        const hexInput = group.querySelector('.hex-input');
+                        const colorInput = group?.querySelector('.color-input[data-property="primary"]');
+                        const hexInput = group?.querySelector('.hex-input');
                         if (colorInput) colorInput.value = primary;
-                        if (hexInput) hexInput.value = primary;
+                        if (hexInput) {
+                            hexInput.value = primary;
+                            hexInput.style.borderColor = 'var(--border-color)';
+                        }
                         SettingsManager.updateContainerColors('global', { primary });
                         showNotification('Color principal restablecido');
-                    } else {
-                        // Resto del código para contenedores individuales...
+                    } else if (SettingsManager.getSettings().theme === 'custom') {
+                        // Restablecer contenedor (solo en custom)
                         const container = resetTarget;
-                        const defaults = SettingsManager.getDefaults();
-                        const colors = defaults.containers[container].colors;
-                        const group = e.target.closest('.color-picker-group');
-                        group.querySelectorAll('.color-input').forEach(input => {
-                            const prop = input.dataset.property;
-                            if (colors[prop]) {
-                                input.value = colors[prop];
-                                const hex = input.closest('.color-picker-wrapper').querySelector('.hex-input');
-                                if (hex) hex.value = colors[prop];
-                            }
-                        });
-                        SettingsManager.updateContainerColors(container, colors);
-                        showNotification(`Colores de "${container}" restablecidos`);
+                        const colors = defaults.containers[container]?.colors;
+                        if (colors) {
+                            const card = e.target.closest('.color-card');
+                            const wrappers = card?.querySelectorAll('.color-picker-wrapper');
+
+                            wrappers.forEach(wrapper => {
+                                const colorInput = wrapper.querySelector('.color-input');
+                                const hexInput = wrapper.querySelector('.hex-input');
+                                const prop = colorInput?.dataset.property;
+
+                                if (colorInput && hexInput && prop && colors[prop]) {
+                                    colorInput.value = colors[prop];
+                                    hexInput.value = colors[prop];
+                                    hexInput.style.borderColor = 'var(--border-color)';
+                                }
+                            });
+
+                            SettingsManager.updateContainerColors(container, colors);
+                            showNotification(`Colores de "${container}" restablecidos`);
+                        }
+                    } else {
+                        showNotification('💡 Cambia al tema "Personalizado" para editar colores');
                     }
                 });
             });
@@ -677,7 +756,6 @@ const ModalManager = (() => {
 
             // Guardar cambios
             modal.querySelector('[data-action="save"]')?.addEventListener('click', () => {
-
                 // Guardar layout y tema...
                 const selLayout = modal.querySelector('.layout-option.active');
                 if (selLayout) SettingsManager.updateLayout(selLayout.dataset.layout);
@@ -702,8 +780,24 @@ const ModalManager = (() => {
                 modal.querySelectorAll('.color-input').forEach(input => {
                     const c = input.dataset.container;
                     const p = input.dataset.property;
-                    SettingsManager.updateContainerColors(c, { [p]: input.value });
+                    // Solo guardar si no está disabled
+                    if (!input.disabled) {
+                        SettingsManager.updateContainerColors(c, { [p]: input.value });
+                    }
                 });
+
+                if (SettingsManager.getSettings().theme === 'custom') {
+                    setTimeout(() => {
+                        Object.keys(SettingsManager.getSettings().containers).forEach(container => {
+                            SettingsManager.applyContainerColors(container,
+                                SettingsManager.getSettings().containers[container].colors);
+                        });
+                        // Re-aplicar colores globales de tema custom
+                        if (typeof SettingsManager.applyCustomThemeColors === 'function') {
+                            SettingsManager.applyCustomThemeColors();
+                        }
+                    }, 100);
+                }
 
                 SettingsManager.saveSettings();
                 closeModal(modal);
