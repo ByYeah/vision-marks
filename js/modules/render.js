@@ -130,36 +130,35 @@ const RenderManager = (() => {
         loadMenuIcons();
     }
 
-    async function loadMenuIcons() {
-        if (!window.SvgLoader) return;
+async function loadMenuIcons() {
+    if (!window.SvgLoader) return;
 
-        // Cargar icono more-vertical
-        const moreIcons = document.querySelectorAll('.icon-more-vertical');
-        if (moreIcons.length > 0) {
-            const svgContent = await SvgLoader.loadIcon('more-vertical');
-            moreIcons.forEach(icon => {
-                icon.innerHTML = svgContent;
-            });
-        }
-
-        // Cargar icono arrow-up
-        const upIcons = document.querySelectorAll('.icon-arrow-up');
-        if (upIcons.length > 0) {
-            const svgContent = await SvgLoader.loadIcon('arrow-up');
-            upIcons.forEach(icon => {
-                icon.innerHTML = svgContent;
-            });
-        }
-
-        // Cargar icono arrow-down
-        const downIcons = document.querySelectorAll('.icon-arrow-down');
-        if (downIcons.length > 0) {
-            const svgContent = await SvgLoader.loadIcon('arrow-down');
-            downIcons.forEach(icon => {
-                icon.innerHTML = svgContent;
-            });
+    const icons = ['more-vertical', 'arrow-up', 'arrow-down', 'edit', 'star', 'trash'];
+    
+    for (const iconName of icons) {
+        const elements = document.querySelectorAll(`.icon-${iconName}`);
+        if (elements.length > 0) {
+            try {
+                // Determinar atributos según el tipo de icono
+                const attributes = (iconName === 'edit' || iconName === 'trash')
+                    ? { fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }
+                    : { fill: 'currentColor', stroke: 'currentColor', 'stroke-width': '2' };
+                
+                // Usar la nueva función que soporta atributos
+                const svgContent = await SvgLoader.loadIconWithAttributes(iconName, attributes);
+                
+                elements.forEach(el => {
+                    if (!el.querySelector('svg')) {
+                        el.innerHTML = svgContent;
+                    }
+                });
+                console.log(`[Icons] Cargados ${elements.length} iconos: ${iconName}`);
+            } catch (error) {
+                console.error(`[Icons] Error cargando ${iconName}:`, error);
+            }
         }
     }
+}
 
     function updateFavoritesButton(count, max) {
         const btn = document.querySelector('[data-container="favbookmarks"] .btn-add');
@@ -221,24 +220,42 @@ const RenderManager = (() => {
 
 
         const html = `<div class="favorites-grid ${gridClass}">${displayFavorites.map(b => `
-        <div class="favorite-grid-item ${gridClass}" data-bookmark-id="${b.id}" title="${escapeHtml(b.title)}">
-            <img src="${b.icon}" alt="" class="bookmark-icon" onerror="this.src='assets/icons/default-bookmark.png'">
-            <div class="grid-item-actions">
-                <button class="grid-item-btn edit" data-action="edit" data-bookmark-id="${b.id}" title="Editar">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                </button>
-                <button class="grid-item-btn delete" data-action="delete" data-bookmark-id="${b.id}" title="Eliminar">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                    </svg>
-                </button>
+            <div class="favorite-grid-item ${gridClass}" data-bookmark-id="${b.id}" data-collection="favorites" title="${escapeHtml(b.title)}">
+                <img src="${b.icon}" alt="" class="bookmark-icon" onerror="this.src='assets/icons/default-bookmark.png'">
+                <div class="grid-item-actions">
+                    <button class="grid-item-btn btn-more-grid" data-id="${b.id}" data-collection="favorites" title="Más opciones">
+                        <span class="icon-more-vertical"></span>
+                    </button>
+                </div>
+                <!-- Menú contextual para grid -->
+                <div class="context-menu context-menu-grid" data-id="${b.id}">
+                    <ul>
+                        <li class="context-menu-item" data-action="edit" data-bookmark-id="${b.id}">
+                            <span class="icon-edit"></span>
+                            <span>Editar</span>
+                        </li>
+                        <li class="context-menu-item" data-action="toggle-favorite" data-bookmark-id="${b.id}">
+                            <span class="icon-star"></span>
+                            <span>${b.isFavorite ? 'Quitar favorito' : 'Añadir a favoritos'}</span>
+                        </li>
+                        <li class="context-menu-divider"></li>
+                        <li class="context-menu-item" data-action="move-up" data-id="${b.id}" data-collection="favorites">
+                            <span class="icon-arrow-up"></span>
+                            <span>Subir prioridad</span>
+                        </li>
+                        <li class="context-menu-item" data-action="move-down" data-id="${b.id}" data-collection="favorites">
+                            <span class="icon-arrow-down"></span>
+                            <span>Bajar prioridad</span>
+                        </li>
+                        <li class="context-menu-divider"></li>
+                        <li class="context-menu-item delete" data-action="delete" data-bookmark-id="${b.id}">
+                            <span class="icon-trash"></span>
+                            <span>Eliminar</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        </div>
-    `).join('')}</div>`;
+        `).join('')}</div>`;
 
         // Indicador de páginas solo si hay más de 16 items
         const pageIndicator = totalPages > 1 ? `
@@ -251,6 +268,11 @@ const RenderManager = (() => {
 
         attachGridEvents(container);
         // Si necesitas el wheel listener, añádelo después sin setTimeout
+
+        setTimeout(() => {
+            loadMenuIcons();
+        }, 0);
+
         if (totalPages > 1) {
             const containerBody = document.querySelector('[data-container="favbookmarks"] .container-body');
             if (containerBody) {
@@ -258,7 +280,6 @@ const RenderManager = (() => {
                 containerBody.addEventListener('wheel', handleGridWheel, { passive: false });
             }
         }
-        loadMoreVerticalIcons();
     }
 
     // Controles de paginación
@@ -323,34 +344,39 @@ const RenderManager = (() => {
 
     // Delegación de eventos para GRID
     function attachGridEvents(container) {
-        // NO clonar ni reemplazar - usar delegation directa
         container.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
+            // Si el click es dentro del menú contextual, NO abrir URL
+            if (e.target.closest('.context-menu') || e.target.closest('.grid-item-actions')) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
 
             const editBtn = e.target.closest('.grid-item-btn.edit');
             const deleteBtn = e.target.closest('.grid-item-btn.delete');
             const gridItem = e.target.closest('.favorite-grid-item');
 
-            // EDITAR - llamada directa, SIN setTimeout
             if (editBtn) {
+                e.preventDefault();
+                e.stopPropagation();
                 const id = editBtn.dataset.bookmarkId;
-                if (window.BookmarksManager && typeof BookmarksManager.openBookmarkModal === 'function') {
+                if (window.BookmarksManager) {
                     BookmarksManager.openBookmarkModal(null, id);
                 }
                 return;
             }
 
-            // ELIMINAR - llamada directa, SIN setTimeout
             if (deleteBtn) {
+                e.preventDefault();
+                e.stopPropagation();
                 const id = deleteBtn.dataset.bookmarkId;
-                if (window.BookmarksManager && typeof BookmarksManager.deleteBookmark === 'function') {
+                if (window.BookmarksManager) {
                     BookmarksManager.deleteBookmark(id);
                 }
                 return;
             }
 
-            // ABRIR URL
+            // ABRIR URL solo si no fue en acciones
             if (gridItem && !e.target.closest('.grid-item-actions')) {
                 const id = gridItem.dataset.bookmarkId;
                 const b = StateManager.getBookmarkById(id);

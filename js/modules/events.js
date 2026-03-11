@@ -141,7 +141,7 @@ const EventsManager = (() => {
 
         // Usar event delegation con capture: true para interceptar antes
         document.addEventListener('click', (e) => {
-            // Click en botón MORE
+            // Click en botón MORE de lista
             const btnMore = e.target.closest('.btn-more');
             if (btnMore) {
                 e.preventDefault();
@@ -151,27 +151,46 @@ const EventsManager = (() => {
                 const itemId = btnMore.dataset.id;
                 console.log('[Events] Click en btn-more para ID:', itemId);
                 toggleContextMenu(itemId);
-                return false;
+                return;
             }
 
-            // Click en items del menú contextual
+            // Click en botón MORE de grid
+            const btnMoreGrid = e.target.closest('.btn-more-grid');
+            if (btnMoreGrid) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+
+                const itemId = btnMoreGrid.dataset.id;
+                console.log('[Events] Click en btn-more-grid para ID:', itemId);
+                toggleContextMenuGrid(itemId);
+                return;
+            }
+
+            // Click en items del menú contextual de lista
             const menuItem = e.target.closest('.context-menu-item');
             if (menuItem) {
+                const contextMenu = menuItem.closest('.context-menu');
+                if (!contextMenu) return;
+
+                // Si es menú de grid, manejarlo aparte
+                if (contextMenu.classList.contains('context-menu-grid')) {
+                    handleGridMenuItemClick(e, menuItem, contextMenu);
+                    return;
+                }
+
+                // Menú de lista
                 e.preventDefault();
                 e.stopPropagation();
                 e.stopImmediatePropagation();
 
                 const action = menuItem.dataset.action;
-                const contextMenu = menuItem.closest('.context-menu');
-
-                if (!contextMenu) return false;
-
                 const itemId = contextMenu.dataset.id;
                 const parentItem = contextMenu.closest('.bookmark-item, .folder-item');
                 const collection = parentItem?.dataset.collection;
                 const folderId = parentItem?.dataset.folderId || null;
 
-                console.log('[Events] Acción de menú:', action, 'para item:', itemId, 'colección:', collection);
+                console.log('[Events] Acción de menú lista:', action, 'para item:', itemId, 'colección:', collection);
 
                 if (action === 'move-up' && window.ReorderManager) {
                     ReorderManager.moveUp(collection, itemId, folderId);
@@ -179,16 +198,16 @@ const EventsManager = (() => {
                     ReorderManager.moveDown(collection, itemId, folderId);
                 }
 
-                // Cerrar todos los menús después de la acción
                 closeAllContextMenus();
-                return false;
+                return;
             }
-        }, { capture: true }); // ← Importante: capturar en fase de captura
+        }, { capture: true });
 
-        // Cerrar menús al hacer click fuera
+        // Manejador separado para clicks fuera (cierre de menús)
         document.addEventListener('click', (e) => {
-            // Si el click no fue en un botón more ni en un menú
-            if (!e.target.closest('.btn-more') && !e.target.closest('.context-menu')) {
+            if (!e.target.closest('.btn-more') &&
+                !e.target.closest('.btn-more-grid') &&
+                !e.target.closest('.context-menu')) {
                 closeAllContextMenus();
             }
         });
@@ -201,15 +220,63 @@ const EventsManager = (() => {
         });
     }
 
+    // Manejador específico para items del menú grid
+    function handleGridMenuItemClick(e, menuItem, contextMenu) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        const action = menuItem.dataset.action;
+        const bookmarkId = menuItem.dataset.bookmarkId;
+        const itemId = menuItem.dataset.id;
+        const collection = menuItem.dataset.collection;
+
+        console.log('[Events] Acción de menú grid:', action, 'para bookmark:', bookmarkId || itemId);
+
+        switch (action) {
+            case 'edit':
+                if (window.BookmarksManager) {
+                    BookmarksManager.openBookmarkModal(null, bookmarkId);
+                }
+                break;
+            case 'toggle-favorite':
+                if (window.BookmarksManager) {
+                    BookmarksManager.toggleFavorite(bookmarkId);
+                }
+                break;
+            case 'delete':
+                if (window.BookmarksManager) {
+                    BookmarksManager.deleteBookmark(bookmarkId);
+                }
+                break;
+            case 'move-up':
+                if (window.ReorderManager) {
+                    ReorderManager.moveUp(collection, itemId, null);
+                }
+                break;
+            case 'move-down':
+                if (window.ReorderManager) {
+                    ReorderManager.moveDown(collection, itemId, null);
+                }
+                break;
+        }
+        closeAllContextMenus();
+    }
+
     function toggleContextMenu(itemId) {
         console.log('[ContextMenu] toggleContextMenu para ID:', itemId);
 
-        // Encontrar el menú y el botón correspondientes
         const menu = document.querySelector(`.context-menu[data-id="${itemId}"]`);
         const btn = document.querySelector(`.btn-more[data-id="${itemId}"]`);
 
         if (!menu || !btn) {
-            console.warn('[ContextMenu] Elementos no encontrados:', { menu: !!menu, btn: !!btn });
+            console.warn('[ContextMenu] Elementos no encontrados');
+            return;
+        }
+
+        // Si el menú ya está activo, solo cerrarlo
+        if (menu.classList.contains('active')) {
+            closeAllContextMenus();
             return;
         }
 
@@ -220,53 +287,84 @@ const EventsManager = (() => {
         menu.classList.remove('position-top', 'position-bottom');
 
         // Activar el menú
-        requestAnimationFrame(() => {
-            menu.classList.add('active');
+        menu.classList.add('active');
 
-            // Calcular la posición después de que el menú sea visible
-            setTimeout(() => {
-                const menuRect = menu.getBoundingClientRect();
-                const btnRect = btn.getBoundingClientRect();
-                const containerRect = document.querySelector('[data-container="favbookmarks"] .container-body')?.getBoundingClientRect();
+        // Posicionamiento inteligente (con un pequeño delay para que el menú se haya renderizado)
+        setTimeout(() => {
+            positionContextMenu(menu, btn);
+        }, 10);
+    }
 
-                if (!containerRect) return;
+    // Función específica para toggle del menú en grid
+    function toggleContextMenuGrid(itemId) {
+        console.log('[ContextMenu] toggleContextMenuGrid para ID:', itemId);
 
-                // Espacio disponible abajo del botón
-                const spaceBelow = containerRect.bottom - btnRect.bottom;
-                // Espacio disponible arriba del botón
-                const spaceAbove = btnRect.top - containerRect.top;
+        const menu = document.querySelector(`.context-menu-grid[data-id="${itemId}"]`);
+        const btn = document.querySelector(`.btn-more-grid[data-id="${itemId}"]`);
 
-                // Altura del menú (con un pequeño margen de seguridad)
-                const menuHeight = menuRect.height;
+        if (!menu || !btn) return;
 
-                // Decidir posición
-                if (spaceBelow >= menuHeight + 10) {
-                    // Hay suficiente espacio abajo - posición normal
-                    menu.style.top = '100%';
-                    menu.style.bottom = 'auto';
-                    menu.classList.add('position-bottom');
-                    console.log('[ContextMenu] Posicionado abajo');
-                } else if (spaceAbove >= menuHeight + 10) {
-                    // Hay suficiente espacio arriba - posición invertida
-                    menu.style.top = 'auto';
-                    menu.style.bottom = '100%';
-                    menu.classList.add('position-top');
-                    console.log('[ContextMenu] Posicionado arriba');
-                } else {
-                    // No hay espacio ni arriba ni abajo - posición abajo por defecto
-                    menu.style.top = '100%';
-                    menu.style.bottom = 'auto';
-                    menu.classList.add('position-bottom');
-                    console.log('[ContextMenu] Sin espacio, posición abajo');
-                }
+        // Si el menú ya está activo, solo cerrarlo
+        if (menu.classList.contains('active')) {
+            closeAllContextMenus();
+            return;
+        }
 
-                console.log('[ContextMenu] Posición:', {
-                    spaceAbove,
-                    spaceBelow,
-                    menuHeight
-                });
-            }, 10); // Pequeño delay para que el menú se haya renderizado
-        });
+        closeAllContextMenus();
+        menu.classList.remove('position-top', 'position-bottom');
+        menu.classList.add('active');
+
+        setTimeout(() => {
+            positionContextMenuGrid(menu, btn);
+        }, 10);
+    }
+
+    function positionContextMenu(menu, btn) {
+        const menuRect = menu.getBoundingClientRect();
+        const btnRect = btn.getBoundingClientRect();
+        const containerRect = document.querySelector('[data-container="favbookmarks"] .container-body')?.getBoundingClientRect();
+
+        if (!containerRect) return;
+
+        const spaceBelow = containerRect.bottom - btnRect.bottom;
+        const spaceAbove = btnRect.top - containerRect.top;
+        const menuHeight = menuRect.height;
+
+        if (spaceBelow >= menuHeight + 10) {
+            menu.style.top = '100%';
+            menu.style.bottom = 'auto';
+            menu.classList.add('position-bottom');
+        } else if (spaceAbove >= menuHeight + 10) {
+            menu.style.top = 'auto';
+            menu.style.bottom = '100%';
+            menu.classList.add('position-top');
+        } else {
+            menu.style.top = '100%';
+            menu.style.bottom = 'auto';
+            menu.classList.add('position-bottom');
+        }
+    }
+
+    function positionContextMenuGrid(menu, btn) {
+        const menuRect = menu.getBoundingClientRect();
+        const btnRect = btn.getBoundingClientRect();
+        const gridContainer = document.querySelector('.favorites-grid')?.getBoundingClientRect();
+
+        if (!gridContainer) return;
+
+        const spaceBelow = gridContainer.bottom - btnRect.bottom;
+        const spaceAbove = btnRect.top - gridContainer.top;
+        const menuHeight = menuRect.height;
+
+        if (spaceBelow >= menuHeight + 10) {
+            menu.style.top = '100%';
+            menu.style.bottom = 'auto';
+            menu.classList.add('position-bottom');
+        } else if (spaceAbove >= menuHeight + 10) {
+            menu.style.top = 'auto';
+            menu.style.bottom = '100%';
+            menu.classList.add('position-top');
+        }
     }
 
     // Función para cerrar todos los menús contextuales

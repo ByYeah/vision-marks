@@ -805,6 +805,169 @@ body:not([data-theme="dark"]):not([data-theme="amoled"]) .theme-option .layout-n
     pointer-events: none;
 }
 
+.grid-item-btn.btn-more-grid {
+    width: 28px !important;
+    height: 28px !important;
+    background: var(--bg-secondary) !important;
+    border-radius: 6px !important;
+    opacity: 0.8 !important;
+}
+
+.grid-item-btn.btn-more-grid:hover {
+    background: var(--primary-color) !important;
+    color: white !important;
+    opacity: 1 !important;
+    transform: scale(1.1) !important;
+}
+
+/* Menú contextual para grid */
+.context-menu-grid {
+    min-width: 220px !important;
+}
+
+/* Divisor del menú */
+.context-menu-divider {
+    height: 1px !important;
+    background: var(--border-color) !important;
+    margin: 6px 0 !important;
+}
+
+/* Ajuste de posición para grid items */
+.favorite-grid-item {
+    position: relative !important;
+    overflow: visible !important;
+}
+
+/* El menú se posiciona relativo al grid item */
+.favorite-grid-item .context-menu-grid {
+    position: absolute !important;
+    top: 100% !important;
+    right: 5px !important;
+    z-index: 999999 !important;
+}
+
+/* Posición arriba para grid items cerca del borde */
+.favorite-grid-item .context-menu-grid.position-top {
+    top: auto !important;
+    bottom: 100% !important;
+}
+
+/* Mostrar acciones en hover */
+.favorite-grid-item:hover .grid-item-actions {
+    opacity: 1 !important;
+}
+
+/* Cuando el menú está activo, mantener visible el botón */
+.favorite-grid-item:has(.context-menu-grid.active) .grid-item-actions {
+    opacity: 1 !important;
+}
+
+.favorite-grid-item:has(.context-menu-grid.active) .btn-more-grid {
+    background: var(--primary-color) !important;
+    color: white !important;
+}
+
+/* Icono específico de edit - mantener trazo visible */
+.context-menu-item .icon-edit svg {
+    stroke: currentColor !important;
+    fill: none !important; /* El icono edit normalmente es solo contorno */
+}
+
+/* Icono de trash - mantener trazo visible */
+.context-menu-item .icon-trash svg {
+    stroke: currentColor !important;
+    fill: none !important; /* El icono trash normalmente es solo contorno */
+}
+
+/* Icono de star - relleno para favorito */
+.context-menu-item .icon-star svg {
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* Color especial para eliminar */
+.context-menu-item.delete:hover {
+    background: #e53e3e !important;
+    color: white !important;
+}
+
+.context-menu-item.delete:hover svg {
+    fill: white !important;
+}
+
+/* Asegurar que los SVGs en el menú grid se vean */
+.context-menu-grid .context-menu-item span:first-child svg {
+    width: 16px !important;
+    height: 16px !important;
+
+    stroke: currentColor !important;
+    display: block !important;
+}
+
+/* Forzar visibilidad de iconos en grid */
+.btn-more-grid .icon-more-vertical svg {
+    width: 20px !important;
+    height: 20px !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* Debug visual - quitar después */
+.btn-more-grid .icon-more-vertical:empty::after {
+    content: '⋯';
+    font-size: 20px;
+    line-height: 1;
+}
+
+
+/* Reset para edit y trash - FORZAR fill none con máxima prioridad */
+.context-menu-item .icon-edit svg,
+.context-menu-item .icon-trash svg,
+.folder-actions .icon-edit svg,
+.folder-actions .icon-trash svg,
+.bookmark-actions .icon-edit svg,
+.bookmark-actions .icon-trash svg,
+[class*="icon-edit"] svg,
+[class*="icon-trash"] svg {
+    fill: none !important;
+    stroke: currentColor !important;
+    stroke-width: 2px !important;
+}
+
+/* Mantener fill currentColor para los demás iconos */
+.context-menu-item .icon-star svg,
+.context-menu-item .icon-arrow-up svg,
+.context-menu-item .icon-arrow-down svg,
+.context-menu-item .icon-more-vertical svg,
+.folder-actions .icon-star svg,
+.folder-actions .icon-arrow-up svg,
+.folder-actions .icon-arrow-down svg,
+.folder-actions .icon-more-vertical svg,
+.bookmark-actions .icon-star svg,
+.bookmark-actions .icon-arrow-up svg,
+.bookmark-actions .icon-arrow-down svg,
+.bookmark-actions .icon-more-vertical svg {
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    stroke-width: 2px !important;
+}
+
+/* Asegurar que los SVG de los botones de acción en lista se vean bien */
+.btn-bookmark-action svg {
+    fill: none !important;
+    stroke: currentColor !important;
+    stroke-width: 2px !important;
+}
+
+.btn-bookmark-action.btn-favorite svg {
+    fill: currentColor !important; /* El favorito puede tener relleno cuando está activo */
+}
+
+/* Para el botón favorite cuando NO es favorito */
+.btn-bookmark-action.btn-favorite[data-action="favorite"] svg[fill="none"] {
+    fill: none !important;
+}
+
 .grid-page-indicator {
     display: flex;
     align-items: center;
@@ -853,6 +1016,21 @@ body:not([data-theme="dark"]):not([data-theme="amoled"]) .theme-option .layout-n
     display: none !important;
     width: 0 !important;
 }
+
+/* Aumentar especificidad para modo oscuro */
+[data-theme="dark"] .favorite-grid-item.grid-8:hover,
+[data-theme="amoled"] .favorite-grid-item.grid-8:hover,
+[data-theme="auto"][data-theme="dark"] .favorite-grid-item.grid-8:hover {
+    border-color: var(--primary-color) !important;
+    border-width: 2px !important;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3) !important;
+}
+
+/* También asegurar el hover en modo light */
+.favorite-grid-item.grid-8:hover {
+    border-color: var(--primary-color) !important;
+}
+
 
 /* ===== BOTÓN MORE ===== */
 .btn-more {
@@ -997,7 +1175,7 @@ body:not([data-theme="dark"]):not([data-theme="amoled"]) .theme-option .layout-n
 .context-menu-item span:first-child svg {
     width: 16px !important;
     height: 16px !important;
-    fill: currentColor !important;
+
 }
 
 /* Items deshabilitados (primer/último elemento) */
