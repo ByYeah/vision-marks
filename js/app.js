@@ -35,6 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Renderizar inicial
     RenderManager.renderAll();
 
+    if (window.ReorderManager && typeof ReorderManager.init === 'function') {
+        ReorderManager.init(StorageManager, StateManager, RenderManager);
+        console.log('[App] ReorderManager inicializado');
+    }
+
     // Inicializar eventos
     EventsManager.init();
 
@@ -44,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
- // Inicializar event listeners
+// Inicializar event listeners
 function initEventListeners() {
     // Toggle containers
     document.querySelectorAll('[data-action="toggleContainer"]').forEach(btn => {
@@ -197,8 +202,7 @@ loadState();
 
 // Cargar iconos SVG después del DOM ready
 document.addEventListener('DOMContentLoaded', () => {
-    // ... código existente ...
-    
+
     // Cargar iconos SVG externos
     if (typeof SvgLoader !== 'undefined') {
         SvgLoader.loadAll();
