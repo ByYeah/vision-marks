@@ -1,12 +1,10 @@
 const SvgLoader = (() => {
     const cache = {};
 
-    async function load(name, container, className = '') {
-        // Si ya está en cache, inyectar directamente
+    async function loadIcon(name) {
+        // Si ya está en cache, retornar directamente
         if (cache[name]) {
-            container.innerHTML = cache[name];
-            if (className) container.querySelector('svg')?.classList.add(className);
-            return;
+            return cache[name];
         }
 
         try {
@@ -16,12 +14,17 @@ const SvgLoader = (() => {
             const svgContent = await response.text();
             cache[name] = svgContent;
             
-            container.innerHTML = svgContent;
-            if (className) container.querySelector('svg')?.classList.add(className);
+            return svgContent;
         } catch (error) {
-            console.error('Error cargando SVG:', error);
-            container.innerHTML = '<span>⚠️</span>';
+            console.error(`[SvgLoader] Error: ${error.message}`);
+            return '<span>⚠️</span>';
         }
+    }
+
+    async function load(name, container, className = '') {
+        const svgContent = await loadIcon(name);
+        container.innerHTML = svgContent;
+        if (className) container.querySelector('svg')?.classList.add(className);
     }
 
     function loadAll() {
@@ -32,5 +35,7 @@ const SvgLoader = (() => {
         });
     }
 
-    return { load, loadAll };
+    return { load, loadAll, loadIcon };
 })();
+
+window.SvgLoader = SvgLoader;
