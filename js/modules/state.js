@@ -65,6 +65,7 @@ const StateManager = (() => {
             icon: bookmark.icon || '',
             folderId: bookmark.folderId || null,
             isFavorite: bookmark.isFavorite || false,
+            order: 0,
             createdAt: new Date().toISOString()
         };
         state.bookmarks.push(newBookmark);
@@ -103,6 +104,7 @@ const StateManager = (() => {
             id: Date.now().toString(),
             name: folder.name,
             icon: folder.icon || '📁',
+            order: 0,
             createdAt: new Date().toISOString()
         };
         state.folders.push(newFolder);
@@ -144,7 +146,8 @@ const StateManager = (() => {
         if (favorites) {
             filtered = filtered.filter(b => b.isFavorite);
         }
-        return filtered;
+        // ✅ Esta línea es la clave: Siempre devuelve ordenado
+        return filtered.sort((a, b) => (a.order || 0) - (b.order || 0));
     }
 
     function getFolders() {

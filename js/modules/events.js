@@ -2,12 +2,11 @@ const EventsManager = (() => {
     function init() {
         SettingsManager.loadSettings();
 
-        // 2. Forzar render inicial con settings aplicados
+        // 1. Forzar render inicial con settings aplicados
         setTimeout(() => {
-            // 3. Forzar render inicial con settings aplicados
+            // 2. Forzar render inicial con settings aplicados
             if (window.RenderManager) {
                 RenderManager.renderAll();
-                console.log('✅ Render inicial con settings aplicados');
             }
         }, 100);
 
@@ -48,6 +47,9 @@ const EventsManager = (() => {
 
         // Cargar settings
         SettingsManager.loadSettings();
+
+        // Inicializar eventos de reordenamiento
+        initReorderEvents();
     }
 
     function handleAddBookmark(e) {
@@ -132,6 +134,147 @@ const EventsManager = (() => {
 
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function initReorderEvents() {
+        console.log('[Events] Inicializando eventos de reordenamiento');
+
+        // Usar event delegation con capture: true para interceptar antes
+        document.addEventListener('click', (e) => {
+            // Click en botón MORE
+            const btnMore = e.target.closest('.btn-more');
+            if (btnMore) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+
+                const itemId = btnMore.dataset.id;
+                console.log('[Events] Click en btn-more para ID:', itemId);
+                toggleContextMenu(itemId);
+                return false;
+            }
+
+            // Click en items del menú contextual
+            const menuItem = e.target.closest('.context-menu-item');
+            if (menuItem) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+
+                const action = menuItem.dataset.action;
+                const contextMenu = menuItem.closest('.context-menu');
+
+                if (!contextMenu) return false;
+
+                const itemId = contextMenu.dataset.id;
+                const parentItem = contextMenu.closest('.bookmark-item, .folder-item');
+                const collection = parentItem?.dataset.collection;
+                const folderId = parentItem?.dataset.folderId || null;
+
+                console.log('[Events] Acción de menú:', action, 'para item:', itemId, 'colección:', collection);
+
+                if (action === 'move-up' && window.ReorderManager) {
+                    ReorderManager.moveUp(collection, itemId, folderId);
+                } else if (action === 'move-down' && window.ReorderManager) {
+                    ReorderManager.moveDown(collection, itemId, folderId);
+                }
+
+                // Cerrar todos los menús después de la acción
+                closeAllContextMenus();
+                return false;
+            }
+        }, { capture: true }); // ← Importante: capturar en fase de captura
+
+        // Cerrar menús al hacer click fuera
+        document.addEventListener('click', (e) => {
+            // Si el click no fue en un botón more ni en un menú
+            if (!e.target.closest('.btn-more') && !e.target.closest('.context-menu')) {
+                closeAllContextMenus();
+            }
+        });
+
+        // Cerrar menús con tecla Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeAllContextMenus();
+            }
+        });
+    }
+
+    function toggleContextMenu(itemId) {
+        console.log('[ContextMenu] toggleContextMenu para ID:', itemId);
+
+        // Encontrar el menú y el botón correspondientes
+        const menu = document.querySelector(`.context-menu[data-id="${itemId}"]`);
+        const btn = document.querySelector(`.btn-more[data-id="${itemId}"]`);
+
+        if (!menu || !btn) {
+            console.warn('[ContextMenu] Elementos no encontrados:', { menu: !!menu, btn: !!btn });
+            return;
+        }
+
+        // Cerrar cualquier otro menú abierto
+        closeAllContextMenus();
+
+        // Remover clases de posición previas
+        menu.classList.remove('position-top', 'position-bottom');
+
+        // Activar el menú
+        requestAnimationFrame(() => {
+            menu.classList.add('active');
+
+            // Calcular la posición después de que el menú sea visible
+            setTimeout(() => {
+                const menuRect = menu.getBoundingClientRect();
+                const btnRect = btn.getBoundingClientRect();
+                const containerRect = document.querySelector('[data-container="favbookmarks"] .container-body')?.getBoundingClientRect();
+
+                if (!containerRect) return;
+
+                // Espacio disponible abajo del botón
+                const spaceBelow = containerRect.bottom - btnRect.bottom;
+                // Espacio disponible arriba del botón
+                const spaceAbove = btnRect.top - containerRect.top;
+
+                // Altura del menú (con un pequeño margen de seguridad)
+                const menuHeight = menuRect.height;
+
+                // Decidir posición
+                if (spaceBelow >= menuHeight + 10) {
+                    // Hay suficiente espacio abajo - posición normal
+                    menu.style.top = '100%';
+                    menu.style.bottom = 'auto';
+                    menu.classList.add('position-bottom');
+                    console.log('[ContextMenu] Posicionado abajo');
+                } else if (spaceAbove >= menuHeight + 10) {
+                    // Hay suficiente espacio arriba - posición invertida
+                    menu.style.top = 'auto';
+                    menu.style.bottom = '100%';
+                    menu.classList.add('position-top');
+                    console.log('[ContextMenu] Posicionado arriba');
+                } else {
+                    // No hay espacio ni arriba ni abajo - posición abajo por defecto
+                    menu.style.top = '100%';
+                    menu.style.bottom = 'auto';
+                    menu.classList.add('position-bottom');
+                    console.log('[ContextMenu] Sin espacio, posición abajo');
+                }
+
+                console.log('[ContextMenu] Posición:', {
+                    spaceAbove,
+                    spaceBelow,
+                    menuHeight
+                });
+            }, 10); // Pequeño delay para que el menú se haya renderizado
+        });
+    }
+
+    // Función para cerrar todos los menús contextuales
+    function closeAllContextMenus() {
+        console.log('[ContextMenu] Cerrando todos los menús');
+        document.querySelectorAll('.context-menu.active').forEach(menu => {
+            menu.classList.remove('active');
+        });
     }
 
     return {

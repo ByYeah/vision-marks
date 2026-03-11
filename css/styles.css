@@ -854,6 +854,291 @@ body:not([data-theme="dark"]):not([data-theme="amoled"]) .theme-option .layout-n
     width: 0 !important;
 }
 
+/* ===== BOTÓN MORE ===== */
+.btn-more {
+    width: 26px !important;
+    height: 26px !important;
+    border: none !important;
+    background: transparent !important;
+    border-radius: var(--border-radius-sm) !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--text-secondary) !important;
+    transition: all var(--transition-fast) !important;
+    opacity: 0.6 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    flex-shrink: 0 !important;
+    position: relative !important;
+    /* Asegurar contexto */
+    z-index: 5 !important;
+}
+
+.btn-more:hover {
+    opacity: 1 !important;
+    background: var(--primary-color) !important;
+    color: white !important;
+    transform: scale(1.1) !important;
+}
+
+.btn-more:active {
+    transform: scale(0.95) !important;
+}
+
+.btn-more .icon-more-vertical {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.btn-more .icon-more-vertical svg {
+    width: 28px !important;
+    height: 28px !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    display: block !important;
+}
+
+/* ===== CONTENEDORES DE ACCIONES ===== */
+.bookmark-actions,
+.folder-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: var(--spacing-xs) !important;
+    opacity: 0 !important;
+    transition: opacity var(--transition-fast) !important;
+    margin-left: auto !important;
+    position: relative !important;
+    /* ← CRÍTICO: Base para el menú absolute */
+    z-index: 10 !important;
+    /* Superior a otros elementos */
+}
+
+/* Mostrar acciones al hacer hover en el item */
+.bookmark-item:hover .bookmark-actions,
+.folder-item:hover .folder-actions {
+    opacity: 1 !important;
+}
+
+/* ===== MENÚ CONTEXTUAL ===== */
+.context-menu {
+    position: absolute !important;
+    /* ← CAMBIADO: fixed → absolute */
+    top: 100% !important;
+    /* Justo debajo del botón */
+    right: 0 !important;
+    z-index: 999999 !important;
+    /* ← MUY ALTO: Para estar sobre todo */
+    min-width: 200px !important;
+    background: var(--bg-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25) !important;
+    margin-top: 5px !important;
+    /* Pequeño espacio */
+
+    /* Oculto por defecto */
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(-5px) !important;
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease !important;
+    pointer-events: none !important;
+}
+
+/* Menú activo (visible) */
+.context-menu.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    pointer-events: all !important;
+    /* ← Permite interacción */
+}
+
+.context-menu ul {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 8px 0 !important;
+}
+
+.context-menu-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 10px 16px !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    color: var(--text-primary) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+}
+
+.context-menu-item:hover {
+    background: var(--bg-tertiary) !important;
+}
+
+.context-menu-item:active {
+    background: var(--primary-color) !important;
+    color: white !important;
+}
+
+.context-menu-item span:first-child {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 20px !important;
+    height: 20px !important;
+}
+
+.context-menu-item span:first-child svg {
+    width: 16px !important;
+    height: 16px !important;
+    fill: currentColor !important;
+}
+
+/* Items deshabilitados (primer/último elemento) */
+.context-menu-item[style*="opacity:0.3"] {
+    opacity: 0.5 !important;
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+}
+
+/* ===== MANEJO DEL HOVER CUANDO EL MENÚ ESTÁ ABIERTO ===== */
+/* Cuando el menú está activo, deshabilitar hover en el item padre */
+.bookmark-item:has(.context-menu.active),
+.folder-item:has(.context-menu.active) {
+    pointer-events: none !important;
+    /* Desactiva eventos en todo el item */
+}
+
+/* Pero REACTIVAR eventos para elementos específicos */
+.bookmark-item:has(.context-menu.active) .btn-more,
+.bookmark-item:has(.context-menu.active) .context-menu,
+.bookmark-item:has(.context-menu.active) .context-menu *,
+.folder-item:has(.context-menu.active) .btn-more,
+.folder-item:has(.context-menu.active) .context-menu,
+.folder-item:has(.context-menu.active) .context-menu * {
+    pointer-events: auto !important;
+    /* Estos elementos siguen siendo interactuables */
+}
+
+/* Mantener el botón more visible cuando el menú está abierto */
+.bookmark-item:has(.context-menu.active) .btn-more,
+.folder-item:has(.context-menu.active) .btn-more {
+    opacity: 1 !important;
+    background: var(--primary-color) !important;
+    color: white !important;
+}
+
+/* Asegurar que el contenedor de acciones permanezca visible */
+.bookmark-item:has(.context-menu.active) .bookmark-actions,
+.folder-item:has(.context-menu.active) .folder-actions {
+    opacity: 1 !important;
+}
+
+/* ===== AJUSTES PARA LOS ITEMS ===== */
+.bookmark-item,
+.folder-item {
+    position: relative !important;
+    overflow: visible !important;
+    /* ← IMPORTANTE: Permite que el menú sobresalga */
+    z-index: 1 !important;
+    /* Contexto base */
+}
+
+/* Items con menú activo tienen z-index más alto */
+.bookmark-item:has(.context-menu.active),
+.folder-item:has(.context-menu.active) {
+    z-index: 1000 !important;
+    /* Temporalmente más alto mientras el menú está abierto */
+}
+
+/* ===== POSICIONAMIENTO INTELIGENTE DEL MENÚ ===== */
+.context-menu.position-bottom {
+    top: 100% !important;
+    bottom: auto !important;
+    transform-origin: top center !important;
+}
+
+.context-menu.position-top {
+    top: auto !important;
+    bottom: 100% !important;
+    margin-bottom: 5px !important;
+    margin-top: 0 !important;
+    transform-origin: bottom center !important;
+}
+
+/* Animación suave para la nueva posición */
+.context-menu.position-top.active {
+    transform: translateY(0) !important;
+}
+
+.context-menu.position-top {
+    transform: translateY(5px) !important;
+    /* Invertimos la dirección de la animación */
+}
+
+/* Ajuste para la flecha visual (si quieres agregar una) */
+.context-menu::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    pointer-events: none;
+}
+
+.context-menu.position-bottom::after {
+    top: -7px;
+    right: 10px;
+    border-bottom: 8px solid var(--bg-primary);
+    border-top: none;
+}
+
+.context-menu.position-top::after {
+    bottom: -7px;
+    right: 10px;
+    border-top: 8px solid var(--bg-primary);
+    border-bottom: none;
+}
+
+/* Modo oscuro para la flecha */
+[data-theme="dark"] .context-menu.position-bottom::after,
+[data-theme="amoled"] .context-menu.position-bottom::after {
+    border-bottom-color: var(--bg-primary) !important;
+}
+
+[data-theme="dark"] .context-menu.position-top::after,
+[data-theme="amoled"] .context-menu.position-top::after {
+    border-top-color: var(--bg-primary) !important;
+}
+
+/* ========================================
+   TEMAS OSCUROS
+   ======================================== */
+
+[data-theme="dark"] .context-menu,
+[data-theme="amoled"] .context-menu {
+    background: var(--bg-primary, #1a202c);
+    border-color: var(--border-color, #4a5568);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .context-menu-item:hover,
+[data-theme="amoled"] .context-menu-item:hover {
+    background: var(--bg-secondary, #2d3748);
+}
+
+[data-theme="dark"] .btn-more:hover,
+[data-theme="amoled"] .btn-more:hover {
+    background: var(--bg-secondary, rgba(255, 255, 255, 0.1));
+}
+
 /* ============================================
    FOLDERS GRID
    ============================================ */

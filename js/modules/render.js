@@ -47,8 +47,19 @@ const RenderManager = (() => {
         }
 
         if (emptyState) emptyState.style.display = 'none';
-        container.innerHTML = favorites.map(b => createBookmarkHTML(b)).join('');
+        container.innerHTML = favorites.map((b, index) => {
+            const bookmarkHTML = createBookmarkHTML(b);
+
+            // Insertar botones de reordenamiento dentro del HTML del marcador
+            const isFirst = index === 0;
+            const isLast = index === favorites.length - 1;
+
+            return bookmarkHTML;
+        }).join('');
         attachBookmarkEvents(container);
+
+        // Agregar botones de reordenamiento después de renderizar los favoritos
+        attachReorderButtons(container, 'favorites', null);
 
         const bookmarkList = container.querySelector('.bookmark-list');
         if (bookmarkList && displayMode === 'list') {
@@ -57,6 +68,97 @@ const RenderManager = (() => {
             bookmarkList.style.minHeight = '0';
         }
         updateFavoritesButton(favoritesCount, maxFavorites);
+    }
+
+    function attachReorderButtons(container, collection, folderId = null) {
+        const items = container.querySelectorAll('.bookmark-item, .folder-item');
+
+        items.forEach((item, index) => {
+            // Verificar si ya tiene botón more
+            if (item.querySelector('.btn-more')) return;
+
+            const itemId = item.dataset.bookmarkId || item.dataset.folderId;
+            const isFirst = index === 0;
+            const isLast = index === items.length - 1;
+
+            // AÑADIR data-collection y data-folder-id al ITEM
+            item.dataset.collection = collection;
+            if (folderId) {
+                item.dataset.folderId = folderId;
+            }
+
+            // Crear contenedor de acciones si no existe
+            let actionsContainer = item.querySelector('.bookmark-actions');
+            if (!actionsContainer) {
+                actionsContainer = document.createElement('div');
+                actionsContainer.className = 'bookmark-actions';
+                item.appendChild(actionsContainer);
+            }
+
+            // Crear botón MORE
+            const btnMore = document.createElement('button');
+            btnMore.className = 'btn-more';
+            btnMore.dataset.id = itemId;
+            btnMore.dataset.collection = collection;
+            btnMore.dataset.folderId = folderId || '';
+            btnMore.innerHTML = '<span class="icon-more-vertical"></span>';
+            btnMore.title = 'Más opciones';
+            btnMore.type = 'button';
+
+            actionsContainer.insertBefore(btnMore, actionsContainer.firstChild);
+
+            // Crear menú contextual
+            const contextMenu = document.createElement('div');
+            contextMenu.className = 'context-menu';
+            contextMenu.dataset.id = itemId;
+            contextMenu.innerHTML = `
+            <ul>
+                <li class="context-menu-item" data-action="move-up"${isFirst ? ' style="opacity:0.3;cursor:not-allowed;"' : ''}>
+                    <span class="icon-arrow-up"></span>
+                    <span>Subir prioridad</span>
+                </li>
+                <li class="context-menu-item" data-action="move-down"${isLast ? ' style="opacity:0.3;cursor:not-allowed;"' : ''}>
+                    <span class="icon-arrow-down"></span>
+                    <span>Bajar prioridad</span>
+                </li>
+            </ul>
+        `;
+
+            item.appendChild(contextMenu);
+        });
+
+        loadMenuIcons();
+    }
+
+    async function loadMenuIcons() {
+        if (!window.SvgLoader) return;
+
+        // Cargar icono more-vertical
+        const moreIcons = document.querySelectorAll('.icon-more-vertical');
+        if (moreIcons.length > 0) {
+            const svgContent = await SvgLoader.loadIcon('more-vertical');
+            moreIcons.forEach(icon => {
+                icon.innerHTML = svgContent;
+            });
+        }
+
+        // Cargar icono arrow-up
+        const upIcons = document.querySelectorAll('.icon-arrow-up');
+        if (upIcons.length > 0) {
+            const svgContent = await SvgLoader.loadIcon('arrow-up');
+            upIcons.forEach(icon => {
+                icon.innerHTML = svgContent;
+            });
+        }
+
+        // Cargar icono arrow-down
+        const downIcons = document.querySelectorAll('.icon-arrow-down');
+        if (downIcons.length > 0) {
+            const svgContent = await SvgLoader.loadIcon('arrow-down');
+            downIcons.forEach(icon => {
+                icon.innerHTML = svgContent;
+            });
+        }
     }
 
     function updateFavoritesButton(count, max) {
@@ -156,6 +258,7 @@ const RenderManager = (() => {
                 containerBody.addEventListener('wheel', handleGridWheel, { passive: false });
             }
         }
+        loadMoreVerticalIcons();
     }
 
     // Controles de paginación
@@ -288,6 +391,8 @@ const RenderManager = (() => {
             </div>
         `).join('');
 
+        attachReorderButtons(container, 'folders', null);
+
         attachFolderEvents(container);
     }
 
@@ -333,6 +438,7 @@ const RenderManager = (() => {
 
         if (emptyState) emptyState.style.display = 'none';
         container.innerHTML = bookmarks.map(b => createBookmarkHTML(b)).join('');
+        attachReorderButtons(container, 'bookmarks', currentFolderId);
         attachBookmarkEvents(container);
     }
 
