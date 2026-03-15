@@ -37,6 +37,13 @@
     grid-area: 1 / 4 / 5 / 5;
 }
 
+.layout-double [data-container="widgets-1"],
+.layout-double [data-container="widgets-2"],
+.layout-double [data-container="widgets-3"],
+.layout-double [data-container="widgets-4"] {
+    display: none !important;
+}
+
 /** LAYOUT EXTENDIDO **/
 .dashboard-grid.layout-extended {
     grid-template-columns: 0.95fr repeat(3, 1fr);
@@ -57,6 +64,13 @@
 }
 
 .layout-extended [data-container="chat"] {
+    display: none !important;
+}
+
+.layout-extended [data-container="widgets-1"],
+.layout-extended [data-container="widgets-2"],
+.layout-extended [data-container="widgets-3"],
+.layout-extended [data-container="widgets-4"] {
     display: none !important;
 }
 
