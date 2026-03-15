@@ -370,7 +370,27 @@ const EventsManager = (() => {
     // Función para cerrar todos los menús contextuales
     function closeAllContextMenus() {
         console.log('[ContextMenu] Cerrando todos los menús');
-        document.querySelectorAll('.context-menu.active').forEach(menu => {
+
+        document.querySelectorAll('.context-menu-folder.active').forEach(menu => {
+            menu.classList.remove('active');
+
+            // Restaurar el menú a su padre original
+            const itemId = menu.dataset.id;
+            const originalParent = document.querySelector(`[data-menu-parent="${itemId}"]`);
+            if (originalParent) {
+                originalParent.appendChild(menu);
+                originalParent.removeAttribute('data-menu-parent');
+            }
+
+            // Limpiar estilos inline
+            menu.style.position = '';
+            menu.style.top = '';
+            menu.style.bottom = '';
+            menu.style.left = '';
+            menu.style.right = '';
+        });
+
+        document.querySelectorAll('.context-menu.active, .context-menu-grid.active').forEach(menu => {
             menu.classList.remove('active');
         });
     }
@@ -379,3 +399,28 @@ const EventsManager = (() => {
         init
     };
 })();
+
+window.closeAllContextMenus = function() {
+    console.log('[ContextMenu] Cerrando todos los menús');
+
+    document.querySelectorAll('.context-menu-folder.active').forEach(menu => {
+        menu.classList.remove('active');
+
+        const itemId = menu.dataset.id;
+        const originalParent = document.querySelector(`[data-menu-parent="${itemId}"]`);
+        if (originalParent) {
+            originalParent.appendChild(menu);
+            originalParent.removeAttribute('data-menu-parent');
+        }
+
+        menu.style.position = '';
+        menu.style.top = '';
+        menu.style.bottom = '';
+        menu.style.left = '';
+        menu.style.right = '';
+    });
+
+    document.querySelectorAll('.context-menu.active, .context-menu-grid.active').forEach(menu => {
+        menu.classList.remove('active');
+    });
+};

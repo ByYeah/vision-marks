@@ -130,35 +130,35 @@ const RenderManager = (() => {
         loadMenuIcons();
     }
 
-async function loadMenuIcons() {
-    if (!window.SvgLoader) return;
+    async function loadMenuIcons() {
+        if (!window.SvgLoader) return;
 
-    const icons = ['more-vertical', 'arrow-up', 'arrow-down', 'edit', 'star', 'trash'];
-    
-    for (const iconName of icons) {
-        const elements = document.querySelectorAll(`.icon-${iconName}`);
-        if (elements.length > 0) {
-            try {
-                // Determinar atributos según el tipo de icono
-                const attributes = (iconName === 'edit' || iconName === 'trash')
-                    ? { fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }
-                    : { fill: 'currentColor', stroke: 'currentColor', 'stroke-width': '2' };
-                
-                // Usar la nueva función que soporta atributos
-                const svgContent = await SvgLoader.loadIconWithAttributes(iconName, attributes);
-                
-                elements.forEach(el => {
-                    if (!el.querySelector('svg')) {
-                        el.innerHTML = svgContent;
-                    }
-                });
-                console.log(`[Icons] Cargados ${elements.length} iconos: ${iconName}`);
-            } catch (error) {
-                console.error(`[Icons] Error cargando ${iconName}:`, error);
+        const icons = ['more-vertical', 'arrow-up', 'arrow-down', 'edit', 'star', 'trash'];
+
+        for (const iconName of icons) {
+            const elements = document.querySelectorAll(`.icon-${iconName}`);
+            if (elements.length > 0) {
+                try {
+                    // Determinar atributos según el tipo de icono
+                    const attributes = (iconName === 'edit' || iconName === 'trash')
+                        ? { fill: 'none', stroke: 'currentColor', 'stroke-width': '2' }
+                        : { fill: 'currentColor', stroke: 'currentColor', 'stroke-width': '2' };
+
+                    // Usar la nueva función que soporta atributos
+                    const svgContent = await SvgLoader.loadIconWithAttributes(iconName, attributes);
+
+                    elements.forEach(el => {
+                        if (!el.querySelector('svg')) {
+                            el.innerHTML = svgContent;
+                        }
+                    });
+                    console.log(`[Icons] Cargados ${elements.length} iconos: ${iconName}`);
+                } catch (error) {
+                    console.error(`[Icons] Error cargando ${iconName}:`, error);
+                }
             }
         }
     }
-}
 
     function updateFavoritesButton(count, max) {
         const btn = document.querySelector('[data-container="favbookmarks"] .btn-add');
@@ -396,28 +396,54 @@ async function loadMenuIcons() {
             return;
         }
 
-        container.innerHTML = folders.map(f => `
-            <div class="folder-item" data-folder-id="${f.id}">
+        container.innerHTML = folders.map((f, index) => {
+            const isFirst = index === 0;
+            const isLast = index === folders.length - 1;
+
+            return `
+            <div class="folder-item" data-folder-id="${f.id}" data-collection="folders">
                 <div class="folder-icon">${f.icon}</div>
                 <div class="folder-name">${f.name}</div>
                 <div class="folder-actions">
-                    <button class="btn-folder-action btn-edit" data-action="edit" data-folder-id="${f.id}">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                    </button>
-                    <button class="btn-folder-action btn-delete" data-action="delete" data-folder-id="${f.id}">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="3 6 5 6 21 6"/>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                        </svg>
+                    <button class="btn-folder-action btn-more-folder" data-id="${f.id}" data-collection="folders" title="Más opciones">
+                        <span class="icon-more-vertical"></span>
                     </button>
                 </div>
+                <!-- Menú contextual para carpeta -->
+                <div class="context-menu-folder" data-id="${f.id}">
+                    <ul>
+                        <li class="context-menu-item" data-action="favorite-folder" data-folder-id="${f.id}">
+                            <span class="icon-star"></span>
+                            <span>${f.isFavorite ? 'Quitar favorito' : 'Añadir a favoritos'}</span>
+                        </li>
+                        <li class="context-menu-divider"></li>
+                        <li class="context-menu-item" data-action="move-up" data-id="${f.id}" data-collection="folders" ${isFirst ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>
+                            <span class="icon-arrow-up"></span>
+                            <span>Subir prioridad</span>
+                        </li>
+                        <li class="context-menu-item" data-action="move-down" data-id="${f.id}" data-collection="folders" ${isLast ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>
+                            <span class="icon-arrow-down"></span>
+                            <span>Bajar prioridad</span>
+                        </li>
+                        <li class="context-menu-divider"></li>
+                        <li class="context-menu-item" data-action="edit" data-folder-id="${f.id}">
+                            <span class="icon-edit"></span>
+                            <span>Editar carpeta</span>
+                        </li>
+                        <li class="context-menu-item delete" data-action="delete" data-folder-id="${f.id}">
+                            <span class="icon-trash"></span>
+                            <span>Eliminar carpeta</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-        `).join('');
+        `;
+        }).join('');
 
-        attachReorderButtons(container, 'folders', null);
+        // Cargar iconos después de insertar el HTML
+        setTimeout(() => {
+            loadMenuIcons();
+        }, 0);
 
         attachFolderEvents(container);
     }
@@ -529,26 +555,169 @@ async function loadMenuIcons() {
     }
 
     function attachFolderEvents(container) {
+        // Click en el folder para abrirlo
         container.querySelectorAll('.folder-item').forEach(item => {
             item.addEventListener('click', (e) => {
-                if (e.target.closest('.folder-actions')) return;
+                // Si el click fue en el botón more o en el menú, no abrir la carpeta
+                if (e.target.closest('.btn-more-folder') || e.target.closest('.context-menu')) return;
                 FoldersManager.openFolder(item.dataset.folderId);
             });
         });
 
-        container.querySelectorAll('[data-action="edit"]').forEach(btn => {
+        // Click en el botón More de carpetas
+        container.querySelectorAll('.btn-more-folder').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                e.preventDefault();
                 e.stopPropagation();
-                FoldersManager.openFolderModal(btn.dataset.folderId);
+
+                const itemId = btn.dataset.id;
+                toggleContextMenuFolder(itemId);
             });
+        });
+    }
+
+    function toggleContextMenuFolder(itemId) {
+        console.log('[Folder] Toggle menu for:', itemId);
+
+        const menu = document.querySelector(`.context-menu-folder[data-id="${itemId}"]`);
+        const btn = document.querySelector(`.btn-more-folder[data-id="${itemId}"]`);
+
+        if (!menu || !btn) {
+            console.warn('[Folder] Menu or button not found:', { menu: !!menu, btn: !!btn });
+            return;
+        }
+
+        // Si el menú ya está activo, cerrarlo
+        if (menu.classList.contains('active')) {
+            console.log('[Folder] Closing menu');
+            menu.classList.remove('active');
+
+            // Restaurar el menú a su posición original
+            const originalParent = document.querySelector(`[data-menu-parent="${itemId}"]`);
+            if (originalParent) {
+                originalParent.appendChild(menu);
+                originalParent.removeAttribute('data-menu-parent');
+            }
+
+            // Limpiar estilos
+            menu.style.position = '';
+            menu.style.top = '';
+            menu.style.bottom = '';
+            menu.style.left = '';
+            menu.style.right = '';
+            return;
+        }
+
+        console.log('[Folder] Opening menu');
+
+        // Cerrar cualquier otro menú abierto
+        document.querySelectorAll('.context-menu-folder.active').forEach(m => {
+            m.classList.remove('active');
+            const oldId = m.dataset.id;
+            const oldParent = document.querySelector(`[data-menu-parent="${oldId}"]`);
+            if (oldParent) {
+                oldParent.appendChild(m);
+                oldParent.removeAttribute('data-menu-parent');
+            }
         });
 
-        container.querySelectorAll('[data-action="delete"]').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                FoldersManager.deleteFolder(btn.dataset.folderId);
-            });
+        // Guardar referencia al padre original
+        const originalParent = menu.parentNode;
+        originalParent.setAttribute('data-menu-parent', itemId);
+
+        // Mover el menú al final del body
+        document.body.appendChild(menu);
+
+        // Posicionar el menú
+        const btnRect = btn.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const menuHeight = 256;
+
+        const spaceBelow = viewportHeight - btnRect.bottom;
+        const spaceAbove = btnRect.top;
+        const leftPos = btnRect.right - 220;
+
+        // Aplicar posición
+        menu.style.position = 'fixed';
+
+        if (spaceBelow >= menuHeight + 10) {
+            menu.style.top = (btnRect.bottom + 5) + 'px';
+            menu.style.bottom = 'auto';
+            menu.style.left = leftPos + 'px';
+            menu.classList.add('position-bottom');
+        } else if (spaceAbove >= menuHeight + 10) {
+            menu.style.top = 'auto';
+            menu.style.bottom = (viewportHeight - btnRect.top + 5) + 'px';
+            menu.style.left = leftPos + 'px';
+            menu.classList.add('position-top');
+        } else {
+            menu.style.top = (btnRect.bottom + 5) + 'px';
+            menu.style.bottom = 'auto';
+            menu.style.left = leftPos + 'px';
+            menu.classList.add('position-bottom');
+        }
+
+        // RE-ASIGNAR EVENTOS a los items del menú
+        attachFolderMenuEvents(menu, itemId);
+
+        // Activar menú
+        menu.classList.add('active');
+    }
+
+    function attachFolderMenuEvents(menu, folderId) {
+        menu.querySelectorAll('.context-menu-item').forEach(item => {
+            // Eliminar eventos anteriores para evitar duplicados
+            item.removeEventListener('click', handleFolderMenuItemClick);
+            // Añadir nuevo evento
+            item.addEventListener('click', handleFolderMenuItemClick);
         });
+    }
+
+    function handleFolderMenuItemClick(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const item = e.currentTarget;
+        const action = item.dataset.action;
+        const folderId = item.dataset.folderId;
+        const itemId = item.dataset.id;
+        const collection = item.dataset.collection;
+
+        console.log('[Folder] Menu item clicked:', { action, folderId, itemId, collection });
+
+        // Cerrar el menú después de hacer clic
+        closeAllContextMenus();
+
+        // Ejecutar la acción correspondiente
+        switch (action) {
+            case 'edit':
+                if (window.FoldersManager) {
+                    FoldersManager.openFolderModal(folderId);
+                }
+                break;
+            case 'delete':
+                if (window.FoldersManager) {
+                    FoldersManager.deleteFolder(folderId);
+                }
+                break;
+            case 'favorite-folder':
+                // Aquí va la lógica para favoritos de carpetas
+                console.log('Toggle favorite for folder:', folderId);
+                // Implementar según tu lógica
+                break;
+            case 'move-up':
+                if (window.ReorderManager) {
+                    ReorderManager.moveUp(collection, itemId, null);
+                }
+                break;
+            case 'move-down':
+                if (window.ReorderManager) {
+                    ReorderManager.moveDown(collection, itemId, null);
+                }
+                break;
+            default:
+                console.log('Unknown action:', action);
+        }
     }
 
     function updateFolderNavigation() {

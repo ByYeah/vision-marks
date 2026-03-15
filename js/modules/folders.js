@@ -73,3 +73,4 @@ const FoldersManager = (() => {
         backToFolders
     };
 })();
+window.FoldersManager = FoldersManager;
