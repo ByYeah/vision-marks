@@ -104,6 +104,7 @@ const StateManager = (() => {
             id: Date.now().toString(),
             name: folder.name,
             icon: folder.icon || '📁',
+            isFavorite: folder.isFavorite || false,
             order: 0,
             createdAt: new Date().toISOString()
         };
@@ -137,7 +138,28 @@ const StateManager = (() => {
         setState({ currentFolder: folderId });
     }
 
-    // Getters
+    function toggleFolderFavorite(id) {
+        const folder = state.folders.find(f => f.id === id);
+        if (folder) {
+            folder.isFavorite = !folder.isFavorite;
+
+            // Reordenar carpetas: favoritos primero, luego no favoritos
+            const favorites = state.folders.filter(f => f.isFavorite).sort((a, b) => (a.order || 0) - (b.order || 0));
+            const nonFavorites = state.folders.filter(f => !f.isFavorite).sort((a, b) => (a.order || 0) - (b.order || 0));
+
+            // Reasignar órdenes
+            favorites.forEach((f, idx) => { f.order = idx; });
+            nonFavorites.forEach((f, idx) => { f.order = favorites.length + idx; });
+
+            // Combinar arrays
+            state.folders = [...favorites, ...nonFavorites];
+
+            setState({ folders: state.folders });
+            return folder;
+        }
+        return null;
+    }
+
     function getBookmarks(folderId = null, favorites = false) {
         let filtered = state.bookmarks;
         if (folderId !== null) {
@@ -146,12 +168,12 @@ const StateManager = (() => {
         if (favorites) {
             filtered = filtered.filter(b => b.isFavorite);
         }
-        // ✅ Esta línea es la clave: Siempre devuelve ordenado
+        // Siempre devuelve ordenado
         return filtered.sort((a, b) => (a.order || 0) - (b.order || 0));
     }
 
     function getFolders() {
-        return state.folders;
+        return [...state.folders].sort((a, b) => (a.order || 0) - (b.order || 0));
     }
 
     function getBookmarkById(id) {
