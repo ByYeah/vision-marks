@@ -1,0 +1,314 @@
+/** ============================================
+   FOLDERS - ACCIONES Y MENÚ CONTEXTUAL
+   ============================================ **/
+
+/* ============================================
+   FOLDER ITEM - CONTENEDOR BASE
+   ============================================ */
+.folder-item {
+    position: relative !important;
+    overflow: visible !important;
+    z-index: 1;
+}
+
+/* ============================================
+   CONTENEDOR DE ACCIONES - AHORA SIEMPRE VISIBLE
+   ============================================ */
+.folder-actions {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    display: flex;
+    gap: 2px;
+    opacity: 0; /* Oculto por defecto */
+    transition: opacity var(--transition-fast);
+    z-index: 10;
+}
+
+/* SOLO mostrar acciones cuando:
+   1. El folder-item está en hover (sin menú activo)
+   2. El menú está activo (forzado por JS)
+*/
+.folder-item:hover .folder-actions {
+    opacity: 1;
+}
+
+/* Cuando el menú está activo, forzar visibilidad independientemente del hover */
+.folder-item.has-active-menu .folder-actions {
+    opacity: 1 !important;
+}
+
+/* ============================================
+   BOTONES DE ACCIÓN BASE
+   ============================================ */
+.btn-folder-action {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
+    padding: 0;
+    pointer-events: auto;
+}
+
+.btn-folder-action:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-folder-action.btn-delete:hover {
+    background: #e53e3e !important;
+    color: white !important;
+}
+
+.btn-folder-action span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.btn-folder-action span svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* ============================================
+   BOTÓN MORE PARA CARPETAS
+   ============================================ */
+.folder-actions .btn-more-folder {
+    display: flex !important;
+    width: 22px !important;
+    height: 22px !important;
+    background: transparent !important;
+    opacity: 0.6 !important;
+    border: none !important;
+    border-radius: 4px !important;
+    cursor: pointer !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: var(--text-secondary) !important;
+    transition: all var(--transition-fast) !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    position: relative !important;
+    z-index: 15 !important;
+    pointer-events: auto !important;
+}
+
+.folder-actions .btn-more-folder:hover {
+    opacity: 1 !important;
+    background: var(--primary-color) !important;
+    color: white !important;
+    transform: scale(1.1) !important;
+}
+
+.folder-actions .btn-more-folder span {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.folder-actions .btn-more-folder span svg {
+    width: 18px !important;
+    height: 18px !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+}
+
+/* ============================================
+   MENÚ CONTEXTUAL PARA CARPETAS
+   ============================================ */
+.context-menu-folder {
+    position: fixed !important;
+    z-index: 999999 !important;
+    min-width: 220px !important;
+    background: var(--bg-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25) !important;
+    
+    /* Oculto por defecto */
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(-5px) !important;
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease !important;
+    pointer-events: none !important;
+}
+
+/* Menú activo */
+.context-menu-folder.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    pointer-events: all !important;
+}
+
+/* Flecha indicadora */
+.context-menu-folder::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    pointer-events: none;
+}
+
+.context-menu-folder.position-bottom::after {
+    top: -7px;
+    left: calc(100% - 30px);
+    border-bottom: 8px solid var(--bg-primary);
+    border-top: none;
+}
+
+.context-menu-folder.position-top::after {
+    bottom: -7px;
+    left: calc(100% - 30px);
+    border-top: 8px solid var(--bg-primary);
+    border-bottom: none;
+}
+
+/* ============================================
+   ITEMS DEL MENÚ
+   ============================================ */
+.context-menu-folder ul {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 8px 0 !important;
+}
+
+.context-menu-folder .context-menu-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 10px 16px !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    color: var(--text-primary) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+}
+
+.context-menu-folder .context-menu-item:hover {
+    background: var(--bg-tertiary) !important;
+}
+
+.context-menu-folder .context-menu-item:active {
+    background: var(--primary-color) !important;
+    color: white !important;
+}
+
+.context-menu-folder .context-menu-item span:first-child {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0 !important;
+}
+
+.context-menu-folder .context-menu-item span:first-child svg {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+.context-menu-folder .context-menu-divider {
+    height: 1px !important;
+    background: var(--border-color) !important;
+    margin: 6px 0 !important;
+}
+
+.context-menu-folder .context-menu-item[style*="opacity:0.3"] {
+    opacity: 0.5 !important;
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+}
+
+.context-menu-folder .context-menu-item .icon-edit svg,
+.context-menu-folder .context-menu-item .icon-trash svg {
+    fill: none !important;
+    stroke: currentColor !important;
+    stroke-width: 2px !important;
+}
+
+.context-menu-folder .context-menu-item .icon-star svg,
+.context-menu-folder .context-menu-item .icon-arrow-up svg,
+.context-menu-folder .context-menu-item .icon-arrow-down svg {
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    stroke-width: 2px !important;
+}
+
+.context-menu-folder .context-menu-item.delete:hover {
+    background: #e53e3e !important;
+    color: white !important;
+}
+
+.context-menu-folder .context-menu-item.delete:hover svg {
+    fill: white !important;
+}
+
+/* ============================================
+   MENÚ DESACOPLADO - SIN DEPENDENCIA DEL HOVER
+   ============================================ */
+.context-menu-folder {
+    position: fixed !important;
+    z-index: 9999999 !important;
+    min-width: 220px !important;
+    background: var(--bg-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25) !important;
+    
+    /* Oculto por defecto */
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(-5px) !important;
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease !important;
+    pointer-events: none !important;
+}
+
+.context-menu-folder.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    pointer-events: all !important;
+}
+
+/* La flecha necesita ajuste porque el menú está fuera del folder */
+.context-menu-folder.position-bottom::after {
+    content: '';
+    position: absolute;
+    top: -7px;
+    right: 20px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 8px solid var(--bg-primary);
+    border-top: none;
+}
+
+.context-menu-folder.position-top::after {
+    content: '';
+    position: absolute;
+    bottom: -7px;
+    right: 20px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid var(--bg-primary);
+    border-bottom: none;
+}

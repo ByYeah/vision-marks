@@ -1,0 +1,86 @@
+/** FOLDERS - GRID DE CARPETAS **/
+
+/* Contenedor del grid de carpetas */
+.folders-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--spacing-sm);
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 100%;
+    align-content: start;
+    padding-bottom: var(--spacing-sm);
+}
+
+/* Estilo base del item de carpeta */
+.folder-item {
+    flex: 0 0 auto;
+    width: 95px;
+    height: 95px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 6px 6px 6px;
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.folder-item:hover {
+    border-color: var(--primary-color);
+    background: var(--bg-tertiary);
+    transform: translateY(-2px);
+}
+
+/* Icono de la carpeta */
+.folder-icon {
+    font-size: 2.3rem;
+    line-height: 1;
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+/* Nombre de la carpeta */
+.folder-name {
+    font-size: 0.7rem;
+    font-weight: 500;
+    text-align: center;
+    color: var(--text-primary);
+    word-break: break-word;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    line-height: 1.2;
+    margin: 2px 0 0 0;
+    padding: 0 2px;
+    width: 100%;
+}
+
+/* Scrollbar personalizada para folders */
+.folders-grid::-webkit-scrollbar {
+    height: 6px;
+}
+
+.folders-grid::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+    border-radius: 3px;
+}
+
+.folders-grid::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 3px;
+}
+
+/* Ajustes específicos para el contenedor de folders */
+[data-container="folders"] .container-body {
+    overflow: auto !important;
+    padding: var(--spacing-sm) !important;
+    height: 100%;
+}
