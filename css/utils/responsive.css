@@ -1,0 +1,58 @@
+/** RESPONSIVE GLOBAL **/
+@media (max-width: 1100px) {
+    /* Ajustes para tablets */
+    .dashboard-grid {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: auto !important;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+    
+    [data-container] {
+        min-height: 300px;
+        max-height: 500px;
+    }
+}
+
+@media (max-width: 992px) {
+    /* Ajustes para tablets pequeñas */
+    .settings-container {
+        flex-direction: column;
+        height: auto;
+    }
+    
+    .settings-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+    }
+}
+
+@media (max-width: 768px) {
+    /* Ajustes para móviles */
+    .topbar {
+        height: auto;
+        padding: var(--spacing-sm);
+    }
+    
+    .topbar-container {
+        flex-wrap: wrap;
+    }
+    
+    .search-bar {
+        order: 3;
+        width: 100%;
+        position: static;
+        transform: none;
+    }
+    
+    .logo h1 {
+        font-size: 1.2rem;
+    }
+    
+    .dashboard {
+        padding: var(--spacing-sm);
+        height: calc(100vh - 120px);
+    }
+}
