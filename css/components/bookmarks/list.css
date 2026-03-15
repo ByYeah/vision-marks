@@ -1,0 +1,112 @@
+/** BOOKMARKS - VISTA LISTA **/
+.bookmark-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    min-height: 0;
+}
+
+.bookmark-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: 13px;
+    background: var(--bg-primary);
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--border-color);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.bookmark-item:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--primary-color);
+    transform: translateX(4px);
+}
+
+.bookmark-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--border-radius-sm);
+    object-fit: cover;
+    background: var(--bg-secondary);
+    flex-shrink: 0;
+}
+
+.bookmark-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.bookmark-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.9rem;
+}
+
+.bookmark-url {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+}
+
+/** Ajustes contenedor favoritos modo list**/
+
+[data-container="favbookmarks"][data-display="list"] .bookmark-list {
+    flex: 1;
+    min-height: 0;
+    padding-right: 4px;
+}
+
+/* Contenedor principal */
+[data-container="favbookmarks"][data-display="list"] .container-body {
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-md);
+}
+
+/* Webkit - scrollbar personalizada */
+[data-container="favbookmarks"][data-display="list"] .bookmark-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+[data-container="favbookmarks"][data-display="list"] .bookmark-list::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 3px;
+}
+
+[data-container="favbookmarks"][data-display="list"] .bookmark-list::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 3px;
+    opacity: 0.5;
+}
+
+[data-container="favbookmarks"][data-display="list"] .bookmark-list::-webkit-scrollbar-thumb:hover {
+    opacity: 1;
+}
+
+/* Cuando hay 0 o 1 items, el scroll no debe aparecer */
+[data-container="favbookmarks"][data-display="list"] .bookmark-list:not(:hover) {
+    scrollbar-color: transparent transparent;
+}
+
+[data-container="favbookmarks"][data-display="list"] .bookmark-list:not(:hover)::-webkit-scrollbar-thumb {
+    background: transparent;
+}
+
+/* Para asegurar que con 1 item no haya scroll, podemos limitar la altura máxima */
+.bookmark-item:only-child {
+    margin-bottom: 0;
+}
+
+
