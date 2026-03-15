@@ -203,6 +203,7 @@ const StateManager = (() => {
         getFolderById,
         getFavoritesCount,
         canAddFavorite,
-        getMaxFavorites
+        getMaxFavorites,
+        toggleFolderFavorite
     };
 })();

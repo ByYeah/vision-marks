@@ -152,9 +152,7 @@ const RenderManager = (() => {
                             el.innerHTML = svgContent;
                         }
                     });
-                    console.log(`[Icons] Cargados ${elements.length} iconos: ${iconName}`);
                 } catch (error) {
-                    console.error(`[Icons] Error cargando ${iconName}:`, error);
                 }
             }
         }
@@ -399,48 +397,49 @@ const RenderManager = (() => {
         container.innerHTML = folders.map((f, index) => {
             const isFirst = index === 0;
             const isLast = index === folders.length - 1;
+            const isFirstFavorite = f.isFavorite && (index === 0 || !folders[index - 1]?.isFavorite);
+            const isLastFavorite = f.isFavorite && (index === folders.length - 1 || !folders[index + 1]?.isFavorite);
 
             return `
-            <div class="folder-item" data-folder-id="${f.id}" data-collection="folders">
-                <div class="folder-icon">${f.icon}</div>
-                <div class="folder-name">${f.name}</div>
-                <div class="folder-actions">
-                    <button class="btn-folder-action btn-more-folder" data-id="${f.id}" data-collection="folders" title="Más opciones">
-                        <span class="icon-more-vertical"></span>
-                    </button>
-                </div>
-                <!-- Menú contextual para carpeta -->
-                <div class="context-menu-folder" data-id="${f.id}">
-                    <ul>
-                        <li class="context-menu-item" data-action="favorite-folder" data-folder-id="${f.id}">
-                            <span class="icon-star"></span>
-                            <span>${f.isFavorite ? 'Quitar favorito' : 'Añadir a favoritos'}</span>
-                        </li>
-                        <li class="context-menu-divider"></li>
-                        <li class="context-menu-item" data-action="move-up" data-id="${f.id}" data-collection="folders" ${isFirst ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>
-                            <span class="icon-arrow-up"></span>
-                            <span>Subir prioridad</span>
-                        </li>
-                        <li class="context-menu-item" data-action="move-down" data-id="${f.id}" data-collection="folders" ${isLast ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>
-                            <span class="icon-arrow-down"></span>
-                            <span>Bajar prioridad</span>
-                        </li>
-                        <li class="context-menu-divider"></li>
-                        <li class="context-menu-item" data-action="edit" data-folder-id="${f.id}">
-                            <span class="icon-edit"></span>
-                            <span>Editar carpeta</span>
-                        </li>
-                        <li class="context-menu-item delete" data-action="delete" data-folder-id="${f.id}">
-                            <span class="icon-trash"></span>
-                            <span>Eliminar carpeta</span>
-                        </li>
-                    </ul>
-                </div>
+        <div class="folder-item" data-folder-id="${f.id}" data-collection="folders" data-favorite="${f.isFavorite}">
+            <div class="folder-icon">${f.icon}</div>
+            <div class="folder-name">${f.name}</div>
+            <div class="folder-actions">
+                <button class="btn-folder-action btn-more-folder" data-id="${f.id}" data-collection="folders" title="Más opciones">
+                    <span class="icon-more-vertical"></span>
+                </button>
             </div>
-        `;
+            <!-- Menú contextual para carpeta -->
+            <div class="context-menu-folder" data-id="${f.id}">
+                <ul>
+                    <li class="context-menu-item" data-action="favorite-folder" data-folder-id="${f.id}">
+                        <span class="icon-star"></span>
+                        <span>${f.isFavorite ? 'Quitar favorito' : 'Añadir a favoritos'}</span>
+                    </li>
+                    <li class="context-menu-divider"></li>
+                    <li class="context-menu-item" data-action="move-up" data-id="${f.id}" data-collection="folders" ${isFirst || (f.isFavorite && isFirstFavorite) || (!f.isFavorite && folders[index - 1]?.isFavorite) ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>
+                        <span class="icon-arrow-up"></span>
+                        <span>Subir prioridad</span>
+                    </li>
+                    <li class="context-menu-item" data-action="move-down" data-id="${f.id}" data-collection="folders" ${isLast || (f.isFavorite && isLastFavorite) || (!f.isFavorite && folders[index + 1]?.isFavorite) ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>
+                        <span class="icon-arrow-down"></span>
+                        <span>Bajar prioridad</span>
+                    </li>
+                    <li class="context-menu-divider"></li>
+                    <li class="context-menu-item" data-action="edit" data-folder-id="${f.id}">
+                        <span class="icon-edit"></span>
+                        <span>Editar carpeta</span>
+                    </li>
+                    <li class="context-menu-item delete" data-action="delete" data-folder-id="${f.id}">
+                        <span class="icon-trash"></span>
+                        <span>Eliminar carpeta</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    `;
         }).join('');
 
-        // Cargar iconos después de insertar el HTML
         setTimeout(() => {
             loadMenuIcons();
         }, 0);
@@ -577,19 +576,15 @@ const RenderManager = (() => {
     }
 
     function toggleContextMenuFolder(itemId) {
-        console.log('[Folder] Toggle menu for:', itemId);
-
         const menu = document.querySelector(`.context-menu-folder[data-id="${itemId}"]`);
         const btn = document.querySelector(`.btn-more-folder[data-id="${itemId}"]`);
 
         if (!menu || !btn) {
-            console.warn('[Folder] Menu or button not found:', { menu: !!menu, btn: !!btn });
             return;
         }
 
         // Si el menú ya está activo, cerrarlo
         if (menu.classList.contains('active')) {
-            console.log('[Folder] Closing menu');
             menu.classList.remove('active');
 
             // Restaurar el menú a su posición original
@@ -607,8 +602,6 @@ const RenderManager = (() => {
             menu.style.right = '';
             return;
         }
-
-        console.log('[Folder] Opening menu');
 
         // Cerrar cualquier otro menú abierto
         document.querySelectorAll('.context-menu-folder.active').forEach(m => {
@@ -683,8 +676,6 @@ const RenderManager = (() => {
         const itemId = item.dataset.id;
         const collection = item.dataset.collection;
 
-        console.log('[Folder] Menu item clicked:', { action, folderId, itemId, collection });
-
         // Cerrar el menú después de hacer clic
         closeAllContextMenus();
 
@@ -701,9 +692,8 @@ const RenderManager = (() => {
                 }
                 break;
             case 'favorite-folder':
-                // Aquí va la lógica para favoritos de carpetas
-                console.log('Toggle favorite for folder:', folderId);
-                // Implementar según tu lógica
+                StateManager.toggleFolderFavorite(folderId);
+                RenderManager.renderFolders(); // Re-renderizar solo carpetas
                 break;
             case 'move-up':
                 if (window.ReorderManager) {
@@ -716,7 +706,6 @@ const RenderManager = (() => {
                 }
                 break;
             default:
-                console.log('Unknown action:', action);
         }
     }
 

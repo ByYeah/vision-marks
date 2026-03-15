@@ -44,7 +44,6 @@ const ReorderManager = (function () {
      */
     function moveUp(collection, itemId, folderId = null) {
         if (!StateManager || !RenderManager) {
-            console.error('[ReorderManager] No inicializado');
             return false;
         }
 
@@ -53,6 +52,21 @@ const ReorderManager = (function () {
 
         const targetIndex = items.findIndex(i => i.id === itemId);
         if (targetIndex <= 0) return false;
+
+        // Validación para carpetas en favoritos para mover arriba
+        if (collection === 'folders') {
+            const targetItem = items[targetIndex];
+            const prevItem = items[targetIndex - 1];
+
+            // Si el target es favorito y el previo no, no permitir mover
+            if (targetItem.isFavorite && !prevItem.isFavorite) {
+                return false;
+            }
+            // Si el target no es favorito y el previo sí, no permitir mover
+            if (!targetItem.isFavorite && prevItem.isFavorite) {
+                return false;
+            }
+        }
 
         // Intercambiar posiciones en el array
         [items[targetIndex - 1], items[targetIndex]] = [items[targetIndex], items[targetIndex - 1]];
@@ -86,10 +100,10 @@ const ReorderManager = (function () {
         return true;
     }
 
+
     // Mover elemento una posición hacia abajo
     function moveDown(collection, itemId, folderId = null) {
         if (!StateManager || !RenderManager) {
-            console.error('[ReorderManager] No inicializado');
             return false;
         }
 
@@ -98,6 +112,21 @@ const ReorderManager = (function () {
 
         const targetIndex = items.findIndex(i => i.id === itemId);
         if (targetIndex < 0 || targetIndex >= items.length - 1) return false;
+
+        // Validación para carpetas en favoritos para mover abajo
+        if (collection === 'folders') {
+            const targetItem = items[targetIndex];
+            const nextItem = items[targetIndex + 1];
+
+            // Si el target es favorito y el siguiente no, no permitir mover
+            if (targetItem.isFavorite && !nextItem.isFavorite) {
+                return false;
+            }
+            // Si el target no es favorito y el siguiente sí, no permitir mover
+            if (!targetItem.isFavorite && nextItem.isFavorite) {
+                return false;
+            }
+        }
 
         // Intercambiar posiciones en el array
         [items[targetIndex], items[targetIndex + 1]] = [items[targetIndex + 1], items[targetIndex]];
@@ -166,9 +195,7 @@ const ReorderManager = (function () {
 
     function debugOrder(collection, folderId = null) {
         const items = getCollection(collection, folderId);
-        console.log(`[Reorder Debug] Orden actual de ${collection}:`);
         items.forEach((item, index) => {
-            console.log(`  ${index}: ${item.title || item.name} (order: ${item.order}, id: ${item.id})`);
         });
         return items;
     }
@@ -177,25 +204,23 @@ const ReorderManager = (function () {
     function getCollection(collection, folderId = null) {
         // Validar que StateManager exista
         if (!StateManager || typeof StateManager.getBookmarks !== 'function') {
-            console.warn('[ReorderManager] StateManager no está listo');
             return [];
         }
 
         let items;
 
         if (collection === 'favorites') {
-            // getBookmarks(null, true) ya retorna array ordenado ✅
+            // getBookmarks(null, true) ya retorna array ordenado 
             items = StateManager.getBookmarks(null, true);
         } else if (collection === 'folders') {
-            // getFolders() retorna array directo ✅ (NO .folders)
+            // getFolders() retorna array directo (NO .folders)
             items = StateManager.getFolders();
         } else if (collection === 'bookmarks') {
-            // getBookmarks(folderId, false) retorna array directo ✅ (NO .bookmarks)
+            // getBookmarks(folderId, false) retorna array directo (NO .bookmarks)
             items = StateManager.getBookmarks(folderId, false);
         }
 
         if (!Array.isArray(items)) {
-            console.warn('[ReorderManager] getCollection: no es array', items);
             return [];
         }
 
