@@ -37,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (window.ReorderManager && typeof ReorderManager.init === 'function') {
         ReorderManager.init(StorageManager, StateManager, RenderManager);
-        console.log('[App] ReorderManager inicializado');
     }
 
     // Inicializar eventos
@@ -45,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Suscribirse a cambios de estado
     StateManager.subscribe((state) => {
-        console.log('Estado actualizado:', state);
     });
 });
 
@@ -80,11 +78,9 @@ function initEventListeners() {
 
     // Settings y Profile (preparación)
     document.getElementById('settingsBtn')?.addEventListener('click', () => {
-        console.log('Abrir settings');
     });
 
     document.getElementById('profileBtn')?.addEventListener('click', () => {
-        console.log('Abrir profile');
     });
 }
 
@@ -109,17 +105,6 @@ function handleToggleContainer(e) {
     }
 
     saveState();
-}
-
-// Manejar acciones de añadir (bookmark, folder)
-function handleAddAction(e) {
-    const action = e.target.closest('[data-action]').dataset.action;
-    const target = e.target.closest('[data-action]').dataset.target;
-
-    console.log(`Acción: ${action}, Target: ${target}`);
-
-    // En F2 se abrirán los modales correspondientes
-    alert(`En la Fase 2 se abrirá el modal para: ${action} en ${target}`);
 }
 
 // Manejar envío de chat
@@ -160,14 +145,12 @@ function addChatMessage(text, sender) {
 // Manejar búsqueda
 function handleSearch(e) {
     const query = e.target.value.trim().toLowerCase();
-    console.log('Búsqueda:', query);
     // En F2 se implementará la lógica de búsqueda
 }
 
 // Renderizar estado inicial (si es necesario)
 function renderInitialState() {
     // Aquí se renderizarán los datos iniciales
-    console.log('Renderizando estado inicial...');
 }
 
 
@@ -179,7 +162,6 @@ function saveState() {
             settings: AppState.settings
         }));
     } catch (error) {
-        console.error('Error guardando estado:', error);
     }
 }
 
@@ -193,7 +175,6 @@ function loadState() {
             Object.assign(AppState.settings, state.settings || {});
         }
     } catch (error) {
-        console.error('Error cargando estado:', error);
     }
 }
 
