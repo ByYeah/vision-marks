@@ -89,7 +89,6 @@ const EventsManager = (() => {
 
     function handleSearch(e) {
         const query = e.target.value.trim().toLowerCase();
-        console.log('Búsqueda:', query);
         // Implementar en F3
     }
 
@@ -137,8 +136,6 @@ const EventsManager = (() => {
     }
 
     function initReorderEvents() {
-        console.log('[Events] Inicializando eventos de reordenamiento');
-
         // Usar event delegation con capture: true para interceptar antes
         document.addEventListener('click', (e) => {
             // Click en botón MORE de lista
@@ -149,7 +146,6 @@ const EventsManager = (() => {
                 e.stopImmediatePropagation();
 
                 const itemId = btnMore.dataset.id;
-                console.log('[Events] Click en btn-more para ID:', itemId);
                 toggleContextMenu(itemId);
                 return;
             }
@@ -162,7 +158,6 @@ const EventsManager = (() => {
                 e.stopImmediatePropagation();
 
                 const itemId = btnMoreGrid.dataset.id;
-                console.log('[Events] Click en btn-more-grid para ID:', itemId);
                 toggleContextMenuGrid(itemId);
                 return;
             }
@@ -189,8 +184,6 @@ const EventsManager = (() => {
                 const parentItem = contextMenu.closest('.bookmark-item, .folder-item');
                 const collection = parentItem?.dataset.collection;
                 const folderId = parentItem?.dataset.folderId || null;
-
-                console.log('[Events] Acción de menú lista:', action, 'para item:', itemId, 'colección:', collection);
 
                 if (action === 'move-up' && window.ReorderManager) {
                     ReorderManager.moveUp(collection, itemId, folderId);
@@ -231,8 +224,6 @@ const EventsManager = (() => {
         const itemId = menuItem.dataset.id;
         const collection = menuItem.dataset.collection;
 
-        console.log('[Events] Acción de menú grid:', action, 'para bookmark:', bookmarkId || itemId);
-
         switch (action) {
             case 'edit':
                 if (window.BookmarksManager) {
@@ -264,13 +255,10 @@ const EventsManager = (() => {
     }
 
     function toggleContextMenu(itemId) {
-        console.log('[ContextMenu] toggleContextMenu para ID:', itemId);
-
         const menu = document.querySelector(`.context-menu[data-id="${itemId}"]`);
         const btn = document.querySelector(`.btn-more[data-id="${itemId}"]`);
 
         if (!menu || !btn) {
-            console.warn('[ContextMenu] Elementos no encontrados');
             return;
         }
 
@@ -297,8 +285,6 @@ const EventsManager = (() => {
 
     // Función específica para toggle del menú en grid
     function toggleContextMenuGrid(itemId) {
-        console.log('[ContextMenu] toggleContextMenuGrid para ID:', itemId);
-
         const menu = document.querySelector(`.context-menu-grid[data-id="${itemId}"]`);
         const btn = document.querySelector(`.btn-more-grid[data-id="${itemId}"]`);
 
@@ -369,8 +355,6 @@ const EventsManager = (() => {
 
     // Función para cerrar todos los menús contextuales
     function closeAllContextMenus() {
-        console.log('[ContextMenu] Cerrando todos los menús');
-
         document.querySelectorAll('.context-menu-folder.active').forEach(menu => {
             menu.classList.remove('active');
 
@@ -401,8 +385,6 @@ const EventsManager = (() => {
 })();
 
 window.closeAllContextMenus = function() {
-    console.log('[ContextMenu] Cerrando todos los menús');
-
     document.querySelectorAll('.context-menu-folder.active').forEach(menu => {
         menu.classList.remove('active');
 

@@ -17,7 +17,6 @@ const SvgLoader = (() => {
             
             return svgContent;
         } catch (error) {
-            console.error(`[SvgLoader] Error: ${error.message}`);
             return '<span>⚠️</span>';
         }
     }

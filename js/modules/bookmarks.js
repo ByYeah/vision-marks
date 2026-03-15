@@ -3,7 +3,6 @@ const BookmarksManager = (() => {
     async function fetchBookmarkIcon(url) {
         try {
         } catch (error) {
-            console.log('LinkPreview no disponible, usando fallback de Google');
         }
 
         // Fallback: Google favicon service

@@ -620,7 +620,6 @@ const SettingsManager = (() => {
                     settings.fontFamily = DEFAULT_SETTINGS.fontFamily;
                 }
             } catch (e) {
-                console.error('Error cargando settings:', e);
                 settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
             }
         }
