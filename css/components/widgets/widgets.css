@@ -1,0 +1,65 @@
+/* ============================================
+   WIDGETS - Contenedores para widgets
+   ============================================ */
+
+/* Contenedores de widgets */
+[data-container="widgets-1"],
+[data-container="widgets-2"],
+[data-container="widgets-3"],
+[data-container="widgets-4"] {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+/* Placeholder para widgets */
+.widget-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 100px;
+    padding: var(--spacing-md);
+    background: var(--bg-primary);
+    border: 2px dashed var(--border-color);
+    border-radius: var(--border-radius);
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.widget-placeholder p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Cuando hay múltiples widgets en un contenedor */
+.widgets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-sm);
+    height: 100%;
+    width: 100%;
+}
+
+/* Widget item individual */
+.widget-item {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: var(--spacing-sm);
+    transition: all var(--transition-fast);
+}
+
+.widget-item:hover {
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Estilos para modos oscuros */
+[data-theme="dark"] .widget-placeholder,
+[data-theme="amoled"] .widget-placeholder {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-secondary);
+}
