@@ -1,0 +1,39 @@
+/** Base **/
+@import url('base/variables.css');
+@import url('base/reset.css');
+@import url('base/typography.css');
+
+/** Layouts **/
+@import url('layout/topbar.css');
+@import url('layout/dashboard.css');
+@import url('layout/containers.css');
+
+/** Componentes - Bookmarks **/
+@import url('components/bookmarks/list.css');
+@import url('components/bookmarks/grid.css');
+@import url('components/bookmarks/actions.css');
+
+/** Componentes - Folders **/
+@import url('components/folders/grid.css');
+@import url('components/folders/actions.css');
+
+/** Componentes - Widgets **/
+@import url('components/widgets/widgets.css');
+
+/** Componentes - Modals **/
+@import url('components/modals/modals.css');
+@import url('components/modals/settings-modal.css');
+
+/** Componentes - Globales **/
+@import url('components/context-menu.css');
+@import url('components/chat.css');
+
+/** Temas **/
+@import url('themes/light.css');
+@import url('themes/dark.css');
+@import url('themes/amoled.css');
+@import url('themes/custom.css');
+
+/** Utilidades **/
+@import url('utils/helpers.css');
+@import url('utils/responsive.css');
