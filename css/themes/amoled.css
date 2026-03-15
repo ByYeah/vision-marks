@@ -1,6 +1,4 @@
-/* ============================================
-   TEMA AMOLED - COMPLETO
-   ============================================ */
+/** TEMA AMOLED - COMPLETO **/
 [data-theme="amoled"] {
     --bg-primary: #000000 !important;
     --bg-secondary: #0a0a0a !important;
@@ -11,9 +9,7 @@
     --border-color: #333333 !important;
 }
 
-/* ============================================
-   MODALES BASE EN AMOLED
-   ============================================ */
+/** MODALES BASE EN AMOLED **/
 [data-theme="amoled"] .modal-container {
     background: var(--bg-secondary) !important;
     border: 1px solid var(--border-color) !important;
@@ -49,9 +45,7 @@
     background: var(--bg-secondary) !important;
 }
 
-/* ============================================
-   SETTINGS MODAL EN AMOLED
-   ============================================ */
+/** SETTINGS MODAL EN AMOLED **/
 [data-theme="amoled"] .modal-overlay#settingsModal .modal-container {
     background: var(--bg-secondary) !important;
 }
@@ -93,9 +87,7 @@
     color: var(--text-secondary) !important;
 }
 
-/* ============================================
-   LAYOUT OPTIONS EN AMOLED
-   ============================================ */
+/** LAYOUT OPTIONS EN AMOLED **/
 [data-theme="amoled"] .layout-option {
     background: var(--bg-primary) !important;
     border: 2px solid var(--border-color) !important;
@@ -124,9 +116,7 @@
     color: var(--text-secondary) !important;
 }
 
-/* ============================================
-   THEME OPTIONS EN AMOLED
-   ============================================ */
+/** THEME OPTIONS EN AMOLED **/
 [data-theme="amoled"] .theme-option {
     border: 2px solid var(--border-color) !important;
 }
@@ -171,9 +161,7 @@ body:not([data-theme="dark"]):not([data-theme="auto"]):not([data-theme="light"])
   background: #1a1a1a !important;
 }
 
-/* ============================================
-   FONT OPTIONS EN AMOLED
-   ============================================ */
+/** FONT OPTIONS EN AMOLED **/
 [data-theme="amoled"] .font-option {
     background: var(--bg-primary) !important;
     border: 2px solid var(--border-color) !important;
@@ -198,9 +186,7 @@ body:not([data-theme="dark"]):not([data-theme="auto"]):not([data-theme="light"])
     color: var(--text-primary) !important;
 }
 
-/* ============================================
-   DISPLAY OPTIONS EN AMOLED
-   ============================================ */
+/** DISPLAY OPTIONS EN AMOLED **/
 [data-theme="amoled"] .display-option-group {
     background: var(--bg-primary) !important;
     border: 1px solid var(--border-color) !important;
@@ -226,9 +212,7 @@ body:not([data-theme="dark"]):not([data-theme="auto"]):not([data-theme="light"])
     border-color: var(--primary-color) !important;
 }
 
-/* ============================================
-   COLOR PICKER EN AMOLED
-   ============================================ */
+/** COLOR PICKER EN AMOLED **/
 [data-theme="amoled"] .color-card {
     background: var(--bg-secondary) !important;
     border-color: var(--border-color) !important;
@@ -263,9 +247,7 @@ body:not([data-theme="dark"]):not([data-theme="auto"]):not([data-theme="light"])
     border: 1px solid var(--border-color) !important;
 }
 
-/* ============================================
-   FORMULARIOS EN AMOLED
-   ============================================ */
+/** FORMULARIOS EN AMOLED **/
 [data-theme="amoled"] .form-group label {
     color: var(--text-primary) !important;
 }
@@ -289,9 +271,7 @@ body:not([data-theme="dark"]):not([data-theme="auto"]):not([data-theme="light"])
     color: var(--text-muted) !important;
 }
 
-/* ============================================
-   BOTONES EN AMOLED
-   ============================================ */
+/** BOTONES EN AMOLED **/
 [data-theme="amoled"] .btn-primary {
     background: var(--primary-color) !important;
     color: white !important;
@@ -320,9 +300,7 @@ body:not([data-theme="dark"]):not([data-theme="auto"]):not([data-theme="light"])
     background: #c53030 !important;
 }
 
-/* ============================================
-   ABOUT SECTION EN AMOLED
-   ============================================ */
+/** ABOUT SECTION EN AMOLED **/
 [data-theme="amoled"] .about-link {
     background: var(--bg-tertiary) !important;
     color: var(--text-primary) !important;

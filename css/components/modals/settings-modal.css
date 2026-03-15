@@ -1,7 +1,4 @@
-/* ============================================
-   SETTINGS MODAL - ESPECÍFICO
-   ============================================ */
-
+/** SETTINGS MODAL - ESPECÍFICO **/
 .modal-overlay#settingsModal {
     align-items: center;
     padding: 20px;
@@ -21,18 +18,14 @@
     padding: 0;
 }
 
-/* ============================================
-   CONTENEDOR PRINCIPAL
-   ============================================ */
+/** CONTENEDOR PRINCIPAL **/
 .settings-container {
     display: flex;
     height: calc(90vh - 120px);
     overflow: hidden;
 }
 
-/* ============================================
-   SIDEBAR
-   ============================================ */
+/** SIDEBAR **/
 .settings-sidebar {
     width: 240px;
     border-right: 1px solid var(--border-color);
@@ -93,7 +86,7 @@
     border-radius: 2px;
 }
 
-/* Opcional: estilo especial para el botón "Acerca de" */
+/* Estilo especial para el botón "Acerca de" */
 .settings-menu-item[data-section="about"] {
     margin-top: var(--spacing-xs);
     font-size: 0.9rem;
@@ -110,9 +103,7 @@
     color: white;
 }
 
-/* ============================================
-   CONTENIDO
-   ============================================ */
+/** CONTENIDO **/
 .settings-content {
     flex: 1;
     padding: var(--spacing-lg);
@@ -141,9 +132,7 @@
     margin-bottom: var(--spacing-lg);
 }
 
-/* ============================================
-   LAYOUTS GRID
-   ============================================ */
+/** LAYOUTS GRID **/
 .layouts-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -304,9 +293,7 @@
     background: var(--primary-color);
 }
 
-/* ============================================
-   THEME OPTIONS
-   ============================================ */
+/** THEME OPTIONS **/
 .theme-options {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -368,9 +355,7 @@
         color var(--transition-normal);
 }
 
-/* ============================================
-   DISPLAY MODE SELECTOR
-   ============================================ */
+/** DISPLAY MODE SELECTOR **/
 .display-options {
     display: grid;
     gap: var(--spacing-md);
@@ -417,9 +402,7 @@
     color: white;
 }
 
-/* ============================================
-   COLOR PICKER
-   ============================================ */
+/** COLOR PICKER **/
 .color-section-general {
     margin-bottom: var(--spacing-lg);
     padding-bottom: var(--spacing-md);
@@ -577,9 +560,7 @@
     pointer-events: none;
 }
 
-/* ============================================
-   FONT OPTIONS
-   ============================================ */
+/** FONT OPTIONS **/
 .font-options {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -625,9 +606,7 @@
     color: var(--text-secondary);
 }
 
-/* ============================================
-   ABOUT SECTION
-   ============================================ */
+/** ABOUT SECTION **/
 .about-section {
     text-align: center;
     padding: var(--spacing-lg);
@@ -710,9 +689,7 @@
     font-size: 0.85rem;
 }
 
-/* ============================================
-   ANIMACIONES
-   ============================================ */
+/** ANIMACIONES **/
 @keyframes fadeIn {
     from {
         opacity: 0;
