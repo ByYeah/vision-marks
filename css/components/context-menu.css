@@ -1,0 +1,190 @@
+/** CONTEXT MENU - BASE COMPARTIDA **/
+
+/* Estructura base del menú contextual */
+.context-menu {
+    position: absolute !important;
+    top: 100% !important;
+    right: 0 !important;
+    z-index: 999999 !important;
+    min-width: 200px !important;
+    background: var(--bg-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25) !important;
+    margin-top: 5px !important;
+    
+    /* Oculto por defecto */
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateY(-5px) !important;
+    transition: opacity 0.2s ease, visibility 0.2s ease, transform 0.2s ease !important;
+    pointer-events: none !important;
+}
+
+/* Menú activo (visible) */
+.context-menu.active {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateY(0) !important;
+    pointer-events: all !important;
+}
+
+/* Lista del menú */
+.context-menu ul {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 8px 0 !important;
+}
+
+/* Items del menú */
+.context-menu-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 10px 16px !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    color: var(--text-primary) !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    white-space: nowrap !important;
+}
+
+.context-menu-item:hover {
+    background: var(--bg-tertiary) !important;
+}
+
+.context-menu-item:active {
+    background: var(--primary-color) !important;
+    color: white !important;
+}
+
+/* Contenedor del icono en el menú */
+.context-menu-item span:first-child {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0 !important;
+}
+
+.context-menu-item span:first-child svg {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+/* Divisor del menú */
+.context-menu-divider {
+    height: 1px !important;
+    background: var(--border-color) !important;
+    margin: 6px 0 !important;
+}
+
+/* Items deshabilitados */
+.context-menu-item[style*="opacity:0.3"] {
+    opacity: 0.5 !important;
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+}
+
+/* Color especial para acciones destructivas */
+.context-menu-item.delete:hover {
+    background: #e53e3e !important;
+    color: white !important;
+}
+
+.context-menu-item.delete:hover svg {
+    fill: white !important;
+}
+
+/** POSICIONAMIENTO INTELIGENTE **/
+.context-menu.position-bottom {
+    top: 100% !important;
+    bottom: auto !important;
+    transform-origin: top center !important;
+}
+
+.context-menu.position-top {
+    top: auto !important;
+    bottom: 100% !important;
+    margin-bottom: 5px !important;
+    margin-top: 0 !important;
+    transform-origin: bottom center !important;
+}
+
+.context-menu.position-top.active {
+    transform: translateY(0) !important;
+}
+
+.context-menu.position-top {
+    transform: translateY(5px) !important;
+}
+
+/** FLECHA INDICADORA **/
+.context-menu::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    pointer-events: none;
+}
+
+.context-menu.position-bottom::after {
+    top: -7px;
+    right: 10px;
+    border-bottom: 8px solid var(--bg-primary);
+    border-top: none;
+}
+
+.context-menu.position-top::after {
+    bottom: -7px;
+    right: 10px;
+    border-top: 8px solid var(--bg-primary);
+    border-bottom: none;
+}
+
+/** ESTILOS DE ICONOS EN MENÚS **/
+
+/* Edit y trash - solo contorno */
+.context-menu-item .icon-edit svg,
+.context-menu-item .icon-trash svg {
+    fill: none !important;
+    stroke: currentColor !important;
+    stroke-width: 2px !important;
+}
+
+/* Star, arrows - con relleno */
+.context-menu-item .icon-star svg,
+.context-menu-item .icon-arrow-up svg,
+.context-menu-item .icon-arrow-down svg,
+.context-menu-item .icon-more-vertical svg {
+    fill: currentColor !important;
+    stroke: currentColor !important;
+    stroke-width: 2px !important;
+}
+
+/** TEMAS OSCUROS PARA MENÚS **/
+[data-theme="dark"] .context-menu,
+[data-theme="amoled"] .context-menu {
+    background: var(--bg-primary, #1a202c);
+    border-color: var(--border-color, #4a5568);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .context-menu-item:hover,
+[data-theme="amoled"] .context-menu-item:hover {
+    background: var(--bg-secondary, #2d3748);
+}
+
+[data-theme="dark"] .context-menu.position-bottom::after,
+[data-theme="amoled"] .context-menu.position-bottom::after {
+    border-bottom-color: var(--bg-primary) !important;
+}
+
+[data-theme="dark"] .context-menu.position-top::after,
+[data-theme="amoled"] .context-menu.position-top::after {
+    border-top-color: var(--bg-primary) !important;
+}
