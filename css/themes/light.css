@@ -1,0 +1,38 @@
+/** TEMA LIGHT (POR DEFECTO) **/
+:root {
+    /* Los colores ya están definidos en variables.css */
+    /* Este archivo puede estar vacío o contener ajustes específicos */
+}
+
+/* Estilos específicos para modo light si son necesarios */
+[data-theme="light"] .container-item {
+    /* Ajustes específicos si los hay */
+}
+
+[data-theme="light"] .theme-preview.dark {
+    background: linear-gradient(135deg, #1a202c 50%, #2d3748 50%) !important;
+}
+
+[data-theme="light"] .theme-preview.amoled {
+    background: linear-gradient(135deg, #000000 50%, #0a0a0a 50%) !important;
+}
+
+[data-theme="light"] .theme-preview.auto {
+    background: linear-gradient(135deg, #f7fafc 50%, #1a202c 50%) !important;
+}
+
+body:not([data-theme="dark"]):not([data-theme="amoled"]) .layout-name,
+body:not([data-theme="dark"]):not([data-theme="amoled"]) .theme-option .layout-name {
+color: #2d3748 !important;
+}
+
+body:not([data-theme="dark"]):not([data-theme="amoled"]) 
+.theme-option:not(:hover):not(.active) {
+  border-color: #e2e8f0 !important;
+}
+
+
+body:not([data-theme="custom"]) .chat-message.bot {
+background: var(--bg-tertiary) !important;
+color: var(--text-primary) !important;
+}

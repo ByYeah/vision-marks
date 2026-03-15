@@ -1,0 +1,343 @@
+/* ============================================
+   TEMA AMOLED - COMPLETO
+   ============================================ */
+[data-theme="amoled"] {
+    --bg-primary: #000000 !important;
+    --bg-secondary: #0a0a0a !important;
+    --bg-tertiary: #1a1a1a !important;
+    --text-primary: #ffffff !important;
+    --text-secondary: #b0b0b0 !important;
+    --text-muted: #666666 !important;
+    --border-color: #333333 !important;
+}
+
+/* ============================================
+   MODALES BASE EN AMOLED
+   ============================================ */
+[data-theme="amoled"] .modal-container {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.9) !important;
+}
+
+[data-theme="amoled"] .modal-header {
+    background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary)) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+[data-theme="amoled"] .modal-header h3 {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="amoled"] .modal-close {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="amoled"] .modal-close:hover {
+    background: var(--primary-color) !important;
+    color: white !important;
+}
+
+[data-theme="amoled"] .modal-body {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="amoled"] .modal-footer {
+    border-top: 1px solid var(--border-color) !important;
+    background: var(--bg-secondary) !important;
+}
+
+/* ============================================
+   SETTINGS MODAL EN AMOLED
+   ============================================ */
+[data-theme="amoled"] .modal-overlay#settingsModal .modal-container {
+    background: var(--bg-secondary) !important;
+}
+
+[data-theme="amoled"] .settings-container {
+    background: var(--bg-secondary) !important;
+}
+
+[data-theme="amoled"] .settings-sidebar {
+    background: var(--bg-tertiary) !important;
+    border-right: 1px solid var(--border-color) !important;
+}
+
+[data-theme="amoled"] .settings-menu-item {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="amoled"] .settings-menu-item:hover {
+    background: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="amoled"] .settings-menu-item.active {
+    background: var(--primary-color) !important;
+    color: white !important;
+}
+
+[data-theme="amoled"] .settings-content {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="amoled"] .settings-section h3 {
+    color: var(--text-primary) !important;
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+[data-theme="amoled"] .settings-section p {
+    color: var(--text-secondary) !important;
+}
+
+/* ============================================
+   LAYOUT OPTIONS EN AMOLED
+   ============================================ */
+[data-theme="amoled"] .layout-option {
+    background: var(--bg-primary) !important;
+    border: 2px solid var(--border-color) !important;
+}
+
+[data-theme="amoled"] .layout-option:hover {
+    border-color: var(--primary-color) !important;
+    background: var(--bg-tertiary) !important;
+}
+
+[data-theme="amoled"] .layout-option.active {
+    border-color: var(--primary-color) !important;
+    background: rgba(102, 126, 234, 0.15) !important;
+}
+
+[data-theme="amoled"] .layout-preview {
+    background: var(--bg-tertiary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="amoled"] .layout-name {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="amoled"] .layout-desc {
+    color: var(--text-secondary) !important;
+}
+
+/* ============================================
+   THEME OPTIONS EN AMOLED
+   ============================================ */
+[data-theme="amoled"] .theme-option {
+    border: 2px solid var(--border-color) !important;
+}
+
+[data-theme="amoled"] .theme-option:hover {
+    border-color: var(--primary-color) !important;
+    background: var(--bg-tertiary) !important;
+}
+
+[data-theme="amoled"] .theme-option.active {
+    border-color: var(--primary-color) !important;
+    background: rgba(102, 126, 234, 0.15) !important;
+}
+
+[data-theme="amoled"] .theme-preview {
+    border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="amoled"] .theme-preview.light {
+    background: linear-gradient(135deg, #f7fafc 50%, #ffffff 50%) !important;
+}
+
+[data-theme="amoled"] .theme-preview.dark {
+    background: linear-gradient(135deg, #1a202c 50%, #2d3748 50%) !important;
+}
+
+[data-theme="amoled"] .theme-preview.amoled {
+    background: linear-gradient(135deg, #000000 50%, #0a0a0a 50%) !important;
+}
+
+[data-theme="amoled"] .theme-preview.auto {
+    background: linear-gradient(135deg, #f7fafc 50%, #1a202c 50%) !important;
+}
+
+body:not([data-theme="dark"]):not([data-theme="auto"]):not([data-theme="light"]):not([data-theme="custom"])  
+.theme-option:not(:hover):not(.active) {
+  border-color: #333333 !important;
+}
+
+body:not([data-theme="dark"]):not([data-theme="auto"]):not([data-theme="light"]):not([data-theme="custom"]) 
+.theme-option:not(.active):hover {
+  background: #1a1a1a !important;
+}
+
+/* ============================================
+   FONT OPTIONS EN AMOLED
+   ============================================ */
+[data-theme="amoled"] .font-option {
+    background: var(--bg-primary) !important;
+    border: 2px solid var(--border-color) !important;
+}
+
+[data-theme="amoled"] .font-option:hover {
+    border-color: var(--primary-color) !important;
+    background: var(--bg-tertiary) !important;
+    transform: translateY(-2px);
+}
+
+[data-theme="amoled"] .font-option.active {
+    border-color: var(--primary-color) !important;
+    background: rgba(102, 126, 234, 0.15) !important;
+}
+
+[data-theme="amoled"] .font-option.active .font-preview {
+    color: var(--primary-color) !important;
+}
+
+[data-theme="amoled"] .font-preview {
+    color: var(--text-primary) !important;
+}
+
+/* ============================================
+   DISPLAY OPTIONS EN AMOLED
+   ============================================ */
+[data-theme="amoled"] .display-option-group {
+    background: var(--bg-primary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="amoled"] .display-option-group h4 {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="amoled"] .display-mode-btn {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+    border: 2px solid var(--border-color) !important;
+}
+
+[data-theme="amoled"] .display-mode-btn:hover {
+    border-color: var(--primary-color) !important;
+}
+
+[data-theme="amoled"] .display-mode-btn.active {
+    background: var(--primary-color) !important;
+    color: white !important;
+    border-color: var(--primary-color) !important;
+}
+
+/* ============================================
+   COLOR PICKER EN AMOLED
+   ============================================ */
+[data-theme="amoled"] .color-card {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="amoled"] .color-card-header {
+    background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary)) !important;
+    border-bottom-color: var(--border-color) !important;
+}
+
+[data-theme="amoled"] .color-card-header h4 {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="amoled"] .color-picker-wrapper {
+    background: var(--bg-tertiary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="amoled"] .color-picker-wrapper label {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="amoled"] .color-picker-wrapper input[type="color"] {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="amoled"] .color-picker-wrapper input[type="text"] {
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* ============================================
+   FORMULARIOS EN AMOLED
+   ============================================ */
+[data-theme="amoled"] .form-group label {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="amoled"] .form-group input,
+[data-theme="amoled"] .form-group select,
+[data-theme="amoled"] .form-group textarea {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+    border: 2px solid var(--border-color) !important;
+}
+
+[data-theme="amoled"] .form-group input:focus,
+[data-theme="amoled"] .form-group select:focus,
+[data-theme="amoled"] .form-group textarea:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3) !important;
+}
+
+[data-theme="amoled"] .form-group small {
+    color: var(--text-muted) !important;
+}
+
+/* ============================================
+   BOTONES EN AMOLED
+   ============================================ */
+[data-theme="amoled"] .btn-primary {
+    background: var(--primary-color) !important;
+    color: white !important;
+}
+
+[data-theme="amoled"] .btn-primary:hover {
+    background: var(--primary-dark) !important;
+}
+
+[data-theme="amoled"] .btn-secondary {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+[data-theme="amoled"] .btn-secondary:hover {
+    background: var(--bg-primary) !important;
+}
+
+[data-theme="amoled"] .btn-danger {
+    background: #e53e3e !important;
+    color: white !important;
+}
+
+[data-theme="amoled"] .btn-danger:hover {
+    background: #c53030 !important;
+}
+
+/* ============================================
+   ABOUT SECTION EN AMOLED
+   ============================================ */
+[data-theme="amoled"] .about-link {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="amoled"] .about-link:hover {
+    background: var(--primary-color) !important;
+    color: white !important;
+}
+
+[data-theme="amoled"] .btn-report-bug {
+    background: var(--primary-color) !important;
+    color: white !important;
+}
+
+[data-theme="amoled"] .btn-report-bug:hover {
+    background: var(--primary-dark) !important;
+}

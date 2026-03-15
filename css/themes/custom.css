@@ -1,0 +1,71 @@
+/** TEMA CUSTOM (VARIABLES DINÁMICAS) **/
+[data-theme="custom"] {
+    /* Las variables se establecen dinámicamente vía JavaScript */
+    /* Este archivo es solo para estilos específicos del tema custom */
+}
+
+/* Asegurar que los elementos usen las variables establecidas por JS */
+[data-theme="custom"] .container-item,
+[data-theme="custom"] .bookmark-item,
+[data-theme="custom"] .folder-item,
+[data-theme="custom"] .favorite-grid-item.grid-8 {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+[data-theme="custom"] .container-header {
+    background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+    border-bottom-color: var(--border-color);
+}
+
+[data-theme="custom"] .container-header h2,
+[data-theme="custom"] .bookmark-title,
+[data-theme="custom"] .folder-name {
+    color: var(--text-primary);
+}
+
+[data-theme="custom"] .bookmark-url {
+    color: var(--text-secondary);
+}
+
+[data-theme="custom"] .bookmark-item:hover,
+[data-theme="custom"] .folder-item:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--primary-color);
+}
+
+[data-theme="custom"] .grid-item-btn {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+}
+
+[data-theme="custom"] .context-menu {
+    background: var(--bg-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="custom"] .context-menu-item:hover {
+    background: var(--bg-tertiary);
+}
+
+[data-theme="custom"] .context-menu.position-bottom::after {
+    border-bottom-color: var(--bg-primary);
+}
+
+[data-theme="custom"] .context-menu.position-top::after {
+    border-top-color: var(--bg-primary);
+}
+
+[data-theme="custom"] .chat-input-area input {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="custom"] .modal-form input,
+[data-theme="custom"] .modal-form select,
+[data-theme="custom"] .modal-form textarea {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
