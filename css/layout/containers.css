@@ -1,0 +1,170 @@
+/** CONTENEDORES BASE **/
+.container-item {
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    transition: all var(--transition-normal);
+    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+.container-item:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+/** HEADER DE CONTENEDORES **/
+.container-header {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: linear-gradient(135deg, var(--bg-tertiary), var(--bg-secondary));
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.container-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary) !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: default;
+}
+
+.container-header h2 svg {
+    display: flex;
+    align-items: center;
+    font-size: 1.3rem;
+    color: var(--text-primary) !important;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+/** ACCIONES DEL CONTENEDOR **/
+.container-actions {
+    display: flex;
+    gap: var(--spacing-xs);
+    flex-shrink: 0;
+}
+
+.btn-add,
+.btn-back {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    color: var(--text-secondary);
+}
+
+.btn-add:hover,
+.btn-back:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-back.hidden {
+    display: none;
+}
+
+/** CONTENIDO DEL CONTENEDOR **/
+.container-content {
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.container-body {
+    padding: var(--spacing-md);
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Efecto de gradiente para scroll */
+.container-body.scrollable {
+    overflow-y: auto;
+    position: relative;
+}
+
+.container-body.scrollable::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(to bottom, transparent, var(--bg-secondary));
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.container-body.scrollable.has-scroll::after {
+    opacity: 1;
+}
+
+/** ICONOS EN CONTENEDORES **/
+.icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.icon-wrapper svg {
+    display: block;
+    fill: currentColor;
+    stroke: currentColor;
+    transition: fill var(--transition-fast), stroke var(--transition-fast);
+}
+
+.icon-wrapper[data-svg-class="icon-gradient"] svg {
+    width: 1.2em;
+    height: 1.2em;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.icon-wrapper[data-svg-class="icon-container"] svg {
+    width: 1em;
+    height: 1em;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.container-item:hover .icon-container svg {
+    fill: var(--primary-color) !important;
+    stroke: var(--primary-color) !important;
+}
+
+/** EMPTY STATE **/
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-lg);
+    color: var(--text-muted);
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+    height: 100%;
+    cursor: default;
+}
