@@ -18,6 +18,9 @@
     transition: all var(--transition-fast);
     cursor: pointer;
     flex-shrink: 0;
+    position: relative;
+    overflow: visible;
+    z-index: 1;
 }
 
 .bookmark-item:hover {

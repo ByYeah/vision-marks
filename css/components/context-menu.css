@@ -188,3 +188,40 @@
 [data-theme="amoled"] .context-menu.position-top::after {
     border-top-color: var(--bg-primary) !important;
 }
+
+/** MANEJO HOVER CUANDO EL MENU ESTA DESPLEGADO **/
+
+.bookmark-item:has(.context-menu.active),
+.folder-item:has(.context-menu.active) {
+    pointer-events: none !important; /* Desactiva eventos en todo el item */
+}
+
+/* Pero REACTIVAR eventos para elementos específicos */
+.bookmark-item:has(.context-menu.active) .btn-more,
+.bookmark-item:has(.context-menu.active) .context-menu,
+.bookmark-item:has(.context-menu.active) .context-menu *,
+.folder-item:has(.context-menu.active) .btn-more,
+.folder-item:has(.context-menu.active) .context-menu,
+.folder-item:has(.context-menu.active) .context-menu * {
+    pointer-events: auto !important; /* Estos elementos siguen siendo interactuables */
+}
+
+/* Mantener el botón more visible cuando el menú está abierto */
+.bookmark-item:has(.context-menu.active) .btn-more,
+.folder-item:has(.context-menu.active) .btn-more {
+    opacity: 1 !important;
+    background: var(--primary-color) !important;
+    color: white !important;
+}
+
+/* Asegurar que el contenedor de acciones permanezca visible */
+.bookmark-item:has(.context-menu.active) .bookmark-actions,
+.folder-item:has(.context-menu.active) .folder-actions {
+    opacity: 1 !important;
+}
+
+/* Items con menú activo tienen z-index más alto */
+.bookmark-item:has(.context-menu.active),
+.folder-item:has(.context-menu.active) {
+    z-index: 1000 !important; /* Temporalmente más alto */
+}
