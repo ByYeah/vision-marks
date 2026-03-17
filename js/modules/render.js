@@ -389,13 +389,17 @@ const RenderManager = (() => {
         if (!container) return;
 
         const folders = StateManager.getFolders();
-        const itemsPerPage = 8;
-        const maxPages = 5;
+        const maxPages = 5; // Máximo 5 páginas
 
+        // Calcular items por página basado en el ancho del contenedor
+        const itemsPerPage = calculateItemsPerPage();
+
+        // Limitar a máximo (itemsPerPage * maxPages) carpetas
         const displayedFolders = folders.slice(0, itemsPerPage * maxPages);
         const totalItems = displayedFolders.length;
         const totalPages = Math.ceil(totalItems / itemsPerPage);
 
+        // Asegurar que currentFoldersPage no exceda totalPages
         if (currentFoldersPage > totalPages) {
             currentFoldersPage = Math.max(1, totalPages);
         }
@@ -406,16 +410,16 @@ const RenderManager = (() => {
             return;
         }
 
-        // Lógica para cada flecha:
-        // Flecha izquierda: Siempre visible, pero deshabilitada en primera página
+        // Lógica para flechas
         const isLeftDisabled = currentFoldersPage <= 1;
-
-        // Flecha derecha: Solo visible cuando hay siguiente página
         const showRightArrow = currentFoldersPage < totalPages;
+
+        // Calcular qué items mostrar según la página actual
         const startIndex = (currentFoldersPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
         const pageFolders = displayedFolders.slice(startIndex, endIndex);
 
+        // Generar HTML de las carpetas
         let foldersHTML = pageFolders.map((f, pageIndex) => {
             const globalIndex = startIndex + pageIndex;
             const isFirst = globalIndex === 0;
@@ -462,9 +466,9 @@ const RenderManager = (() => {
             `;
         }).join('');
 
+        // Construir HTML con flechas
         let html = `
-                <div class="folders-carousel-wrapper">
-                    <!-- Flecha izquierda: SIEMPRE visible, se deshabilita en página 1 -->
+                <div class="folders-carousel-wrapper" data-items-per-page="${itemsPerPage}" data-layout="${getCurrentLayout()}">
                     <div class="folders-arrow folders-arrow-left ${isLeftDisabled ? 'disabled' : ''}" title="Página anterior">
                         <svg viewBox="0 0 24 24">
                             <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
@@ -472,12 +476,11 @@ const RenderManager = (() => {
                     </div>
                     <div class="folders-carousel-container">
                         <div class="folders-scroll-container">
-                            <div class="folders-grid">
+                            <div class="folders-grid" style="gap: var(--spacing-md);">
                                 ${foldersHTML}
                             </div>
                         </div>
                     </div>
-                    <!-- Flecha derecha: SOLO visible cuando hay siguiente página -->
                     <div class="folders-arrow folders-arrow-right ${!showRightArrow ? 'hidden' : ''}" title="Página siguiente">
                         <svg viewBox="0 0 24 24">
                             <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
@@ -485,7 +488,6 @@ const RenderManager = (() => {
                     </div>
                 </div>
             `;
-
         container.innerHTML = html;
         updatePageInfo(totalPages);
         attachArrowEvents(container, totalPages, itemsPerPage);
@@ -497,24 +499,106 @@ const RenderManager = (() => {
         attachFolderEvents(container);
     }
 
+    function getCurrentLayout() {
+        // Buscar el contenedor principal de folders
+        const foldersContainer = document.querySelector('[data-container="folders"]');
+        if (!foldersContainer) return 'default';
+
+        // Verificar por el contenedor del dashboard para detectar el layout global
+        const dashboard = document.querySelector('.dashboard');
+        if (dashboard) {
+            const dashboardClasses = dashboard.className;
+
+            // Detectar por las clases del dashboard
+            if (dashboardClasses.includes('layout-extended')) {
+                return 'extended';
+            }
+            if (dashboardClasses.includes('layout-widgets')) {
+                return 'widgets';
+            }
+            if (dashboardClasses.includes('layout-double')) {
+                return 'double';
+            }
+        }
+
+        // Fallback: verificar por el ancho del contenedor
+        const container = document.querySelector('[data-container="folders"] .container-body');
+        if (container) {
+            const width = container.clientWidth;
+
+            // Estimación por ancho
+            if (width > 1000) {
+                ;
+                return 'extended';
+            } else if (width > 700) {
+                return 'double';
+            }
+        }
+        return 'default';
+    }
+
+    function calculateItemsPerPage() {
+        // Obtener el contenedor de carpetas
+        const container = document.querySelector('[data-container="folders"] .container-body');
+        if (!container) return 8;
+
+        // Obtener el layout actual
+        const layout = getCurrentLayout();
+
+        const containerWidth = container.clientWidth;
+
+        const arrowSpace = 80; // Espacio para ambas flechas
+        const folderWidth = 95;
+        const gap = 16;
+
+        // Calcular cuántas carpetas caben teóricamente
+        const itemsPerRow = Math.floor((containerWidth - arrowSpace) / (folderWidth + gap));
+
+        // Aplicar límites según el layout
+        switch (layout) {
+            case 'widgets':
+                // Layout con widgets: máximo 8 items
+                return Math.min(8, Math.max(4, itemsPerRow));
+
+            case 'extended':
+                // Layout extendido: usar el cálculo real sin límite bajo
+                return Math.min(11, Math.max(4, itemsPerRow));
+
+            case 'double':
+                // Layout doble: máximo 9-10 items
+                return Math.min(10, Math.max(4, itemsPerRow));
+
+            case 'default':
+            default:
+                // Layout por defecto: máximo 9 items
+                return Math.min(9, Math.max(4, itemsPerRow));
+        }
+    }
+
     function attachArrowEvents(container, totalPages, itemsPerPage) {
         const leftArrow = container.querySelector('.folders-arrow-left');
         const rightArrow = container.querySelector('.folders-arrow-right');
 
-        if (leftArrow && !leftArrow.classList.contains('disabled')) {
-            leftArrow.addEventListener('click', () => {
+        if (leftArrow) {
+            const newLeftArrow = leftArrow.cloneNode(true);
+            leftArrow.parentNode.replaceChild(newLeftArrow, leftArrow);
+
+            newLeftArrow.addEventListener('click', () => {
                 if (currentFoldersPage > 1) {
                     currentFoldersPage--;
-                    renderFolders();
+                    RenderManager.renderFolders();
                 }
             });
         }
 
-        if (rightArrow && !rightArrow.classList.contains('hidden')) {
-            rightArrow.addEventListener('click', () => {
+        if (rightArrow) {
+            const newRightArrow = rightArrow.cloneNode(true);
+            rightArrow.parentNode.replaceChild(newRightArrow, rightArrow);
+
+            newRightArrow.addEventListener('click', () => {
                 if (currentFoldersPage < totalPages) {
                     currentFoldersPage++;
-                    renderFolders();
+                    RenderManager.renderFolders();
                 }
             });
         }
@@ -855,7 +939,6 @@ const RenderManager = (() => {
 
 window.addEventListener('containerDisplayChanged', (e) => {
     if (e.detail.container === 'favbookmarks') {
-        // Usar RenderManager.renderFavorites, no la función suelta
         setTimeout(() => {
             if (e.detail.display === 'grid-8') {
                 RenderManager.renderFavoritesGrid(e.detail.display);
@@ -864,4 +947,31 @@ window.addEventListener('containerDisplayChanged', (e) => {
             }
         }, 0);
     }
+
+    // Para cambios de layout, siempre re-renderizar carpetas
+    setTimeout(() => {
+        RenderManager.renderFolders();
+    }, 50);
 });
+
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        if (document.querySelector('[data-container="folders"]')) {
+            RenderManager.renderFolders();
+        }
+    }, 150); // Esperar 150ms después de que termine el resize
+});
+
+const dashboardObserver = new MutationObserver(() => {
+    RenderManager.renderFolders();
+});
+
+const dashboard = document.querySelector('.dashboard');
+if (dashboard) {
+    dashboardObserver.observe(dashboard, {
+        attributes: true,
+        attributeFilter: ['class']
+    });
+}

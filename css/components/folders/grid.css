@@ -102,7 +102,7 @@
     min-height: 0;
     display: flex;
     align-items: center;
-    overflow: hidden;
+    overflow: visible;
 }
 
 /* Contenedor del scroll con flechas */
@@ -126,12 +126,13 @@
     transition: all var(--transition-fast);
     flex-shrink: 0;
     color: var(--text-primary);
-    z-index: 2;
+    z-index: 100;
     background: transparent;
     border: none;
     visibility: visible;
     opacity: 1;
     border-radius: 8px;
+     position: relative;
 }
 
 .folders-arrow:hover {
@@ -191,4 +192,21 @@
 /* Ocultar scrollbar en Firefox por defecto, mostrar solo en hover/hover */
 .folders-scroll-container::-webkit-scrollbar {
     display: none;
+}
+
+.folders-grid[data-density="compact"] {
+    gap: calc(var(--spacing-md) * 0.75);
+}
+
+.folders-grid[data-density="comfortable"] {
+    gap: calc(var(--spacing-md) * 1.25);
+}
+
+/* Transición suave al cambiar tamaño */
+.folders-grid {
+    transition: gap 0.2s ease;
+}
+
+.folder-item {
+    transition: all var(--transition-fast), width 0.2s ease;
 }
