@@ -161,8 +161,6 @@
     padding: var(--spacing-lg);
     color: var(--text-muted);
     font-style: italic;
-    display: flex;
-    align-items: center;
     justify-content: center;
     min-height: 150px;
     height: 100%;
