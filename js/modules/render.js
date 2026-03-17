@@ -1,6 +1,8 @@
 const RenderManager = (() => {
     let currentPage = 1;
+    let currentFoldersPage = 1;
     const itemsPerPage = 16; // 8 filas × 2 columnas
+
 
     function renderFavorites(forceDisplayMode = null) {
         const container = document.getElementById('favBookmarksList');
@@ -216,7 +218,6 @@ const RenderManager = (() => {
 
         const showTitle = false;
 
-
         const html = `<div class="favorites-grid ${gridClass}">${displayFavorites.map(b => `
             <div class="favorite-grid-item ${gridClass}" data-bookmark-id="${b.id}" data-collection="favorites" title="${escapeHtml(b.title)}">
                 <img src="${b.icon}" alt="" class="bookmark-icon" onerror="this.src='assets/icons/default-bookmark.png'">
@@ -388,63 +389,160 @@ const RenderManager = (() => {
         if (!container) return;
 
         const folders = StateManager.getFolders();
+        const itemsPerPage = 8;
+        const maxPages = 5;
 
-        if (folders.length === 0) {
+        const displayedFolders = folders.slice(0, itemsPerPage * maxPages);
+        const totalItems = displayedFolders.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+        if (currentFoldersPage > totalPages) {
+            currentFoldersPage = Math.max(1, totalPages);
+        }
+
+        if (displayedFolders.length === 0) {
             container.innerHTML = '<div class="empty-state">No hay carpetas. Crea una nueva.</div>';
+            updatePageInfo(0);
             return;
         }
 
-        container.innerHTML = folders.map((f, index) => {
-            const isFirst = index === 0;
-            const isLast = index === folders.length - 1;
-            const isFirstFavorite = f.isFavorite && (index === 0 || !folders[index - 1]?.isFavorite);
-            const isLastFavorite = f.isFavorite && (index === folders.length - 1 || !folders[index + 1]?.isFavorite);
+        // Lógica para cada flecha:
+        // Flecha izquierda: Siempre visible, pero deshabilitada en primera página
+        const isLeftDisabled = currentFoldersPage <= 1;
+
+        // Flecha derecha: Solo visible cuando hay siguiente página
+        const showRightArrow = currentFoldersPage < totalPages;
+        const startIndex = (currentFoldersPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const pageFolders = displayedFolders.slice(startIndex, endIndex);
+
+        let foldersHTML = pageFolders.map((f, pageIndex) => {
+            const globalIndex = startIndex + pageIndex;
+            const isFirst = globalIndex === 0;
+            const isLast = globalIndex === displayedFolders.length - 1;
+            const isFirstFavorite = f.isFavorite && (globalIndex === 0 || !displayedFolders[globalIndex - 1]?.isFavorite);
+            const isLastFavorite = f.isFavorite && (globalIndex === displayedFolders.length - 1 || !displayedFolders[globalIndex + 1]?.isFavorite);
 
             return `
-        <div class="folder-item" data-folder-id="${f.id}" data-collection="folders" data-favorite="${f.isFavorite}">
-            <div class="folder-icon">${f.icon}</div>
-            <div class="folder-name">${f.name}</div>
-            <div class="folder-actions">
-                <button class="btn-folder-action btn-more-folder" data-id="${f.id}" data-collection="folders" title="Más opciones">
-                    <span class="icon-more-vertical"></span>
-                </button>
-            </div>
-            <!-- Menú contextual para carpeta -->
-            <div class="context-menu-folder" data-id="${f.id}">
-                <ul>
-                    <li class="context-menu-item" data-action="favorite-folder" data-folder-id="${f.id}">
-                        <span class="icon-star"></span>
-                        <span>${f.isFavorite ? 'Quitar favorito' : 'Añadir a favoritos'}</span>
-                    </li>
-                    <li class="context-menu-divider"></li>
-                    <li class="context-menu-item" data-action="move-up" data-id="${f.id}" data-collection="folders" ${isFirst || (f.isFavorite && isFirstFavorite) || (!f.isFavorite && folders[index - 1]?.isFavorite) ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>
-                        <span class="icon-arrow-up"></span>
-                        <span>Subir prioridad</span>
-                    </li>
-                    <li class="context-menu-item" data-action="move-down" data-id="${f.id}" data-collection="folders" ${isLast || (f.isFavorite && isLastFavorite) || (!f.isFavorite && folders[index + 1]?.isFavorite) ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>
-                        <span class="icon-arrow-down"></span>
-                        <span>Bajar prioridad</span>
-                    </li>
-                    <li class="context-menu-divider"></li>
-                    <li class="context-menu-item" data-action="edit" data-folder-id="${f.id}">
-                        <span class="icon-edit"></span>
-                        <span>Editar carpeta</span>
-                    </li>
-                    <li class="context-menu-item delete" data-action="delete" data-folder-id="${f.id}">
-                        <span class="icon-trash"></span>
-                        <span>Eliminar carpeta</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    `;
+                <div class="folder-item" data-folder-id="${f.id}" data-collection="folders" data-favorite="${f.isFavorite}">
+                    <div class="folder-icon">${f.icon}</div>
+                    <div class="folder-name">${f.name}</div>
+                    <div class="folder-actions">
+                        <button class="btn-folder-action btn-more-folder" data-id="${f.id}" data-collection="folders" title="Más opciones">
+                            <span class="icon-more-vertical"></span>
+                        </button>
+                    </div>
+                    <div class="context-menu-folder" data-id="${f.id}">
+                        <ul>
+                            <li class="context-menu-item" data-action="favorite-folder" data-folder-id="${f.id}">
+                                <span class="icon-star"></span>
+                                <span>${f.isFavorite ? 'Quitar favorito' : 'Añadir a favoritos'}</span>
+                            </li>
+                            <li class="context-menu-divider"></li>
+                            <li class="context-menu-item" data-action="move-up" data-id="${f.id}" data-collection="folders" ${isFirst || (f.isFavorite && isFirstFavorite) || (!f.isFavorite && displayedFolders[globalIndex - 1]?.isFavorite) ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>
+                                <span class="icon-arrow-up"></span>
+                                <span>Subir prioridad</span>
+                            </li>
+                            <li class="context-menu-item" data-action="move-down" data-id="${f.id}" data-collection="folders" ${isLast || (f.isFavorite && isLastFavorite) || (!f.isFavorite && displayedFolders[globalIndex + 1]?.isFavorite) ? 'style="opacity:0.3;cursor:not-allowed;"' : ''}>
+                                <span class="icon-arrow-down"></span>
+                                <span>Bajar prioridad</span>
+                            </li>
+                            <li class="context-menu-divider"></li>
+                            <li class="context-menu-item" data-action="edit" data-folder-id="${f.id}">
+                                <span class="icon-edit"></span>
+                                <span>Editar carpeta</span>
+                            </li>
+                            <li class="context-menu-item delete" data-action="delete" data-folder-id="${f.id}">
+                                <span class="icon-trash"></span>
+                                <span>Eliminar carpeta</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            `;
         }).join('');
+
+        let html = `
+                <div class="folders-carousel-wrapper">
+                    <!-- Flecha izquierda: SIEMPRE visible, se deshabilita en página 1 -->
+                    <div class="folders-arrow folders-arrow-left ${isLeftDisabled ? 'disabled' : ''}" title="Página anterior">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                        </svg>
+                    </div>
+                    <div class="folders-carousel-container">
+                        <div class="folders-scroll-container">
+                            <div class="folders-grid">
+                                ${foldersHTML}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Flecha derecha: SOLO visible cuando hay siguiente página -->
+                    <div class="folders-arrow folders-arrow-right ${!showRightArrow ? 'hidden' : ''}" title="Página siguiente">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                        </svg>
+                    </div>
+                </div>
+            `;
+
+        container.innerHTML = html;
+        updatePageInfo(totalPages);
+        attachArrowEvents(container, totalPages, itemsPerPage);
 
         setTimeout(() => {
             loadMenuIcons();
         }, 0);
 
         attachFolderEvents(container);
+    }
+
+    function attachArrowEvents(container, totalPages, itemsPerPage) {
+        const leftArrow = container.querySelector('.folders-arrow-left');
+        const rightArrow = container.querySelector('.folders-arrow-right');
+
+        if (leftArrow && !leftArrow.classList.contains('disabled')) {
+            leftArrow.addEventListener('click', () => {
+                if (currentFoldersPage > 1) {
+                    currentFoldersPage--;
+                    renderFolders();
+                }
+            });
+        }
+
+        if (rightArrow && !rightArrow.classList.contains('hidden')) {
+            rightArrow.addEventListener('click', () => {
+                if (currentFoldersPage < totalPages) {
+                    currentFoldersPage++;
+                    renderFolders();
+                }
+            });
+        }
+    }
+
+    function updatePageInfo(totalPages) {
+        // Buscar el botón de añadir
+        const addButton = document.querySelector('.btn-add-folder, .btn-create-folder, [data-container="folders"] .btn-add');
+        if (!addButton) return;
+
+        // Buscar si ya existe un contador
+        let pageInfo = addButton.parentNode.querySelector('.folders-page-info');
+
+        if (totalPages <= 1) {
+            if (pageInfo) {
+                pageInfo.remove();
+            }
+            return;
+        }
+
+        if (!pageInfo) {
+            pageInfo = document.createElement('span');
+            pageInfo.className = 'folders-page-info';
+            pageInfo.style.cursor = 'default'; // Asegurar cursor normal
+            addButton.parentNode.insertBefore(pageInfo, addButton);
+        }
+
+        pageInfo.textContent = `${currentFoldersPage}/${totalPages}`;
     }
 
     function renderInFolder() {

@@ -3,13 +3,12 @@
 /* Contenedor del grid de carpetas */
 .folders-grid {
     display: flex;
-    flex-wrap: nowrap;
-    gap: var(--spacing-sm);
-    overflow-x: auto;
-    overflow-y: hidden;
+    flex-direction: row;
+    gap: var(--spacing-md);
+    width: max-content;
     height: 100%;
-    align-content: start;
-    padding-bottom: var(--spacing-sm);
+    padding: 0;
+    margin: 0;
 }
 
 /* Estilo base del item de carpeta */
@@ -63,24 +62,133 @@
     width: 100%;
 }
 
-/* Scrollbar personalizada para folders */
-.folders-grid::-webkit-scrollbar {
-    height: 6px;
+.folders-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+    flex-shrink: 0;
 }
 
-.folders-grid::-webkit-scrollbar-track {
-    background: var(--bg-tertiary);
-    border-radius: 3px;
-}
-
-.folders-grid::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
-    border-radius: 3px;
+.folders-page-info {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-weight: 500;
+    margin-right: 8px;
+    cursor: default;
+    user-select: none;
 }
 
 /* Ajustes específicos para el contenedor de folders */
 [data-container="folders"] .container-body {
-    overflow: auto !important;
-    padding: var(--spacing-sm) !important;
+    padding: 16px !important;
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-secondary);
+    overflow: hidden !important;
+    position: relative;
+    min-height: 0;
+}
+
+.folders-carousel-wrapper {
+    width: calc(100% + 32px);
+    margin-left: -16px;
+    margin-right: -16px;
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Contenedor del scroll con flechas */
+.folders-carousel-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Flechas de navegación */
+.folders-arrow {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+    color: var(--text-primary);
+    z-index: 2;
+    background: transparent;
+    border: none;
+    visibility: visible;
+    opacity: 1;
+    border-radius: 8px;
+}
+
+.folders-arrow:hover {
+    color: var(--primary-color);
+    transform: scale(1.05);
+}
+
+.folders-arrow.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.folders-arrow.disabled {
+    opacity: 0.2;
+    cursor: default;
+    pointer-events: none;
+}
+
+.folders-arrow.disabled:hover {
+    color: var(--text-primary);
+    transform: none;
+}
+
+.folders-arrow svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+    stroke: currentColor;
+}
+
+/* Flecha izquierda pegada al borde */
+.folders-arrow-left {
+    margin-left: 1px;
+    margin-right: 4px;
+}
+
+/* Flecha derecha pegada al borde */
+.folders-arrow-right {
+    margin-left: 4px;
+}
+
+/* Contenedor del scroll */
+.folders-scroll-container {
+    overflow-x: auto;
+    overflow: hidden;
+    width: 100%;
+    height: auto;
+    align-items: center;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    flex-shrink: 1;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+/* Ocultar scrollbar en Firefox por defecto, mostrar solo en hover/hover */
+.folders-scroll-container::-webkit-scrollbar {
+    display: none;
 }
