@@ -1,43 +1,25 @@
 const FoldersManager = (() => {
+    function createFolder(data) {
+        if (!data.name?.trim()) {
+            return false;
+        }
+        StateManager.addFolder(data);
+        RenderManager.renderAll();
+        return true;
+    }
+
+    function updateFolder(id, data) {
+        if (!data.name?.trim()) {
+            return false;
+        }
+        StateManager.updateFolder(id, data);
+        RenderManager.renderAll();
+        return true;
+    }
+
     function openFolderModal(folderId = null) {
         const folder = folderId ? StateManager.getFolderById(folderId) : null;
         const modal = ModalManager.createFolderModal(folder);
-        
-        // Handle form submission
-        setTimeout(() => {
-            const form = modal.querySelector('#folderForm');
-            const saveBtn = modal.querySelector('[data-action="save"]');
-            const cancelBtn = modal.querySelector('[data-action="cancel"]');
-
-            saveBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                
-                const formData = new FormData(form);
-                const name = formData.get('name');
-                const icon = formData.get('icon') || '📁';
-
-                if (!name) {
-                    alert('El nombre es requerido');
-                    return;
-                }
-
-                if (folderId) {
-                    // Editar
-                    StateManager.updateFolder(folderId, { name, icon });
-                } else {
-                    // Crear
-                    StateManager.addFolder({ name, icon });
-                }
-
-                ModalManager.closeModal(modal);
-                RenderManager.renderAll();
-            });
-
-            cancelBtn.addEventListener('click', () => {
-                ModalManager.closeModal(modal);
-            });
-        }, 100);
-
         ModalManager.openModal(modal);
     }
 
@@ -67,6 +49,8 @@ const FoldersManager = (() => {
     }
 
     return {
+        createFolder,
+        updateFolder,
         openFolderModal,
         deleteFolder,
         openFolder,

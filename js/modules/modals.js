@@ -36,14 +36,18 @@ const ModalManager = (() => {
             if (e.target === modal) closeModal(modal);
         });
 
-        // Action buttons
+        // Action buttons - Si no hay onClick, por defecto cerrar para "cancel"
         actions.forEach(action => {
-            if (action.onClick) {
-                const btn = modal.querySelector(`[data-action="${action.action}"]`);
-                if (btn) btn.addEventListener('click', action.onClick);
+            const btn = modal.querySelector(`[data-action="${action.action}"]`);
+            if (btn) {
+                if (action.onClick) {
+                    btn.addEventListener('click', action.onClick);
+                } else if (action.action === 'cancel') {
+                    // Por defecto, el botón cancelar cierra la modal
+                    btn.addEventListener('click', () => closeModal(modal));
+                }
             }
         });
-
         return modal;
     }
 
@@ -54,24 +58,34 @@ const ModalManager = (() => {
         document.body.appendChild(modal);
         currentModal = modal;
 
-        // Focus first input
         setTimeout(() => {
             const firstInput = modal.querySelector('input, textarea, select');
             if (firstInput) firstInput.focus();
         }, 100);
 
-        // Escape key to close
-        const handleEscape = (e) => {
+        // Manejador de inputs (esc & enter)
+        const handleKeyDown = (e) => {
+            if (!currentModal || currentModal !== modal) return;
+
             if (e.key === 'Escape') {
                 closeModal(modal);
-                document.removeEventListener('keydown', handleEscape);
+            } else if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                const primaryBtn = modal.querySelector('.btn-primary');
+                if (primaryBtn) primaryBtn.click();
             }
         };
-        document.addEventListener('keydown', handleEscape);
+        document.addEventListener('keydown', handleKeyDown);
+        modal._cleanup = () => document.removeEventListener('keydown', handleKeyDown);
     }
 
     function closeModal(modal) {
         if (modal) {
+            // Limpiar event listeners
+            if (modal._cleanup) {
+                modal._cleanup();
+            }
+
             modal.style.opacity = '0';
             setTimeout(() => {
                 modal.remove();
@@ -88,22 +102,22 @@ const ModalManager = (() => {
         const isFavoriteChecked = forceFavorite || bookmark?.isFavorite ? 'checked' : '';
         const isFavoriteDisabled = forceFavorite ? 'disabled' : '';
         const favoriteText = forceFavorite ? '(automático)' :
-            (StateManager.getFavoritesCount() >= StateManager.getMaxFavorites() ?
-                '(límite: 32)' : '');
+            (StateManager.getFavoritesCount() >= StateManager.getMaxFavorites() ? '(límite: 32)' : '');
 
         const content = `
-            <form id="bookmarkForm" class="modal-form">
-                <div class="form-group">
+            <form id="bookmarkForm" class="modal-form" novalidate>
+                <div class="form-group" id="url-group">
                     <label for="bookmarkUrl">URL *</label>
-                    <input type="url" id="bookmarkUrl" name="url" 
-                           value="${bookmark?.url || ''}" 
-                           placeholder="https://ejemplo.com" required>
+                    <input type="url" id="bookmarkUrl" name="url"
+                        value="${bookmark?.url || ''}" 
+                        placeholder="https://ejemplo.com" required>
+                    <div class="error-message" id="url-error" style="display:none; color:#fc8181; font-size:0.85rem; margin-top:4px;"></div>
                 </div>
                 <div class="form-group">
                     <label for="bookmarkTitle">Título (opcional)</label>
                     <input type="text" id="bookmarkTitle" name="title" 
-                           value="${bookmark?.title || ''}" 
-                           placeholder="Se usará el dominio si se deja vacío">
+                        value="${bookmark?.title || ''}" 
+                        placeholder="Se usará el dominio si se deja vacío">
                 </div>
                 ${folderId === null && !forceFavorite ? `
                 <div class="form-group">
@@ -124,7 +138,7 @@ const ModalManager = (() => {
                 <div class="form-group checkbox">
                     <label>
                         <input type="checkbox" id="bookmarkFavorite" name="isFavorite" 
-                               ${isFavoriteChecked} ${isFavoriteDisabled}>
+                            ${isFavoriteChecked} ${isFavoriteDisabled}>
                         Favorito ${favoriteText}
                     </label>
                 </div>
@@ -136,18 +150,81 @@ const ModalManager = (() => {
             { text: isEdit ? 'Guardar' : 'Crear', class: 'btn-primary', action: 'save' }
         ];
 
-        return createModal('bookmarkModal', isEdit ? 'Editar Marcador' : 'Nuevo Marcador', content, actions);
+        const modal = createModal('bookmarkModal', isEdit ? 'Editar Marcador' : 'Nuevo Marcador', content, actions);
+
+        setTimeout(() => {
+            const form = modal.querySelector('#bookmarkForm');
+            const urlInput = modal.querySelector('#bookmarkUrl');
+            const urlError = modal.querySelector('#url-error');
+            const urlGroup = modal.querySelector('#url-group');
+
+            function showUrlError(message) {
+                urlError.textContent = message;
+                urlError.style.display = 'block';
+                urlGroup.classList.add('has-error');
+                urlInput.style.borderColor = '#fc8181';
+                urlInput.focus();
+            }
+
+            function clearUrlError() {
+                urlError.style.display = 'none';
+                urlGroup.classList.remove('has-error');
+                urlInput.style.borderColor = '';
+            }
+
+            urlInput.addEventListener('input', clearUrlError);
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                clearUrlError();
+
+                if (!urlInput.value.trim()) {
+                    showUrlError('La URL es requerida');
+                    return;
+                }
+
+                // Validar formato de URL
+                try {
+                    new URL(urlInput.value.trim());
+                } catch {
+                    showUrlError('Por favor ingresa una URL válida (incluye http:// o https://)');
+                    return;
+                }
+
+                // Recoger datos
+                const data = {
+                    url: urlInput.value.trim(),
+                    title: form.querySelector('#bookmarkTitle').value.trim(),
+                    folderId: form.querySelector('#bookmarkFolder')?.value || folderId || null,
+                    isFavorite: form.querySelector('#bookmarkFavorite')?.checked || false
+                };
+
+                // Delegar en el manager correspondiente
+                if (isEdit) {
+                    BookmarksManager.updateBookmark(bookmark.id, data);
+                } else {
+                    BookmarksManager.createBookmark(data);
+                }
+                closeModal(modal);
+            });
+            const saveBtn = modal.querySelector('[data-action="save"]');
+            saveBtn.addEventListener('click', () => {
+                form.dispatchEvent(new Event('submit', { cancelable: true }));
+            });
+        }, 100);
+        return modal;
     }
 
     // Modal tipo: Folder
     function createFolderModal(folder = null) {
         const isEdit = folder !== null;
         const content = `
-            <form id="folderForm" class="modal-form">
-                <div class="form-group">
+            <form id="folderForm" class="modal-form" novalidate>
+                <div class="form-group" id="name-group">
                     <label for="folderName">Nombre *</label>
                     <input type="text" id="folderName" name="name" 
-                           value="${folder?.name || ''}" required>
+                        value="${folder?.name || ''}" required>
+                    <div class="error-message" id="name-error" style="display:none; color:#fc8181; font-size:0.85rem; margin-top:4px;"></div>
                 </div>
                 <div class="form-group">
                     <label>Icono</label>
@@ -177,8 +254,55 @@ const ModalManager = (() => {
                     modal.querySelector('#folderIcon').value = btn.dataset.icon;
                 });
             });
-        }, 100);
 
+            const form = modal.querySelector('#folderForm');
+            const nameInput = modal.querySelector('#folderName');
+            const nameError = modal.querySelector('#name-error');
+            const nameGroup = modal.querySelector('#name-group');
+
+            function showNameError(message) {
+                nameError.textContent = message;
+                nameError.style.display = 'block';
+                nameGroup.classList.add('has-error');
+                nameInput.style.borderColor = '#fc8181';
+                nameInput.focus();
+            }
+
+            function clearNameError() {
+                nameError.style.display = 'none';
+                nameGroup.classList.remove('has-error');
+                nameInput.style.borderColor = '';
+            }
+
+            nameInput.addEventListener('input', clearNameError);
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                clearNameError();
+
+                if (!nameInput.value.trim()) {
+                    showNameError('El nombre es requerido');
+                    return;
+                }
+
+                const data = {
+                    name: nameInput.value.trim(),
+                    icon: form.querySelector('#folderIcon').value
+                };
+
+                if (isEdit) {
+                    FoldersManager.updateFolder(folder.id, data);
+                } else {
+                    FoldersManager.createFolder(data);
+                }
+                closeModal(modal);
+            });
+
+            const saveBtn = modal.querySelector('[data-action="save"]');
+            saveBtn.addEventListener('click', () => {
+                form.dispatchEvent(new Event('submit', { cancelable: true }));
+            });
+        }, 100);
         return modal;
     }
 
@@ -193,7 +317,16 @@ const ModalManager = (() => {
             },
             { text: 'Eliminar', class: 'btn-danger', action: 'confirm', onClick: onConfirm }
         ];
-        return createModal('confirmModal', title, `<p>${message}</p>`, actions);
+        const modal = createModal('confirmModal', title, `<p>${message}</p>`, actions);
+
+        setTimeout(() => {
+            const confirmBtn = modal.querySelector('[data-action="confirm"]');
+            // Aseguramos que el botón de confirmar tenga clase btn-primary
+            if (confirmBtn) {
+                confirmBtn.classList.add('btn-primary');
+            }
+        }, 100);
+        return modal;
     }
 
     // Modal tipo: Settings

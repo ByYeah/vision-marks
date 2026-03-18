@@ -859,7 +859,9 @@ const RenderManager = (() => {
         const collection = item.dataset.collection;
 
         // Cerrar el menú después de hacer clic
-        closeAllContextMenus();
+        if (window.closeAllContextMenus) {
+            window.closeAllContextMenus();
+        }
 
         // Ejecutar la acción correspondiente
         switch (action) {
@@ -875,7 +877,7 @@ const RenderManager = (() => {
                 break;
             case 'favorite-folder':
                 StateManager.toggleFolderFavorite(folderId);
-                RenderManager.renderFolders(); // Re-renderizar solo carpetas
+                RenderManager.renderFolders();
                 break;
             case 'move-up':
                 if (window.ReorderManager) {
@@ -947,7 +949,6 @@ window.addEventListener('containerDisplayChanged', (e) => {
             }
         }, 0);
     }
-
     // Para cambios de layout, siempre re-renderizar carpetas
     setTimeout(() => {
         RenderManager.renderFolders();

@@ -1,11 +1,61 @@
 const BookmarksManager = (() => {
-    // Obtener favicon desde LinkPreview o Google fallback
-    async function fetchBookmarkIcon(url) {
-        try {
-        } catch (error) {
+    async function createBookmark(data) {
+        // Validar límite de favoritos
+        if (data.isFavorite && !StateManager.canAddFavorite()) {
+            alert(`Límite de ${StateManager.getMaxFavorites()} favoritos alcanzado. Elimina alguno antes de añadir otro.`);
+            return false;
         }
 
-        // Fallback: Google favicon service
+        // Si no hay título, obtenerlo de la URL
+        if (!data.title || data.title.trim() === '') {
+            try {
+                const urlObj = new URL(data.url);
+                data.title = urlObj.hostname.replace('www.', '');
+            } catch {
+                data.title = 'Marcador';
+            }
+        }
+
+        // Obtener icono si no se proporcionó
+        if (!data.icon) {
+            data.icon = await fetchBookmarkIcon(data.url);
+        }
+
+        StateManager.addBookmark(data);
+        RenderManager.renderAll();
+        return true;
+    }
+
+    async function updateBookmark(id, data) {
+        const bookmark = StateManager.getBookmarkById(id);
+
+        // Si se está marcando como favorito y no lo era antes, verificar límite
+        if (data.isFavorite && !bookmark.isFavorite && !StateManager.canAddFavorite()) {
+            alert(`Límite de ${StateManager.getMaxFavorites()} favoritos alcanzado.`);
+            return false;
+        }
+
+        // Si no hay título, obtenerlo de la URL (solo si la URL cambió o el título estaba vacío)
+        if ((!data.title || data.title.trim() === '') && data.url) {
+            try {
+                const urlObj = new URL(data.url);
+                data.title = urlObj.hostname.replace('www.', '');
+            } catch {
+                data.title = 'Marcador';
+            }
+        }
+
+        // Obtener icono si no se proporcionó y la URL cambió
+        if (!data.icon && data.url !== bookmark.url) {
+            data.icon = await fetchBookmarkIcon(data.url);
+        }
+
+        StateManager.updateBookmark(id, data);
+        RenderManager.renderAll();
+        return true;
+    }
+
+    async function fetchBookmarkIcon(url) {
         try {
             const urlObj = new URL(url);
             return `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=64`;
@@ -17,87 +67,6 @@ const BookmarksManager = (() => {
     function openBookmarkModal(folderId = null, bookmarkId = null, forceFavorite = false) {
         const bookmark = bookmarkId ? StateManager.getBookmarkById(bookmarkId) : null;
         const modal = ModalManager.createBookmarkModal(bookmark, folderId, forceFavorite);
-
-        // Handle form submission
-        setTimeout(() => {
-            const form = modal.querySelector('#bookmarkForm');
-            const saveBtn = modal.querySelector('[data-action="save"]');
-            const cancelBtn = modal.querySelector('[data-action="cancel"]');
-
-            saveBtn.addEventListener('click', async (e) => {
-                e.preventDefault();
-
-                const formData = new FormData(form);
-                const url = formData.get('url');
-                let title = formData.get('title');
-                const icon = formData.get('icon') || '';
-                const bookmarkFolderId = formData.get('folderId');
-                const isFavorite = forceFavorite || formData.get('isFavorite') === 'on';
-
-                if (!url) {
-                    alert('La URL es requerida');
-                    return;
-                }
-
-                // Validar URL
-                try {
-                    new URL(url);
-                } catch {
-                    alert('URL inválida');
-                    return;
-                }
-
-                // Si no hay título, extraerlo de la URL
-                if (!title || title.trim() === '') {
-                    try {
-                        const urlObj = new URL(url);
-                        title = urlObj.hostname.replace('www.', '');
-                    } catch {
-                        title = 'Marcador';
-                    }
-                }
-
-                // Validar límite de favoritos
-                if (isFavorite && !StateManager.canAddFavorite() && !bookmarkId) {
-                    alert(`Límite de ${StateManager.getMaxFavorites()} favoritos alcanzado. Elimina alguno antes de añadir otro.`);
-                    return;
-                }
-
-                // Obtener icono si no se proporcionó
-                let finalIcon = icon;
-                if (!finalIcon) {
-                    finalIcon = await fetchBookmarkIcon(url);
-                }
-
-                if (bookmarkId) {
-                    // Editar
-                    StateManager.updateBookmark(bookmarkId, {
-                        url,
-                        title,
-                        icon: finalIcon,
-                        folderId: bookmarkFolderId || null,
-                        isFavorite
-                    });
-                } else {
-                    // Crear
-                    StateManager.addBookmark({
-                        url,
-                        title,
-                        icon: finalIcon,
-                        folderId: bookmarkFolderId || null,
-                        isFavorite
-                    });
-                }
-
-                ModalManager.closeModal(modal);
-                RenderManager.renderAll();
-            });
-
-            cancelBtn.addEventListener('click', () => {
-                ModalManager.closeModal(modal);
-            });
-        }, 100);
-
         ModalManager.openModal(modal);
     }
 
@@ -115,7 +84,6 @@ const BookmarksManager = (() => {
     }
 
     function toggleFavorite(bookmarkId) {
-        // Verificar si se puede añadir favorito si se va a marcar
         const bookmark = StateManager.getBookmarkById(bookmarkId);
         if (bookmark && !bookmark.isFavorite) {
             if (!StateManager.canAddFavorite()) {
@@ -123,17 +91,17 @@ const BookmarksManager = (() => {
                 return;
             }
         }
-
         StateManager.toggleFavorite(bookmarkId);
         RenderManager.renderAll();
     }
 
     return {
+        createBookmark,
+        updateBookmark,
         openBookmarkModal,
         deleteBookmark,
         toggleFavorite,
         fetchBookmarkIcon
     };
 })();
-
 window.BookmarksManager = BookmarksManager;
