@@ -406,3 +406,5 @@ window.closeAllContextMenus = function() {
         menu.classList.remove('active');
     });
 };
+
+window.EventsManager = EventsManager;
