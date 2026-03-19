@@ -15,10 +15,20 @@ const AppState = {
 };
 
 // Inicialización de la aplicación
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+
+    if (window.DatabaseManager) {
+        DatabaseManager.init().catch(() => { });  // <-- Inicializar DB
+    }
 
     // Cargar estado
-    StateManager.loadState();
+    await StateManager.loadState();
+
+    const state = StateManager.getState();
+    AppState.containers = state.containers;
+    AppState.bookmarks = state.bookmarks;
+    AppState.folders = state.folders;
+    AppState.settings = state.settings;
 
     // Debug: mostrar settings actuales
     setTimeout(() => {
@@ -33,18 +43,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 200);
 
     // Renderizar inicial
-    RenderManager.renderAll();
+    if (window.RenderManager) {
+        RenderManager.renderAll();
+    }
 
     if (window.ReorderManager && typeof ReorderManager.init === 'function') {
         ReorderManager.init(StorageManager, StateManager, RenderManager);
     }
 
     // Inicializar eventos
-    EventsManager.init();
+    if (window.EventsManager) {
+        EventsManager.init();
+    }
 
     // Suscribirse a cambios de estado
-    StateManager.subscribe((state) => {
+    StateManager.subscribe((newState) => {
+        // Mantener AppState sincronizado
+        AppState.containers = newState.containers;
+        AppState.bookmarks = newState.bookmarks;
+        AppState.folders = newState.folders;
+        AppState.settings = newState.settings;
     });
+
+    // Cargar iconos SVG
+    if (window.SvgLoader) {
+        SvgLoader.loadAll();
+    }
 });
 
 // Inicializar event listeners
@@ -104,7 +128,7 @@ function handleToggleContainer(e) {
         svg.innerHTML = '<polyline points="6 9 12 15 18 9"></polyline>';
     }
 
-    saveState();
+    StateManager.setState({ containers: AppState.containers });
 }
 
 // Manejar envío de chat
@@ -142,6 +166,18 @@ function addChatMessage(text, sender) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
+// Función handleAddAction necesaria para los botones
+function handleAddAction(e) {
+    const action = e.target.closest('[data-action]')?.dataset.action;
+    if (action === 'addBookmark') {
+        // Aquí irá la lógica para añadir marcador
+        console.log('Añadir marcador');
+    } else if (action === 'addFolder') {
+        // Aquí irá la lógica para añadir carpeta
+        console.log('Añadir carpeta');
+    }
+}
+
 // Manejar búsqueda
 function handleSearch(e) {
     const query = e.target.value.trim().toLowerCase();
@@ -157,29 +193,24 @@ function renderInitialState() {
 // Guardar estado en localStorage
 function saveState() {
     try {
-        localStorage.setItem('bookmarkManagerState', JSON.stringify({
-            containers: AppState.containers,
-            settings: AppState.settings
-        }));
-    } catch (error) {
-    }
+        localStorage.setItem('bookmarkManagerContainers', JSON.stringify(AppState.containers));
+    } catch (error) { }
 }
 
 // Cargar estado desde localStorage
 function loadState() {
     try {
-        const saved = localStorage.getItem('bookmarkManagerState');
+        const saved = localStorage.getItem('bookmarkManagerContainers');
         if (saved) {
-            const state = JSON.parse(saved);
-            Object.assign(AppState.containers, state.containers || {});
-            Object.assign(AppState.settings, state.settings || {});
+            const containers = JSON.parse(saved);
+            Object.assign(AppState.containers, containers);
         }
-    } catch (error) {
-    }
+    } catch (error) { }
 }
 
 // Cargar estado al iniciar
-loadState();
+window.saveState = saveState;
+window.loadState = loadState;
 
 // Cargar iconos SVG después del DOM ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -189,3 +220,37 @@ document.addEventListener('DOMContentLoaded', () => {
         SvgLoader.loadAll();
     }
 });
+
+window.checkStorage = async function() {
+    console.log('%c📦 VERIFICACIÓN DE ALMACENAMIENTO', 'font-size:16px; font-weight:bold;');
+    
+    // 1. IndexedDB
+    console.group('📀 IndexedDB:');
+    if (DatabaseManager) {
+        const folders = await DatabaseManager.folders.getAll();
+        const bookmarks = await DatabaseManager.bookmarks.getAll();
+        const settings = await DatabaseManager.settings.getAll();
+        console.log('Carpetas:', folders.length);
+        console.log('Marcadores:', bookmarks.length);
+        console.log('Settings:', settings);
+    } else {
+        console.log('No disponible');
+    }
+    console.groupEnd();
+    
+    // 2. SettingsManager real
+    console.group('⚙️ SettingsManager real:');
+    if (SettingsManager) {
+        console.log(SettingsManager.getSettings());
+    }
+    console.groupEnd();
+    
+    // 3. localStorage backups
+    console.group('💾 localStorage:');
+    console.log('vmarks_settings:', localStorage.getItem('vmarks_settings'));
+    console.log('vmarks_settings_backup:', localStorage.getItem('vmarks_settings_backup'));
+    console.log('bookmarkManagerContainers:', localStorage.getItem('bookmarkManagerContainers'));
+    console.groupEnd();
+    
+    console.log('%c✅ Verificación completa', 'color:green');
+};
