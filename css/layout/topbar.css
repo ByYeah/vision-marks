@@ -49,6 +49,7 @@
     max-width: 600px;
     display: flex;
     gap: var(--spacing-xs);
+    z-index: 1000;
 }
 
 .search-bar input {
@@ -84,6 +85,182 @@
 .search-btn:hover {
     background: var(--primary-dark);
     transform: translateY(-1px);
+}
+
+.search-results-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    max-height: 400px;
+    overflow-y: auto;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    z-index: 999999 !important;
+    display: none;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.search-results-dropdown.active {
+    display: block;
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover,
+.search-result-item.selected {
+    background-color: var(--bg-tertiary);
+}
+
+.result-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    flex-shrink: 0;
+}
+
+.result-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+.result-icon img {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+}
+
+.result-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.result-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.result-title mark {
+    background: rgba(255, 215, 0, 0.3);
+    color: inherit;
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+.result-url {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.result-url mark {
+    background: rgba(255, 215, 0, 0.3);
+    color: inherit;
+    padding: 0 2px;
+    border-radius: 2px;
+}
+
+.result-folder {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 4px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+    padding: 2px 8px;
+    border-radius: 12px;
+    max-width: fit-content;
+}
+
+.result-folder svg {
+    width: 12px;
+    height: 12px;
+    margin-right: 4px;
+}
+
+.result-favorite {
+    margin-left: 8px;
+    color: #f59e0b;
+    flex-shrink: 0;
+}
+
+.result-favorite svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+.search-no-results {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.search-no-results svg {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* Atajo de teclado - opcional */
+.search-shortcut {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+/* Ajuste para contenedores que puedan tener overflow: hidden */
+.container-body {
+    overflow: visible !important;
+}
+
+/* Específicamente para el grid de favoritos */
+.favorites-grid {
+    overflow: visible !important;
+}
+
+/* Para cualquier contenedor que pueda estar recortando */
+.container-item {
+    overflow: visible;
+}
+
+.container-content {
+    overflow: visible;
 }
 
 /* Acciones de la topbar */
@@ -140,5 +317,17 @@
 
     .logo h1 {
         font-size: 1.2rem;
+    }
+
+    .search-results-dropdown {
+        position: fixed;
+        top: 70px;
+        left: 10px;
+        right: 10px;
+        max-height: calc(100vh - 100px);
+    }
+
+    .search-shortcut {
+        display: none;
     }
 }
