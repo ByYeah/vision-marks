@@ -438,6 +438,10 @@ const RenderManager = (() => {
                     </div>
                     <div class="context-menu-folder" data-id="${f.id}">
                         <ul>
+                            <li class="context-menu-item" data-action="edit" data-folder-id="${f.id}">
+                                <span class="icon-edit"></span>
+                                <span>Editar carpeta</span>
+                            </li>
                             <li class="context-menu-item" data-action="favorite-folder" data-folder-id="${f.id}">
                                 <span class="icon-star"></span>
                                 <span>${f.isFavorite ? 'Quitar favorito' : 'Añadir a favoritos'}</span>
@@ -452,10 +456,6 @@ const RenderManager = (() => {
                                 <span>Bajar prioridad</span>
                             </li>
                             <li class="context-menu-divider"></li>
-                            <li class="context-menu-item" data-action="edit" data-folder-id="${f.id}">
-                                <span class="icon-edit"></span>
-                                <span>Editar carpeta</span>
-                            </li>
                             <li class="context-menu-item delete" data-action="delete" data-folder-id="${f.id}">
                                 <span class="icon-trash"></span>
                                 <span>Eliminar carpeta</span>
