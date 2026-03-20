@@ -32,7 +32,8 @@
             </div>
 
             <div class="search-bar">
-                <input type="text" placeholder="Buscar marcadores..." id="searchInput">
+                <input type="text" placeholder="Buscar marcadores... (Ctrl+K)" id="searchInput" autocomplete="off">
+                <!-- El dropdown se insertará aquí automáticamente -->
             </div>
 
             <!-- Acciones: Settings + Profile -->
@@ -258,6 +259,7 @@
     <script src="js/modules/render.js"></script>
     <script src="js/modules/reorder.js"></script>
     <script src="js/modules/database.js"></script>
+    <script src="js/modules/search.js"></script>
     <script src="js/utils/svg-loader.js"></script>
     <script src="js/modules/events.js"></script>
     <script src="js/app.js" defer></script>
