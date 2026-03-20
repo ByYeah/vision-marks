@@ -39,9 +39,6 @@ const EventsManager = (() => {
             ModalManager.openModal(modal);
         });
 
-        // Búsqueda
-        document.getElementById('searchInput')?.addEventListener('input', handleSearch);
-
         // Chat
         setupChat();
 
@@ -85,11 +82,6 @@ const EventsManager = (() => {
 
     function handleAddFolder(e) {
         FoldersManager.openFolderModal(null);
-    }
-
-    function handleSearch(e) {
-        const query = e.target.value.trim().toLowerCase();
-        // Implementar en F3
     }
 
     function setupChat() {
@@ -384,7 +376,7 @@ const EventsManager = (() => {
     };
 })();
 
-window.closeAllContextMenus = function() {
+window.closeAllContextMenus = function () {
     document.querySelectorAll('.context-menu-folder.active').forEach(menu => {
         menu.classList.remove('active');
 

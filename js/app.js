@@ -56,6 +56,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         EventsManager.init();
     }
 
+    setTimeout(() => {
+        if (window.SearchManager) {
+            SearchManager.init();
+            console.log('🔍 SearchManager initialized');
+        }
+    }, 500);
+
     // Suscribirse a cambios de estado
     StateManager.subscribe((newState) => {
         // Mantener AppState sincronizado
@@ -92,12 +99,6 @@ function initEventListeners() {
         chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleChatSend();
         });
-    }
-
-    // Búsqueda
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', handleSearch);
     }
 
     // Settings y Profile (preparación)

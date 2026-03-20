@@ -919,6 +919,13 @@ const RenderManager = (() => {
         renderFolders();
         renderInFolder();
         updateFolderNavigation();
+
+        if (window.SearchManager && SearchManager.isActive && SearchManager.isActive()) {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput && searchInput.value.trim().length >= 2) {
+                SearchManager.search(searchInput.value.trim());
+            }
+        }
     }
 
     function escapeHtml(text) {
@@ -938,6 +945,7 @@ const RenderManager = (() => {
         updateFavoritesButton
     };
 })();
+window.RenderManager = RenderManager;
 
 window.addEventListener('containerDisplayChanged', (e) => {
     if (e.detail.container === 'favbookmarks') {
