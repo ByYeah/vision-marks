@@ -236,3 +236,118 @@
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+/** IMPORT SECTION **/
+#importModal .modal-container {
+    max-width: 600px;
+}
+
+#importModal .import-options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0.5rem 0;
+}
+
+#importModal .import-option-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg-tertiary);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    transition: all var(--transition-fast);
+}
+
+#importModal .import-option-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+#importModal .import-option-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-primary);
+    border-radius: 12px;
+    color: var(--primary-color);
+    flex-shrink: 0;
+}
+
+#importModal .import-option-icon svg {
+    width: 28px;
+    height: 28px;
+}
+
+#importModal .import-option-info {
+    flex: 1;
+}
+
+#importModal .import-option-info h4 {
+    margin: 0 0 4px 0;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+#importModal .import-option-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+#importModal .import-select-btn {
+    padding: 0.5rem 1rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+
+#importModal .import-select-btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+
+.confirm-modal .modal-container {
+    max-width: 450px;
+}
+
+.confirm-modal .modal-body p {
+    margin: 0;
+    line-height: 1.5;
+    color: var(--text-primary);
+    white-space: pre-line;
+}
+
+.confirm-modal .modal-footer {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: flex-end;
+}
+
+.confirm-modal .btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.confirm-modal .btn-primary:hover {
+    background: var(--primary-dark);
+}
+
+.confirm-modal .btn-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.confirm-modal .btn-secondary:hover {
+    background: var(--bg-primary);
+}

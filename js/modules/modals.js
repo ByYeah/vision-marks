@@ -42,7 +42,7 @@ const ModalManager = (() => {
             if (btn) {
                 if (action.onClick) {
                     btn.addEventListener('click', action.onClick);
-                } else if (action.action === 'cancel') {
+                } else if (action.action === 'cancel' || action.action === 'close') {
                     // Por defecto, el botón cancelar cierra la modal
                     btn.addEventListener('click', () => closeModal(modal));
                 }
@@ -375,6 +375,15 @@ const ModalManager = (() => {
                     Tipografía
                 </button>
                 <div class="settings-sidebar-divider"></div>
+                <!-- Importar/Exportar -->
+                <button class="settings-menu-item" data-section="importexport">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" d="M19 7H5m15 10H5M16 3l3.293 3.293a1 1 0 0 1 0 1.414L16 11M8 13l-3.293 3.293a1 1 0 0 0 0 1.414L8 21"/>
+                    </svg>
+                    Importar/Exportar
+                </button>
+                <div class="settings-sidebar-divider"></div>
+                    <!-- Acerca de -->
                     <button class="settings-menu-item" data-section="about">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                             <path fill-rule="nonzero" d="M12 17.002a2.501 2.501 0 1 1 0 5.002A2.501 2.501 0 0 1 12 17m0 1.5a1.001 1.001 0 1 0 0 2.002 1.001 1.001 0 0 0 0-2.003m-.001-16.5a3.875 3.875 0 0 1 3.875 3.876c0 2.833-.99 6.554-1.535 8.398a2.43 2.43 0 0 1-2.338 1.728A2.43 2.43 0 0 1 9.66 14.27l-.223-.777c-.554-1.995-1.313-5.163-1.313-7.616a3.875 3.875 0 0 1 3.875-3.876m0 1.5a2.375 2.375 0 0 0-2.375 2.376c0 2.561.927 6.108 1.475 7.97a.93.93 0 0 0 .902.656c.427 0 .786-.27.9-.654l.157-.544c.55-1.94 1.316-5.072 1.316-7.428A2.375 2.375 0 0 0 12 3.502"/>
@@ -440,7 +449,7 @@ const ModalManager = (() => {
                 </div>
             </div>
 
-                <!-- Themes -->
+                <!-- Temas -->
                 <div class="settings-section" id="section-themes">
                     <h3>Temas</h3>
                     <p>Tema de color</p>
@@ -467,7 +476,7 @@ const ModalManager = (() => {
                     </div>
                 </div>
 
-                <!-- Typography -->
+                <!-- Tipografía -->
                 <div class="settings-section" id="section-typography">
                     <h3>Tipografía</h3>
                     <p>Fuente de la interfaz</p>
@@ -495,7 +504,7 @@ const ModalManager = (() => {
                     </div>
                 </div>
 
-                <!-- Containers Display -->
+                <!-- Display -->
                 <div class="settings-section" id="section-containers">
                     <h3>Contenedores</h3>
                     <p>Modo de visualización</p>
@@ -517,7 +526,74 @@ const ModalManager = (() => {
                     </div>
                 </div>
 
-            <!-- Sección "Acerca de" -->
+                 <!-- IMPORT/EXPORT - NUEVA SECCIÓN -->
+                <div class="settings-section" id="section-importexport">
+                    <h3>Importar / Exportar</h3>
+                    <p>Respaldar o restaurar tus marcadores</p>
+                    <div style="display:flex;flex-direction:column;gap:var(--spacing-lg);padding:var(--spacing-md) 0">
+                        <!-- Exportar -->
+                        <div class="importexport-card">
+                            <div class="importexport-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M5.552 20.968a2.577 2.577 0 0 1-2.5-2.73c-.012-2.153 0-4.306 0-6.459a.5.5 0 0 1 1 0c0 2.2-.032 4.4 0 6.6.016 1.107.848 1.589 1.838 1.589h12.463A1.55 1.55 0 0 0 19.825 19a3 3 0 0 0 .1-1.061v-6.16a.5.5 0 0 1 1 0c0 2.224.085 4.465 0 6.687a2.567 2.567 0 0 1-2.67 2.5Z"/>
+                                    <path d="M12.337 3.176a.46.46 0 0 0-.311-.138q-.021.002-.043-.006c-.022-.008-.027 0-.041.006a.46.46 0 0 0-.312.138L7.961 6.845a.5.5 0 0 0 .707.707l2.816-2.815v10.742a.5.5 0 0 0 1 0V4.737L15.3 7.552a.5.5 0 0 0 .707-.707Z"/>
+                                </svg>
+                            </div>
+                            <div class="importexport-info">
+                                <h4>Exportar marcadores</h4>
+                                <p>Guarda todos tus marcadores y carpetas</p>
+                                <div class="export-format-selector">
+                                    <button class="export-format-btn active" data-format="json">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14">
+                                            <path d="M4 4h16v16H4zM4 8h16M8 4v16"/>
+                                        </svg>
+                                        JSON (Vision Marks)
+                                    </button>
+                                    <button class="export-format-btn" data-format="html">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14">
+                                            <circle cx="12" cy="12" r="10"/>
+                                            <line x1="2" y1="12" x2="22" y2="12"/>
+                                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                        </svg>
+                                        HTML (Navegador)
+                                    </button>
+                                </div>
+                            </div>
+                            <button class="btn-export-action" id="btnExportData">
+                                Exportar
+                            </button>
+                        </div>
+                        
+                        <!-- Importar -->
+                        <div class="importexport-card">
+                            <div class="importexport-icon">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M5.552 20.968a2.577 2.577 0 0 1-2.5-2.73c-.012-2.153 0-4.306 0-6.459a.5.5 0 0 1 1 0c0 2.2-.032 4.4 0 6.6.016 1.107.848 1.589 1.838 1.589h12.463A1.55 1.55 0 0 0 19.825 19a3 3 0 0 0 .1-1.061v-6.16a.5.5 0 0 1 1 0c0 2.224.085 4.465 0 6.687a2.567 2.567 0 0 1-2.67 2.5Z"/>
+                                    <path d="M11.63 15.818a.46.46 0 0 0 .312.138c.014 0 .027.005.042.006s.027 0 .041-.006a.46.46 0 0 0 .312-.138l3.669-3.669a.5.5 0 0 0-.707-.707l-2.815 2.815V3.515a.5.5 0 0 0-1 0v10.742l-2.816-2.815a.5.5 0 0 0-.707.707Z"/>
+                                </svg>
+                            </div>
+                            <div class="importexport-info">
+                                <h4>Importar marcadores</h4>
+                                <p>Restaura desde un archivo JSON de Vision Marks o importa desde navegador</p>
+                            </div>
+                            <button class="btn-import-action" id="btnImportData">
+                                Importar
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Info adicional -->
+                    <div class="importexport-note">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="12" y1="16" x2="12" y2="12"/>
+                            <line x1="12" y1="8" x2="12.01" y2="8"/>
+                        </svg>
+                        <span>Formato soportado: JSON de Vision Marks, HTML de marcadores (Chrome/Firefox/Edge)</span>
+                    </div>
+                </div>
+
+                <!--"Acerca de" -->
                 <div class="settings-section" id="section-about">
                     <h3>Acerca de Vision Marks</h3>
                     <p>Gestor ligero de marcadores web</p>
@@ -682,6 +758,45 @@ const ModalManager = (() => {
                         }
                     });
                 });
+            });
+
+            let selectedFormat = 'json';
+
+            modal.querySelectorAll('.export-format-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    modal.querySelectorAll('.export-format-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    selectedFormat = btn.dataset.format;
+                });
+            });
+
+            // EXPORTAR
+            modal.querySelector('#btnExportData')?.addEventListener('click', async () => {
+                if (window.ImportExportManager) {
+                    let result;
+                    if (selectedFormat === 'html') {
+                        result = await ImportExportManager.exportToHTML();
+                    } else {
+                        result = await ImportExportManager.exportToJSON();
+                    }
+                    if (result.success) {
+                        showNotification(`✅ Exportados ${result.count} marcadores en formato ${selectedFormat.toUpperCase()}`);
+                    } else {
+                        showNotification(`❌ Error al exportar: ${result.error}`, 'error');
+                    }
+                } else {
+                    showNotification('❌ ImportExportManager no disponible', 'error');
+                }
+            });
+
+            // IMPORTAR
+            modal.querySelector('#btnImportData')?.addEventListener('click', () => {
+                if (window.ImportExportManager) {
+                    closeModal(modal);
+                    ModalManager.showImportModal();
+                } else {
+                    showNotification('❌ ImportExportManager no disponible', 'error');
+                }
             });
 
             // FORZAR selección visual inicial basada en settings actuales
@@ -942,16 +1057,198 @@ const ModalManager = (() => {
         return modal;
     }
 
+    function showImportModal() {
+        // Verificar que ImportExportManager existe
+        if (!window.ImportExportManager) {
+            showNotification('ImportExportManager no disponible', 'error');
+            return;
+        }
+
+        const content = `
+            <div class="import-options-container">
+                <div class="import-option-card" data-type="vision">
+                    <div class="import-option-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M4 4h16v16H4zM4 8h16M8 4v16"/>
+                        </svg>
+                    </div>
+                    <div class="import-option-info">
+                        <h4>Vision Marks (.json)</h4>
+                        <p>Archivo exportado desde Vision Marks. Mantiene carpetas, favoritos y orden.</p>
+                    </div>
+                    <input type="file" id="importVisionMarks" accept=".json" style="display:none">
+                    <button class="import-select-btn" data-type="vision">Seleccionar archivo</button>
+                </div>
+                <div class="import-option-card" data-type="browser">
+                    <div class="import-option-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="2" y1="12" x2="22" y2="12"/>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+                    </div>
+                    <div class="import-option-info">
+                        <h4>Marcadores del navegador (.html)</h4>
+                        <p>Archivo HTML exportado desde Chrome, Firefox, Edge o Brave. Detecta carpetas (h3).</p>
+                    </div>
+                    <input type="file" id="importBrowserHTML" accept=".html,.htm" style="display:none">
+                    <button class="import-select-btn" data-type="browser">Seleccionar archivo</button>
+                </div>
+            </div>
+        `;
+
+        const modal = createModal('importModal', 'Importar marcadores', content, [
+            { text: 'Cerrar', class: 'btn-secondary', action: 'close' }
+        ]);
+
+        if (!modal) {
+            return;
+        }
+
+        // Manejador para Vision Marks
+        const visionBtn = modal.querySelector('[data-type="vision"]');
+        const visionInput = modal.querySelector('#importVisionMarks');
+
+        if (visionBtn && visionInput) {
+            visionBtn.addEventListener('click', () => {
+                visionInput.click();
+            });
+
+            visionInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    try {
+                        const result = await window.ImportExportManager.importFromJSON(file);
+                        if (result.cancelled) {
+                            // No mostrar notificación, solo cerrar modal
+                            closeModal(modal);
+                            return;
+                        }
+                        showNotification(`✅ Importación completada:\n- ${result.folders} carpetas\n- ${result.bookmarks} marcadores`);
+                        closeModal(modal);
+                    } catch (error) {
+                        showNotification(`❌ Error: ${error.message}`, 'error');
+                    }
+                }
+                visionInput.value = '';
+            });
+        } else {
+        }
+
+        // Manejador para HTML de navegador
+        const browserBtn = modal.querySelector('[data-type="browser"]');
+        const browserInput = modal.querySelector('#importBrowserHTML');
+
+        if (browserBtn && browserInput) {
+            browserBtn.addEventListener('click', () => {
+                browserInput.click();
+            });
+
+            browserInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    try {
+                        const result = await window.ImportExportManager.importFromHTML(file);
+                        if (result.cancelled) {
+                            closeModal(modal);
+                            return;
+                        }
+                        showNotification(`✅ Importados ${result.bookmarks} marcadores en ${result.folders} carpetas`);
+                        closeModal(modal);
+                    } catch (error) {
+                        showNotification(`❌ Error: ${error.message}`, 'error');
+                    }
+                }
+                browserInput.value = '';
+            });
+        } else {
+        }
+        // Abrir la modal
+        openModal(modal);
+    }
+
+    function showConfirmModal(title, message, confirmText = 'Aceptar', cancelText = 'Cancelar') {
+        return new Promise((resolve) => {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay confirm-modal';
+            modal.innerHTML = `
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h3>${title}</h3>
+                    <button class="modal-close" aria-label="Cerrar">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p style="white-space: pre-line;">${message}</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="modal-btn btn-secondary" data-action="cancel">${cancelText}</button>
+                    <button class="modal-btn btn-primary" data-action="confirm">${confirmText}</button>
+                </div>
+            </div>
+        `;
+            document.body.appendChild(modal);
+
+            // Cerrar con X
+            modal.querySelector('.modal-close').addEventListener('click', () => {
+                modal.remove();
+                resolve(false);
+            });
+
+            // Cerrar al hacer clic fuera
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                    resolve(false);
+                }
+            });
+
+            // Botón cancelar
+            modal.querySelector('[data-action="cancel"]').addEventListener('click', () => {
+                modal.remove();
+                resolve(false);
+            });
+
+            // Botón confirmar
+            modal.querySelector('[data-action="confirm"]').addEventListener('click', () => {
+                modal.remove();
+                resolve(true);
+            });
+
+            // Escape para cerrar
+            const handleEsc = (e) => {
+                if (e.key === 'Escape') {
+                    modal.remove();
+                    resolve(false);
+                    document.removeEventListener('keydown', handleEsc);
+                }
+            };
+            document.addEventListener('keydown', handleEsc);
+        });
+    }
+
     // Toast notificación
-    function showNotification(message) {
-        const el = document.createElement('div');
-        el.className = 'notification';
-        el.textContent = message;
-        el.style.cssText = `position:fixed;bottom:20px;right:20px;background:var(--primary-color);color:white;padding:1rem 2rem;border-radius:var(--border-radius);box-shadow:var(--shadow-lg);z-index:10000;animation:slideIn 0.3s ease`;
-        document.body.appendChild(el);
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `notification notification-${type}`;
+        notification.textContent = message;
+        notification.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        background: ${type === 'error' ? '#ef4444' : '#16a847'};
+        color: white;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        z-index: 100000;
+        animation: slideIn 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    `;
+        document.body.appendChild(notification);
+
         setTimeout(() => {
-            el.style.animation = 'slideOut 0.3s ease';
-            setTimeout(() => el.remove(), 300);
+            notification.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => notification.remove(), 300);
         }, 3000);
     }
 
@@ -974,6 +1271,8 @@ const ModalManager = (() => {
         createBookmarkModal,
         createFolderModal,
         createConfirmModal,
-        createSettingsModal
+        createSettingsModal,
+        showImportModal,
+        showConfirmModal
     };
 })();
