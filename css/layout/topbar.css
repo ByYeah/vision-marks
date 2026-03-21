@@ -244,21 +244,6 @@
     pointer-events: none;
 }
 
-/* Ajuste para contenedores que puedan tener overflow: hidden */
-.container-body {
-    overflow: visible !important;
-}
-
-/* Específicamente para el grid de favoritos */
-.favorites-grid {
-    overflow: visible !important;
-}
-
-/* Para cualquier contenedor que pueda estar recortando */
-.container-item {
-    overflow: visible;
-}
-
 .container-content {
     overflow: visible;
 }
