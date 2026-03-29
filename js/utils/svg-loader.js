@@ -1,8 +1,15 @@
 const SvgLoader = (() => {
     const cache = {};
 
-    // Función original (la mantenemos igual para compatibilidad)
     async function loadIcon(name) {
+        // Si es un icono personalizado (empieza con custom-)
+        if (name.startsWith('custom-') && window.IconManager) {
+            const icon = window.IconManager.getAllIcons().find(i => i.id === name);
+            if (icon && icon.type === 'svg') {
+                return window.IconManager.sanitizeSVG(icon.value);
+            }
+        }
+        
         // Si ya está en cache, retornar directamente
         if (cache[name]) {
             return cache[name];
@@ -17,24 +24,23 @@ const SvgLoader = (() => {
             
             return svgContent;
         } catch (error) {
+            console.warn(`SVG no encontrado: ${name}`);
             return '<span>⚠️</span>';
         }
     }
 
-    // NUEVA FUNCIÓN: Cargar icono con atributos personalizados
+    // Resto de funciones igual...
     async function loadIconWithAttributes(name, attributes = {}) {
-        const svgContent = await loadIcon(name); // Reutilizamos la función existente
+        const svgContent = await loadIcon(name);
         
         if (!svgContent || svgContent.includes('<span>⚠️</span>')) {
             return svgContent;
         }
 
-        // Si no hay atributos personalizados, retornar el SVG original
         if (Object.keys(attributes).length === 0) {
             return svgContent;
         }
 
-        // Aplicar atributos al SVG
         return svgContent.replace('<svg', () => {
             let attrString = '<svg';
             for (const [key, value] of Object.entries(attributes)) {
@@ -44,21 +50,22 @@ const SvgLoader = (() => {
         });
     }
 
-    // Función original (la mantenemos igual)
     async function load(name, container, className = '') {
         const svgContent = await loadIcon(name);
         container.innerHTML = svgContent;
-        if (className) container.querySelector('svg')?.classList.add(className);
+        if (className && container.querySelector('svg')) {
+            container.querySelector('svg').classList.add(className);
+        }
     }
 
-    // NUEVA FUNCIÓN: Cargar con atributos personalizados
     async function loadWithAttributes(name, container, attributes = {}, className = '') {
         const svgContent = await loadIconWithAttributes(name, attributes);
         container.innerHTML = svgContent;
-        if (className) container.querySelector('svg')?.classList.add(className);
+        if (className && container.querySelector('svg')) {
+            container.querySelector('svg').classList.add(className);
+        }
     }
 
-    // Función original (la mantenemos igual)
     function loadAll() {
         document.querySelectorAll('[data-svg]').forEach(el => {
             const name = el.dataset.svg;
@@ -67,13 +74,11 @@ const SvgLoader = (() => {
         });
     }
 
-    // NUEVA FUNCIÓN: Cargar todos con soporte para data-attributes
     function loadAllWithAttributes() {
         document.querySelectorAll('[data-svg]').forEach(el => {
             const name = el.dataset.svg;
             const className = el.dataset.svgClass || '';
             
-            // Recoger todos los data-atributos que empiecen con 'svg-'
             const attributes = {};
             for (const [key, value] of Object.entries(el.dataset)) {
                 if (key.startsWith('svg') && key !== 'svg' && key !== 'svgClass') {
@@ -87,12 +92,12 @@ const SvgLoader = (() => {
     }
 
     return { 
-        load,           // Original
-        loadIcon,       // Original
-        loadAll,        // Original
-        loadWithAttributes,  // Nueva
-        loadIconWithAttributes, // Nueva
-        loadAllWithAttributes  // Nueva
+        load,
+        loadIcon,
+        loadAll,     
+        loadWithAttributes,
+        loadIconWithAttributes,
+        loadAllWithAttributes
     };
 })();
 
