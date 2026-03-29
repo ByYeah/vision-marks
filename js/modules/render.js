@@ -427,9 +427,17 @@ const RenderManager = (() => {
             const isFirstFavorite = f.isFavorite && (globalIndex === 0 || !displayedFolders[globalIndex - 1]?.isFavorite);
             const isLastFavorite = f.isFavorite && (globalIndex === displayedFolders.length - 1 || !displayedFolders[globalIndex + 1]?.isFavorite);
 
+            // Determinar el HTML del icono
+            let iconHTML = '';
+            if (window.IconManager && f.iconType === 'custom' && f.iconId) {
+                iconHTML = IconManager.getIconHTML(f.iconId);
+            } else {
+                iconHTML = `<span class="folder-icon-emoji">${f.icon || '📁'}</span>`;
+            }
+
             return `
                 <div class="folder-item" data-folder-id="${f.id}" data-collection="folders" data-favorite="${f.isFavorite}">
-                    <div class="folder-icon">${f.icon}</div>
+                    <div class="folder-icon">${iconHTML}</div>
                     <div class="folder-name">${f.name}</div>
                     <div class="folder-actions">
                         <button class="btn-folder-action btn-more-folder" data-id="${f.id}" data-collection="folders" title="Más opciones">

@@ -21,6 +21,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         DatabaseManager.init().catch(() => { });  // <-- Inicializar DB
     }
 
+    // 2. Inicializar IconManager
+        if (window.IconManager) {
+            await IconManager.init();
+            console.log('🎨 IconManager inicializado');
+        }
+
     // Cargar estado
     await StateManager.loadState();
 
