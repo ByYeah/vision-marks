@@ -37,7 +37,7 @@
 
 /* Icono de la carpeta */
 .folder-icon {
-    font-size: 2.3rem;
+    font-size: 2.2rem;
     line-height: 1;
     margin-top: 3px;
     flex-shrink: 0;
@@ -209,4 +209,107 @@
 
 .folder-item {
     transition: all var(--transition-fast), width 0.2s ease;
+}
+
+/** FOLDERS - ICONOS PERSONALIZADOS **/
+
+/* Iconos emoji por defecto */
+.folder-icon-emoji {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+/* Iconos SVG personalizados */
+.custom-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.custom-icon use {
+    fill: currentColor;
+    stroke: currentColor;
+}
+
+/* En grid de carpetas - iconos más grandes */
+.folder-icon .custom-icon {
+    width: 24px;
+    height: 24px;
+}
+
+/* ===== SELECTOR DE ICONOS EN MODAL ===== */
+
+.icon-picker-section h4 {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin: 0.5rem 0 0.5rem 0;
+    color: var(--text-secondary);
+}
+
+.icon-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.icon-option {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-primary);
+    cursor: pointer;
+    font-size: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.icon-option:hover {
+    border-color: var(--primary-color);
+    transform: scale(1.05);
+    background: var(--bg-tertiary);
+}
+
+.icon-option.selected {
+    border-color: var(--primary-color);
+    background: rgba(102, 126, 234, 0.15);
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.3);
+}
+
+/* Iconos personalizados en el selector */
+.custom-icon-option svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* ===== TEMA AMOLED ===== */
+[data-theme="amoled"] .icon-option {
+    background: #1a1a1a;
+    border-color: #333;
+}
+
+[data-theme="amoled"] .icon-option:hover {
+    background: #2a2a2a;
+    border-color: var(--primary-color);
+}
+
+[data-theme="amoled"] .icon-option.selected {
+    background: rgba(102, 126, 234, 0.25);
+}
+
+/* ===== TEMA DARK ===== */
+[data-theme="dark"] .icon-option {
+    background: #2d3748;
+    border-color: #4a5568;
+}
+
+[data-theme="dark"] .icon-option:hover {
+    background: #4a5568;
 }

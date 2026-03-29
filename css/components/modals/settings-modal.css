@@ -606,6 +606,234 @@
     color: var(--text-secondary);
 }
 
+/** ICONOS SECTION **/
+
+.custom-icons-manager {
+    padding: var(--spacing-md) 0;
+}
+
+.upload-icon-area {
+    margin-bottom: var(--spacing-lg);
+}
+
+.upload-icon-box {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.btn-upload-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.6rem 1.2rem;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all var(--transition-fast);
+}
+
+.btn-upload-icon:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+}
+
+.btn-select-multiple {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.6rem 1.2rem;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all var(--transition-fast);
+}
+
+.btn-select-multiple:hover {
+    border-color: var(--primary-color);
+    background: var(--bg-primary);
+}
+
+.upload-info {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.custom-icons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: var(--spacing-md);
+    max-height: 400px;
+    overflow-y: auto;
+    padding: var(--spacing-sm);
+}
+
+.custom-icon-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-sm);
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.custom-icon-item:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.custom-icon-item.selected {
+    border-color: var(--primary-color);
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.custom-icon-preview {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.custom-icon-preview svg {
+    width: 32px;
+    height: 32px;
+}
+
+.custom-icon-name {
+    font-size: 0.7rem;
+    text-align: center;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    word-break: break-word;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.icon-select-check {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-select-check svg {
+    width: 12px;
+    height: 12px;
+    stroke: white;
+}
+
+.icon-delete-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
+    background: var(--bg-tertiary);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+    color: var(--text-secondary);
+}
+
+.custom-icon-item:hover .icon-delete-btn {
+    opacity: 1;
+}
+
+.icon-delete-btn:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.icons-bulk-actions {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: flex-end;
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--border-color);
+}
+
+.btn-delete-selected {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.5rem 1rem;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.btn-delete-selected:hover {
+    background: #dc2626;
+}
+
+.btn-cancel-selection {
+    padding: 0.5rem 1rem;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.empty-icons {
+    text-align: center;
+    padding: var(--spacing-xl);
+    color: var(--text-secondary);
+}
+
+.empty-icons svg {
+    margin-bottom: var(--spacing-sm);
+    opacity: 0.5;
+}
+
+.empty-icons p {
+    margin: 0 0 4px 0;
+}
+
+.empty-icons small {
+    font-size: 0.8rem;
+}
+
+/* Tema amoled */
+[data-theme="amoled"] .custom-icon-item {
+    background: #0a0a0a;
+}
+
+[data-theme="amoled"] .icon-delete-btn {
+    background: #1a1a1a;
+}
+
 /** IMPORT/EXPORT SECTION **/
 .settings-menu-item svg {
     width: 18px;
