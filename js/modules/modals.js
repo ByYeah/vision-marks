@@ -218,26 +218,56 @@ const ModalManager = (() => {
     // Modal tipo: Folder
     function createFolderModal(folder = null) {
         const isEdit = folder !== null;
+
+        // Obtener iconos personalizados de IconManager
+        let customIconsHTML = '';
+        if (window.IconManager) {
+            const customIcons = IconManager.getCustomIcons();
+            customIconsHTML = customIcons.map(icon => `
+            <button type="button" class="icon-option custom-icon-option ${folder?.iconType === 'custom' && folder?.iconId === icon.id ? 'selected' : ''}" 
+                    data-icon-type="custom" data-icon-id="${icon.id}" data-icon-preview="${icon.value}">
+                ${IconManager.getIconPreview(icon)}
+            </button>
+        `).join('');
+        }
+
+        // Determinar el icono seleccionado actualmente
+        let selectedEmoji = '';
+        if (folder && folder.iconType !== 'custom') {
+            selectedEmoji = folder.icon || '📁';
+        }
+
         const content = `
-            <form id="folderForm" class="modal-form" novalidate>
-                <div class="form-group" id="name-group">
-                    <label for="folderName">Nombre *</label>
-                    <input type="text" id="folderName" name="name" 
-                        value="${folder?.name || ''}" required>
-                    <div class="error-message" id="name-error" style="display:none; color:#fc8181; font-size:0.85rem; margin-top:4px;"></div>
-                </div>
-                <div class="form-group">
-                    <label>Icono</label>
+        <form id="folderForm" class="modal-form" novalidate>
+            <div class="form-group" id="name-group">
+                <label for="folderName">Nombre *</label>
+                <input type="text" id="folderName" name="name" 
+                    value="${escapeHtml(folder?.name || '')}" required>
+                <div class="error-message" id="name-error" style="display:none;"></div>
+            </div>
+            <div class="form-group">
+                <label>Icono</label>
+                <div class="icon-picker-section">
+                    <h4>Emojis</h4>
                     <div class="icon-picker">
                         ${['📁', '📂', '🗂️', '📦', '🗃️', '💼', '🎯', '⭐', '🔖', '📌'].map(icon => `
-                            <button type="button" class="icon-option ${folder?.icon === icon ? 'selected' : ''}" 
-                                    data-icon="${icon}">${icon}</button>
+                            <button type="button" class="icon-option ${folder?.iconType !== 'custom' && folder?.icon === icon ? 'selected' : ''}" 
+                                    data-icon-type="emoji" data-icon-value="${icon}">${icon}</button>
                         `).join('')}
                     </div>
-                    <input type="hidden" id="folderIcon" name="icon" value="${folder?.icon || '📁'}">
+                    ${customIconsHTML ? `
+                        <h4 style="margin-top:1rem;">Personalizados</h4>
+                        <div class="icon-picker custom-icons-picker">
+                            ${customIconsHTML}
+                        </div>
+                    ` : ''}
                 </div>
-            </form>
-        `;
+                <input type="hidden" id="folderIcon" name="icon" value="${folder?.iconType !== 'custom' ? (folder?.icon || '📁') : ''}">
+                <input type="hidden" id="folderIconType" name="iconType" value="${folder?.iconType || 'emoji'}">
+                <input type="hidden" id="folderIconId" name="iconId" value="${folder?.iconId || ''}">
+            </div>
+        </form>
+    `;
 
         const actions = [
             { text: 'Cancelar', class: 'btn-secondary', action: 'cancel' },
@@ -247,11 +277,25 @@ const ModalManager = (() => {
         const modal = createModal('folderModal', isEdit ? 'Editar Carpeta' : 'Nueva Carpeta', content, actions);
 
         setTimeout(() => {
-            modal.querySelectorAll('.icon-option').forEach(btn => {
+            // Manejador para iconos emoji
+            modal.querySelectorAll('.icon-picker .icon-option').forEach(btn => {
                 btn.addEventListener('click', () => {
                     modal.querySelectorAll('.icon-option').forEach(b => b.classList.remove('selected'));
                     btn.classList.add('selected');
-                    modal.querySelector('#folderIcon').value = btn.dataset.icon;
+                    modal.querySelector('#folderIcon').value = btn.dataset.iconValue;
+                    modal.querySelector('#folderIconType').value = 'emoji';
+                    modal.querySelector('#folderIconId').value = '';
+                });
+            });
+
+            // Manejador para iconos personalizados
+            modal.querySelectorAll('.custom-icons-picker .icon-option').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    modal.querySelectorAll('.icon-option').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    modal.querySelector('#folderIcon').value = '';
+                    modal.querySelector('#folderIconType').value = 'custom';
+                    modal.querySelector('#folderIconId').value = btn.dataset.iconId;
                 });
             });
 
@@ -287,7 +331,9 @@ const ModalManager = (() => {
 
                 const data = {
                     name: nameInput.value.trim(),
-                    icon: form.querySelector('#folderIcon').value
+                    icon: modal.querySelector('#folderIcon').value,
+                    iconType: modal.querySelector('#folderIconType').value,
+                    iconId: modal.querySelector('#folderIconId').value || null
                 };
 
                 if (isEdit) {
@@ -304,6 +350,14 @@ const ModalManager = (() => {
             });
         }, 100);
         return modal;
+    }
+
+    // Función auxiliar escapeHtml
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     // Modal tipo: Confirmación
@@ -375,6 +429,15 @@ const ModalManager = (() => {
                     Tipografía
                 </button>
                 <div class="settings-sidebar-divider"></div>
+                <!-- Iconos carpetas -->
+                <button class="settings-menu-item" data-section="customicons">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" fill="none"/>
+                        <circle cx="12" cy="12" r="3" stroke="currentColor" fill="none"/>
+                        <path d="M7 7 L9 9 M17 7 L15 9 M7 17 L9 15 M17 17 L15 15" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                    Iconos personalizados
+                </button>
                 <!-- Importar/Exportar -->
                 <button class="settings-menu-item" data-section="importexport">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -526,7 +589,46 @@ const ModalManager = (() => {
                     </div>
                 </div>
 
-                 <!-- IMPORT/EXPORT - NUEVA SECCIÓN -->
+                 <!-- Iconos personalizados -->
+                <div class="settings-section" id="section-customicons">
+                    <h3>Iconos personalizados</h3>
+                    <p>Sube tus propios iconos SVG para las carpetas</p>
+                    
+                    <div class="custom-icons-manager">
+                        <!-- Área de subida -->
+                        <div class="upload-icon-area">
+                            <div class="upload-icon-box">
+                                <input type="file" id="uploadCustomIcon" accept=".svg" style="display:none">
+                                <button class="btn-upload-icon" id="btnUploadIcon">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M12 3v12m0 0-3-3m3 3 3-3M5 21h14"/>
+                                    </svg>
+                                    Subir icono SVG
+                                </button>
+                                <p class="upload-info">Máximo ${window.IconManager ? IconManager.MAX_CUSTOM_ICONS : 30} iconos</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Lista de iconos personalizados -->
+                        <div class="custom-icons-list" id="customIconsList">
+                            <div class="loading-icons">Cargando iconos...</div>
+                        </div>
+                        
+                        <!-- Modo de selección múltiple -->
+                        <div class="icons-bulk-actions" id="iconsBulkActions" style="display:none;">
+                            <button class="btn-delete-selected" id="btnDeleteSelectedIcons">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                                Eliminar seleccionados
+                            </button>
+                            <button class="btn-cancel-selection" id="btnCancelSelection">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- Import/Export -->
                 <div class="settings-section" id="section-importexport">
                     <h3>Importar / Exportar</h3>
                     <p>Respaldar o restaurar tus marcadores</p>
@@ -1001,6 +1103,192 @@ const ModalManager = (() => {
                     showNotification('Configuración restablecida');
                 }
             });
+
+            // ===== ICONOS PERSONALIZADOS =====
+
+            // Función para cargar y mostrar los iconos personalizados
+            async function loadCustomIconsList() {
+                const container = modal.querySelector('#customIconsList');
+                if (!container) return;
+
+                if (!window.IconManager) {
+                    container.innerHTML = '<div class="empty-icons">IconManager no disponible</div>';
+                    return;
+                }
+
+                const customIcons = IconManager.getCustomIcons();
+
+                if (customIcons.length === 0) {
+                    container.innerHTML = `
+                <div class="empty-icons">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <p>No hay iconos personalizados</p>
+                    <small>Sube archivos SVG para usarlos en tus carpetas</small>
+                </div>
+            `;
+                    return;
+                }
+
+                let selectionMode = false;
+                let selectedIcons = new Set();
+
+                const renderList = () => {
+                    container.innerHTML = `
+                <div class="custom-icons-grid">
+                    ${customIcons.map(icon => `
+                        <div class="custom-icon-item ${selectionMode && selectedIcons.has(icon.id) ? 'selected' : ''}" data-icon-id="${icon.id}">
+                            <div class="custom-icon-preview">
+                                ${IconManager.getIconPreview(icon)}
+                            </div>
+                            <div class="custom-icon-name">${escapeHtml(icon.name)}</div>
+                            ${selectionMode ? `
+                                <div class="icon-select-check">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="20 6 9 17 4 12"/>
+                                    </svg>
+                                </div>
+                            ` : ''}
+                            <button class="icon-delete-btn" data-icon-id="${icon.id}" title="Eliminar icono">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+                    // Event listeners para los iconos
+                    container.querySelectorAll('.custom-icon-item').forEach(item => {
+                        const iconId = item.dataset.iconId;
+
+                        if (selectionMode) {
+                            item.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                if (selectedIcons.has(iconId)) {
+                                    selectedIcons.delete(iconId);
+                                    item.classList.remove('selected');
+                                } else {
+                                    selectedIcons.add(iconId);
+                                    item.classList.add('selected');
+                                }
+
+                                const bulkActions = modal.querySelector('#iconsBulkActions');
+                                if (selectedIcons.size > 0) {
+                                    bulkActions.style.display = 'flex';
+                                } else {
+                                    bulkActions.style.display = 'none';
+                                }
+                            });
+                        } else {
+                            // Eliminación individual
+                            const deleteBtn = item.querySelector('.icon-delete-btn');
+                            if (deleteBtn) {
+                                deleteBtn.addEventListener('click', async (e) => {
+                                    e.stopPropagation();
+                                    if (confirm('¿Eliminar este icono? Las carpetas que lo usen volverán al icono por defecto.')) {
+                                        try {
+                                            await IconManager.deleteIcon(iconId);
+                                            showNotification('Icono eliminado');
+                                            await loadCustomIconsList();
+                                        } catch (error) {
+                                            showNotification(error.message, 'error');
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+                };
+
+                renderList();
+
+                // Botón de selección múltiple
+                const bulkActions = modal.querySelector('#iconsBulkActions');
+                const uploadArea = modal.querySelector('.upload-icon-area');
+
+                // Eliminar botón existente si lo hay
+                const existingSelectBtn = modal.querySelector('#btnSelectMultiple');
+                if (existingSelectBtn) existingSelectBtn.remove();
+
+                const selectBtn = document.createElement('button');
+                selectBtn.id = 'btnSelectMultiple';
+                selectBtn.className = 'btn-select-multiple';
+                selectBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 6 21 6 19 18 5 18 3 6"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="10" y1="10" x2="14" y2="10"/></svg> Seleccionar múltiples';
+                uploadArea.appendChild(selectBtn);
+
+                selectBtn.addEventListener('click', () => {
+                    selectionMode = true;
+                    selectedIcons.clear();
+                    renderList();
+                    if (bulkActions) bulkActions.style.display = 'flex';
+                    selectBtn.style.display = 'none';
+                });
+
+                // Botón eliminar seleccionados
+                const deleteSelectedBtn = modal.querySelector('#btnDeleteSelectedIcons');
+                if (deleteSelectedBtn) {
+                    deleteSelectedBtn.addEventListener('click', async () => {
+                        if (selectedIcons.size === 0) return;
+                        if (confirm(`¿Eliminar ${selectedIcons.size} iconos? Las carpetas que los usen volverán al icono por defecto.`)) {
+                            for (const iconId of selectedIcons) {
+                                try {
+                                    await IconManager.deleteIcon(iconId);
+                                } catch (error) {
+                                    console.error('Error eliminando icono:', error);
+                                }
+                            }
+                            showNotification(`${selectedIcons.size} iconos eliminados`);
+                            selectionMode = false;
+                            selectedIcons.clear();
+                            if (selectBtn) selectBtn.style.display = 'inline-flex';
+                            if (bulkActions) bulkActions.style.display = 'none';
+                            await loadCustomIconsList();
+                        }
+                    });
+                }
+
+                // Botón cancelar selección
+                const cancelSelectionBtn = modal.querySelector('#btnCancelSelection');
+                if (cancelSelectionBtn) {
+                    cancelSelectionBtn.addEventListener('click', () => {
+                        selectionMode = false;
+                        selectedIcons.clear();
+                        renderList();
+                        if (bulkActions) bulkActions.style.display = 'none';
+                        if (selectBtn) selectBtn.style.display = 'inline-flex';
+                    });
+                }
+            }
+
+            // Subir icono
+            const uploadBtn = modal.querySelector('#btnUploadIcon');
+            const fileInput = modal.querySelector('#uploadCustomIcon');
+
+            if (uploadBtn && fileInput) {
+                uploadBtn.addEventListener('click', () => fileInput.click());
+
+                fileInput.addEventListener('change', async (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    try {
+                        const result = await IconManager.uploadIcon(file);
+                        showNotification(`Icono "${result.icon.name}" subido correctamente`);
+                        await loadCustomIconsList();
+                    } catch (error) {
+                        showNotification(error.message, 'error');
+                    }
+                    fileInput.value = '';
+                });
+            }
+
+            // Cargar la lista inicial
+            loadCustomIconsList();
 
             // Guardar cambios
             modal.querySelector('[data-action="save"]')?.addEventListener('click', () => {
