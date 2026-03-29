@@ -296,6 +296,8 @@ const StateManager = (() => {
             id: Date.now().toString(),
             name: folder.name,
             icon: folder.icon || '📁',
+            iconType: folder.iconType || 'emoji',
+            iconId: folder.iconId || null,
             isFavorite: folder.isFavorite || false,
             order: state.folders.length,
             createdAt: new Date().toISOString()

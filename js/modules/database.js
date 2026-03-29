@@ -1,7 +1,7 @@
 const DatabaseManager = (function () {
     // Configuración de la base de datos
     const DB_NAME = 'VisionMarksDB';
-    const DB_VERSION = 1;
+    const DB_VERSION = 2;
 
     // Nombres de los almacenes (stores)
     const STORES = {
@@ -38,6 +38,9 @@ const DatabaseManager = (function () {
 
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
+                const oldVersion = event.oldVersion;
+
+                console.log(`🔄 Actualizando DB de versión ${oldVersion} a ${DB_VERSION}`);
 
                 // Crear store de carpetas
                 if (!db.objectStoreNames.contains(STORES.FOLDERS)) {
@@ -63,6 +66,13 @@ const DatabaseManager = (function () {
                 if (!db.objectStoreNames.contains(STORES.SETTINGS)) {
                     db.createObjectStore(STORES.SETTINGS, { keyPath: 'key' });
                     console.log('  - Store "settings" creado');
+                }
+
+                if (!db.objectStoreNames.contains('custom_icons')) {
+                    const iconStore = db.createObjectStore('custom_icons', { keyPath: 'id', autoIncrement: true });
+                    iconStore.createIndex('name', 'name', { unique: false });
+                    iconStore.createIndex('createdAt', 'createdAt', { unique: false });
+                    console.log('  - Store "custom_icons" creado');
                 }
             };
         });
@@ -397,6 +407,68 @@ const DatabaseManager = (function () {
         }
     };
 
+    const CustomIconsOperations = {
+        async getAll() {
+            return transaction('custom_icons', 'readonly', (store) => {
+                return new Promise((resolve, reject) => {
+                    const request = store.getAll();
+                    request.onsuccess = () => resolve(request.result || []);
+                    request.onerror = () => reject(request.error);
+                });
+            });
+        },
+
+        async add(icon) {
+            return transaction('custom_icons', 'readwrite', (store) => {
+                return new Promise((resolve, reject) => {
+                    const request = store.add(icon);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+            });
+        },
+
+        async update(icon) {
+            return transaction('custom_icons', 'readwrite', (store) => {
+                return new Promise((resolve, reject) => {
+                    const request = store.put(icon);
+                    request.onsuccess = () => resolve();
+                    request.onerror = () => reject(request.error);
+                });
+            });
+        },
+
+        async delete(id) {
+            return transaction('custom_icons', 'readwrite', (store) => {
+                return new Promise((resolve, reject) => {
+                    const request = store.delete(id);
+                    request.onsuccess = () => resolve();
+                    request.onerror = () => reject(request.error);
+                });
+            });
+        },
+
+        async getById(id) {
+            return transaction('custom_icons', 'readonly', (store) => {
+                return new Promise((resolve, reject) => {
+                    const request = store.get(id);
+                    request.onsuccess = () => resolve(request.result);
+                    request.onerror = () => reject(request.error);
+                });
+            });
+        },
+
+        async clear() {
+            return transaction('custom_icons', 'readwrite', (store) => {
+                return new Promise((resolve, reject) => {
+                    const request = store.clear();
+                    request.onsuccess = () => resolve();
+                    request.onerror = () => reject(request.error);
+                });
+            });
+        }
+    };
+
     // Migrar settings reales automáticamente
     async function migrateRealSettings() {
         try {
@@ -540,22 +612,19 @@ const DatabaseManager = (function () {
 
     // API pública
     return {
-        // Inicialización
         init,
-        // Stores disponibles
         STORES,
         // Operaciones por entidad
         folders: FolderOperations,
         bookmarks: BookmarkOperations,
         settings: SettingsOperations,
+        customIcons: CustomIconsOperations,
         // Utilidades
         migration: MigrationUtils,
         // Transacción genérica (para operaciones avanzadas)
         transaction
     };
 })();
-
-// Hacer disponible globalmente
 window.DatabaseManager = DatabaseManager;
 
 // Inicializar automáticamente al cargar el script
