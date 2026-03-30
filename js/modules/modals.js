@@ -225,7 +225,7 @@ const ModalManager = (() => {
             const customIcons = IconManager.getCustomIcons();
             customIconsHTML = customIcons.map(icon => `
             <button type="button" class="icon-option custom-icon-option ${folder?.iconType === 'custom' && folder?.iconId === icon.id ? 'selected' : ''}" 
-                    data-icon-type="custom" data-icon-id="${icon.id}" data-icon-preview="${icon.value}">
+                    data-icon-type="custom" data-icon-id="${icon.id}">
                 ${IconManager.getIconPreview(icon)}
             </button>
         `).join('');
