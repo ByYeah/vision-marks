@@ -313,3 +313,40 @@
 [data-theme="dark"] .icon-option:hover {
     background: #4a5568;
 }
+
+.folder-icon svg,
+.folder-icon .custom-icon {
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.folder-icon svg use,
+.folder-icon .custom-icon use {
+    fill: currentColor;
+    stroke: currentColor;
+}
+
+/* Para SVG con stroke y fill */
+.folder-icon svg path,
+.folder-icon svg circle,
+.folder-icon svg rect,
+.folder-icon .custom-icon path,
+.folder-icon .custom-icon circle,
+.folder-icon .custom-icon rect {
+    stroke: currentColor;
+}
+
+/* En el selector de iconos */
+.custom-icon-preview svg {
+    width: 32px;
+    height: 32px;
+}
+
+.custom-icon-preview svg path,
+.custom-icon-preview svg circle,
+.custom-icon-preview svg rect {
+    fill: currentColor;
+    stroke: currentColor;
+}
