@@ -319,3 +319,18 @@ body:not([data-theme="dark"]):not([data-theme="auto"]):not([data-theme="light"])
 [data-theme="amoled"] .btn-report-bug:hover {
     background: var(--primary-dark) !important;
 }
+
+/** MODAL SELECTIOR ICONOS CARPETA **/
+
+[data-theme="amoled"] .icon-option {
+    background: #1a1a1a;
+}
+
+[data-theme="amoled"] .icon-option:hover {
+    background: #2a2a2a;
+    border-color: var(--primary-color);
+}
+
+[data-theme="amoled"] .icon-option.selected {
+    background: rgba(102, 126, 234, 0.25);
+}
