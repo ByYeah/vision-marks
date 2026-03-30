@@ -713,6 +713,13 @@
     height: 32px;
 }
 
+.custom-icon-preview svg path,
+.custom-icon-preview svg circle,
+.custom-icon-preview svg rect {
+    fill: none;
+    stroke: currentColor;
+}
+
 .custom-icon-name {
     font-size: 0.7rem;
     text-align: center;

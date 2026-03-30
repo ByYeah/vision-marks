@@ -241,8 +241,7 @@
     height: 24px;
 }
 
-/* ===== SELECTOR DE ICONOS EN MODAL ===== */
-
+/* Selector de iconos - svg */
 .icon-picker-section h4 {
     font-size: 0.85rem;
     font-weight: 500;
@@ -289,35 +288,10 @@
     height: 24px;
 }
 
-/* ===== TEMA AMOLED ===== */
-[data-theme="amoled"] .icon-option {
-    background: #1a1a1a;
-    border-color: #333;
-}
-
-[data-theme="amoled"] .icon-option:hover {
-    background: #2a2a2a;
-    border-color: var(--primary-color);
-}
-
-[data-theme="amoled"] .icon-option.selected {
-    background: rgba(102, 126, 234, 0.25);
-}
-
-/* ===== TEMA DARK ===== */
-[data-theme="dark"] .icon-option {
-    background: #2d3748;
-    border-color: #4a5568;
-}
-
-[data-theme="dark"] .icon-option:hover {
-    background: #4a5568;
-}
-
 .folder-icon svg,
 .folder-icon .custom-icon {
-    width: 32px;
-    height: 32px;
+    width: 42px;
+    height: 42px;
     display: inline-block;
     vertical-align: middle;
 }
