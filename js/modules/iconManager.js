@@ -51,7 +51,7 @@ const IconManager = (function () {
     // Sanitizar SVG
     function sanitizeSVG(svgContent) {
         if (!svgContent) return '';
-        
+
         try {
             const parser = new DOMParser();
             const cleanRaw = svgContent.trim().replace(/>\s+</g, '><');
@@ -61,13 +61,13 @@ const IconManager = (function () {
             if (!svgElement) return '';
 
             const viewBox = svgElement.getAttribute('viewBox') || `0 0 ${svgElement.getAttribute('width') || 24} ${svgElement.getAttribute('height') || 24}`;
-            
+
             const elements = svgElement.querySelectorAll('*');
             elements.forEach(el => {
                 const fill = el.getAttribute('fill');
                 const stroke = el.getAttribute('stroke');
                 const hasStrokeOnly = stroke && stroke !== 'none' && (!fill || fill === 'none');
-                
+
                 if (hasStrokeOnly) {
                     el.setAttribute('fill', 'none');
                     el.setAttribute('stroke', 'currentColor');
@@ -79,7 +79,7 @@ const IconManager = (function () {
                 } else if (!fill && !stroke) {
                     el.setAttribute('fill', 'currentColor');
                 }
-                
+
                 el.removeAttribute('style');
             });
 
@@ -106,36 +106,36 @@ const IconManager = (function () {
             reader.onload = async (e) => {
                 try {
                     let svgContent = e.target.result;
-                    
+
                     if (!svgContent.includes('<svg') || !svgContent.includes('</svg>')) {
                         throw new Error('El archivo no es un SVG válido');
                     }
-                    
+
                     const iconName = name || file.name.replace('.svg', '');
                     const svgClean = sanitizeSVG(svgContent);
-                    
+
                     if (!svgClean) {
                         throw new Error('No se pudo procesar el SVG');
                     }
-                    
+
                     const newIcon = {
                         name: iconName,
                         svgContent: svgClean,
                         createdAt: new Date().toISOString(),
                         usedBy: []
                     };
-                    
+
                     const id = await DatabaseManager.customIcons.add(newIcon);
                     newIcon.id = id;
                     customIconsCache.push(newIcon);
-                    
+
                     console.log(`✅ Icono "${iconName}" subido`);
                     resolve({ success: true, icon: { id: `custom-${id}`, name: iconName } });
                 } catch (error) {
                     reject(error);
                 }
             };
-            
+
             reader.onerror = () => reject(new Error('Error al leer el archivo'));
             reader.readAsText(file);
         });
@@ -144,10 +144,10 @@ const IconManager = (function () {
     async function deleteIcon(iconId) {
         const numericId = parseInt(iconId.replace('custom-', ''));
         if (isNaN(numericId)) throw new Error('ID de icono inválido');
-        
+
         await DatabaseManager.customIcons.delete(numericId);
         customIconsCache = customIconsCache.filter(i => i.id !== numericId);
-        
+
         console.log(`🗑️ Icono eliminado`);
         return { success: true };
     }
@@ -156,9 +156,15 @@ const IconManager = (function () {
         if (iconId && iconId.startsWith('custom-')) {
             const numericId = parseInt(iconId.replace('custom-', ''));
             const customIcon = customIconsCache.find(i => i.id === numericId);
-            
+
             if (customIcon && customIcon.svgContent) {
-                return customIcon.svgContent;
+                // Asegurar que el SVG tenga tamaño para mostrarse en el header
+                let svg = customIcon.svgContent;
+                // Añadir clase para estilos y asegurar tamaño si no tiene width/height
+                if (!svg.includes('width=')) {
+                    svg = svg.replace('<svg', '<svg width="20" height="20"');
+                }
+                return svg;
             }
             return `<span class="folder-icon-emoji">📁</span>`;
         } else if (iconId && DEFAULT_ICONS.some(i => i.id === iconId)) {

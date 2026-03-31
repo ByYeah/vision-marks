@@ -908,13 +908,31 @@ const RenderManager = (() => {
         const infolder = document.querySelector('[data-container="infolder"]');
 
         if (fid) {
-            const f = StateManager.getFolderById(fid);
-            if (f) nameEl.textContent = `${f.icon} ${f.name}`;
+            const folder = StateManager.getFolderById(fid);
+            if (nameEl && folder) {
+                let iconHTML = '';
+
+                // Verificar si es icono personalizado
+                if (window.IconManager && folder.iconType === 'custom' && folder.iconId) {
+                    iconHTML = IconManager.getIconHTML(folder.iconId);
+                }
+                // Verificar si es emoji
+                else if (folder.icon && !folder.icon.includes('<svg')) {
+                    iconHTML = `<span class="folder-icon-emoji">${folder.icon}</span>`;
+                }
+                // Fallback
+                else {
+                    iconHTML = `<span class="folder-icon-emoji">📁</span>`;
+                }
+
+                nameEl.innerHTML = `${iconHTML} ${escapeHtml(folder.name)}`;
+            }
             if (btnBack) btnBack.classList.remove('hidden');
             if (infolder) infolder.style.display = 'flex';
         } else {
-            nameEl.textContent = 'Contenido';
+            if (nameEl) nameEl.textContent = 'Contenido';
             if (btnBack) btnBack.classList.add('hidden');
+            if (infolder) infolder.style.display = 'flex';
         }
     }
 
