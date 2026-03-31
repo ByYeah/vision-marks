@@ -1134,9 +1134,12 @@ const ModalManager = (() => {
                     `;
                     return;
                 }
-
                 let selectionMode = false;
                 let selectedIcons = new Set();
+
+                // Referencias a los botones
+                const selectBtn = modal.querySelector('#btnSelectMultiple');
+                const bulkActions = modal.querySelector('#iconsBulkActions');
 
                 const renderList = () => {
                     container.innerHTML = `
@@ -1149,29 +1152,26 @@ const ModalManager = (() => {
                                         ${IconManager.getIconPreview(icon)}
                                     </div>
                                     <div class="custom-icon-name">${escapeHtml(icon.name)}</div>
-                                    ${selectionMode ? `
-                                        <div class="icon-select-check">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <polyline points="20 6 9 17 4 12"/>
+                                    ${!selectionMode ? `
+                                        <button class="icon-delete-btn" data-icon-id="${icon.id}" data-icon-name="${escapeHtml(icon.name)}" title="Eliminar icono">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="18" y1="6" x2="6" y2="18"/>
+                                                <line x1="6" y1="6" x2="18" y2="18"/>
                                             </svg>
-                                        </div>
+                                        </button>
                                     ` : ''}
-                                    <button class="icon-delete-btn" data-icon-id="${icon.id}" data-icon-name="${escapeHtml(icon.name)}" title="Eliminar icono">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <line x1="18" y1="6" x2="6" y2="18"/>
-                                            <line x1="6" y1="6" x2="18" y2="18"/>
-                                        </svg>
-                                    </button>
                                 </div>
                             `).join('')}
                         </div>
                     `;
+
                     // Event listeners para los iconos
                     container.querySelectorAll('.custom-icon-item').forEach(item => {
                         const iconId = item.dataset.iconId;
                         const iconName = item.dataset.iconName;
 
                         if (selectionMode) {
+                            // En modo selección, el click selecciona/deselecciona
                             item.addEventListener('click', (e) => {
                                 e.stopPropagation();
                                 if (selectedIcons.has(iconId)) {
@@ -1181,28 +1181,34 @@ const ModalManager = (() => {
                                     selectedIcons.add(iconId);
                                     item.classList.add('selected');
                                 }
-
-                                const bulkActions = modal.querySelector('#iconsBulkActions');
-                                if (selectedIcons.size > 0) {
-                                    bulkActions.style.display = 'flex';
-                                } else {
-                                    bulkActions.style.display = 'none';
+                                // Actualizar el botón eliminar seleccionados
+                                const deleteSelectedBtn = modal.querySelector('#btnDeleteSelectedIcons');
+                                if (deleteSelectedBtn) {
+                                    if (selectedIcons.size === 0) {
+                                        deleteSelectedBtn.textContent = 'Eliminar seleccionados';
+                                        deleteSelectedBtn.disabled = true;
+                                        deleteSelectedBtn.style.opacity = '0.5';
+                                        deleteSelectedBtn.style.cursor = 'not-allowed';
+                                    } else {
+                                        deleteSelectedBtn.textContent = `Eliminar ${selectedIcons.size} seleccionado${selectedIcons.size !== 1 ? 's' : ''}`;
+                                        deleteSelectedBtn.disabled = false;
+                                        deleteSelectedBtn.style.opacity = '1';
+                                        deleteSelectedBtn.style.cursor = 'pointer';
+                                    }
                                 }
                             });
                         } else {
+                            // En modo normal, solo el botón eliminar tiene acción
                             const deleteBtn = item.querySelector('.icon-delete-btn');
                             if (deleteBtn) {
                                 deleteBtn.addEventListener('click', async (e) => {
                                     e.stopPropagation();
-
-                                    // Usar modal de confirmación
                                     const confirmed = await ModalManager.showConfirmModal(
                                         'Eliminar icono',
                                         `¿Eliminar el icono "${iconName}"? Las carpetas que lo usen volverán al icono por defecto.`,
                                         'Eliminar',
                                         'Cancelar'
                                     );
-
                                     if (confirmed) {
                                         try {
                                             await IconManager.deleteIcon(iconId);
@@ -1219,12 +1225,8 @@ const ModalManager = (() => {
                 };
                 renderList();
 
-                // Botón de selección múltiple
-                const selectBtn = modal.querySelector('#btnSelectMultiple');
-                const bulkActions = modal.querySelector('#iconsBulkActions');
-
+                // Configurar botón de selección múltiple
                 if (selectBtn) {
-                    // Clonar para eliminar event listeners anteriores
                     const newSelectBtn = selectBtn.cloneNode(true);
                     selectBtn.parentNode.replaceChild(newSelectBtn, selectBtn);
 
@@ -1232,8 +1234,23 @@ const ModalManager = (() => {
                         selectionMode = true;
                         selectedIcons.clear();
                         renderList();
-                        if (bulkActions) bulkActions.style.display = 'flex';
+
+                        // Mostrar bulk actions
+                        if (bulkActions) {
+                            bulkActions.style.display = 'flex';
+                        }
+
+                        // Ocultar el botón de selección múltiple
                         newSelectBtn.style.display = 'none';
+
+                        // Configurar el botón eliminar seleccionados (deshabilitado inicialmente)
+                        const deleteSelectedBtn = modal.querySelector('#btnDeleteSelectedIcons');
+                        if (deleteSelectedBtn) {
+                            deleteSelectedBtn.textContent = 'Eliminar seleccionados';
+                            deleteSelectedBtn.disabled = true;
+                            deleteSelectedBtn.style.opacity = '0.5';
+                            deleteSelectedBtn.style.cursor = 'not-allowed';
+                        }
                     });
                 }
 
@@ -1245,20 +1262,37 @@ const ModalManager = (() => {
 
                     newDeleteBtn.addEventListener('click', async () => {
                         if (selectedIcons.size === 0) return;
-                        if (confirm(`¿Eliminar ${selectedIcons.size} iconos? Las carpetas que los usen volverán al icono por defecto.`)) {
+
+                        const selectedNames = [];
+                        for (const iconId of selectedIcons) {
+                            const icon = customIcons.find(i => i.id === iconId);
+                            if (icon) selectedNames.push(icon.name);
+                        }
+
+                        const message = selectedIcons.size === 1
+                            ? `¿Eliminar el icono "${selectedNames[0]}"? Las carpetas que lo usen volverán al icono por defecto.`
+                            : `¿Eliminar ${selectedIcons.size} iconos? Las carpetas que los usen volverán al icono por defecto.`;
+
+                        const confirmed = await ModalManager.showConfirmModal(
+                            'Eliminar iconos',
+                            message,
+                            'Eliminar',
+                            'Cancelar'
+                        );
+
+                        if (confirmed) {
+                            let deletedCount = 0;
                             for (const iconId of selectedIcons) {
                                 try {
                                     await IconManager.deleteIcon(iconId);
+                                    deletedCount++;
                                 } catch (error) {
                                     console.error('Error eliminando icono:', error);
+                                    showNotification(error.message, 'error');
                                 }
                             }
-                            showNotification(`${selectedIcons.size} iconos eliminados`);
-                            selectionMode = false;
-                            selectedIcons.clear();
-                            const selectBtnRefresh = modal.querySelector('#btnSelectMultiple');
-                            if (selectBtnRefresh) selectBtnRefresh.style.display = 'inline-flex';
-                            if (bulkActions) bulkActions.style.display = 'none';
+                            showNotification(`${deletedCount} iconos eliminados`);
+                            // Recargar la lista (esto saldrá del modo selección)
                             await loadCustomIconsList();
                         }
                     });
@@ -1271,12 +1305,21 @@ const ModalManager = (() => {
                     cancelSelectionBtn.parentNode.replaceChild(newCancelBtn, cancelSelectionBtn);
 
                     newCancelBtn.addEventListener('click', () => {
+                        // Salir del modo selección
                         selectionMode = false;
                         selectedIcons.clear();
                         renderList();
-                        if (bulkActions) bulkActions.style.display = 'none';
+
+                        // Ocultar bulk actions
+                        if (bulkActions) {
+                            bulkActions.style.display = 'none';
+                        }
+
+                        // Mostrar el botón de selección múltiple nuevamente
                         const selectBtnRefresh = modal.querySelector('#btnSelectMultiple');
-                        if (selectBtnRefresh) selectBtnRefresh.style.display = 'inline-flex';
+                        if (selectBtnRefresh) {
+                            selectBtnRefresh.style.display = 'inline-flex';
+                        }
                     });
                 }
             }

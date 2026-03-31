@@ -724,25 +724,6 @@
     text-overflow: ellipsis;
 }
 
-.icon-select-check {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    width: 20px;
-    height: 20px;
-    background: var(--primary-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.icon-select-check svg {
-    width: 12px;
-    height: 12px;
-    stroke: white;
-}
-
 .icon-delete-btn {
     position: absolute;
     top: 4px;
@@ -823,15 +804,6 @@
 
 .empty-icons small {
     font-size: 0.8rem;
-}
-
-/* Tema amoled */
-[data-theme="amoled"] .custom-icon-item {
-    background: #0a0a0a;
-}
-
-[data-theme="amoled"] .icon-delete-btn {
-    background: #1a1a1a;
 }
 
 /** IMPORT/EXPORT SECTION **/
