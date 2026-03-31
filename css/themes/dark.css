@@ -6,7 +6,7 @@
     --text-primary: #f7fafc !important;
     --text-secondary: #e2e8f0 !important;
     --text-muted: #a0aec0 !important;
-    --border-color: #37383b !important;
+    --border-color: #242429 !important;
 }
 
 /** TEMA AUTO (basado en preferencia del sistema) **/
@@ -18,7 +18,7 @@
         --text-primary: #f7fafc !important;
         --text-secondary: #e2e8f0 !important;
         --text-muted: #a0aec0 !important;
-        --border-color: #37383b !important;
+        --border-color: #242429 !important;
     }
 }
 
@@ -195,7 +195,6 @@
 [data-theme="auto"] .theme-preview.auto {
     background: linear-gradient(135deg, #f7fafc 50%, #1a202c 50%) !important;
 }
-
 
 /** FORMULARIOS EN dark **/
 [data-theme="dark"] .form-group label,
