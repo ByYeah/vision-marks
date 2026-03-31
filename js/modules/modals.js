@@ -603,8 +603,16 @@ const ModalManager = (() => {
                                     </svg>
                                     Subir icono SVG
                                 </button>
-                                <p class="upload-info">Máximo ${window.IconManager ? IconManager.MAX_CUSTOM_ICONS : 30} iconos</p>
+                                <button class="btn-select-multiple" id="btnSelectMultiple">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polygon points="3 6 21 6 19 18 5 18 3 6"/>
+                                        <line x1="8" y1="6" x2="16" y2="6"/>
+                                        <line x1="10" y1="10" x2="14" y2="10"/>
+                                    </svg>
+                                    Seleccionar múltiples
+                                </button>
                             </div>
+                            <p class="upload-info">Máximo ${window.IconManager ? IconManager.MAX_CUSTOM_ICONS : 30} iconos</p>
                         </div>
                         
                         <!-- Lista de iconos personalizados -->
@@ -1102,8 +1110,6 @@ const ModalManager = (() => {
                 }
             });
 
-            // ===== ICONOS PERSONALIZADOS =====
-
             // Función para cargar y mostrar los iconos personalizados
             async function loadCustomIconsList() {
                 const container = modal.querySelector('#customIconsList');
@@ -1118,14 +1124,14 @@ const ModalManager = (() => {
 
                 if (customIcons.length === 0) {
                     container.innerHTML = `
-                <div class="empty-icons">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path d="M17.75 3A3.25 3.25 0 0 1 21 6.25v6.879a2.25 2.25 0 0 1-.659 1.59l-5.621 5.622a2.25 2.25 0 0 1-1.591.659H6.25A3.25 3.25 0 0 1 3 17.75V6.25A3.25 3.25 0 0 1 6.25 3zm0 1.5H6.25A1.75 1.75 0 0 0 4.5 6.25v11.5c0 .966.784 1.75 1.75 1.75H13v-3.064a7 7 0 0 1-.673.066L12 16.51a6.33 6.33 0 0 1-3.678-1.14.75.75 0 1 1 .854-1.234c.844.584 1.78.874 2.824.874q.693 0 1.324-.171a3.25 3.25 0 0 1 2.713-1.832l.213-.007H19.5V6.25a1.75 1.75 0 0 0-1.75-1.75m.689 10h-2.188c-.918 0-1.671.707-1.744 1.607l-.006.143-.001 2.189zM9 7.751a1.25 1.25 0 1 1 0 2.499A1.25 1.25 0 0 1 9 7.75m6 0a1.25 1.25 0 1 1 0 2.499 1.25 1.25 0 0 1 0-2.499"/>
-                    </svg>
-                    <p>No hay iconos personalizados</p>
-                    <small>Sube archivos SVG para usarlos en tus carpetas</small>
-                </div>
-            `;
+                        <div class="empty-icons">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M17.75 3A3.25 3.25 0 0 1 21 6.25v6.879a2.25 2.25 0 0 1-.659 1.59l-5.621 5.622a2.25 2.25 0 0 1-1.591.659H6.25A3.25 3.25 0 0 1 3 17.75V6.25A3.25 3.25 0 0 1 6.25 3zm0 1.5H6.25A1.75 1.75 0 0 0 4.5 6.25v11.5c0 .966.784 1.75 1.75 1.75H13v-3.064a7 7 0 0 1-.673.066L12 16.51a6.33 6.33 0 0 1-3.678-1.14.75.75 0 1 1 .854-1.234c.844.584 1.78.874 2.824.874q.693 0 1.324-.171a3.25 3.25 0 0 1 2.713-1.832l.213-.007H19.5V6.25a1.75 1.75 0 0 0-1.75-1.75m.689 10h-2.188c-.918 0-1.671.707-1.744 1.607l-.006.143-.001 2.189zM9 7.751a1.25 1.25 0 1 1 0 2.499A1.25 1.25 0 0 1 9 7.75m6 0a1.25 1.25 0 1 1 0 2.499 1.25 1.25 0 0 1 0-2.499"/>
+                            </svg>
+                            <p>No hay iconos personalizados</p>
+                            <small>Sube archivos SVG para usarlos en tus carpetas</small>
+                        </div>
+                    `;
                     return;
                 }
 
@@ -1134,34 +1140,36 @@ const ModalManager = (() => {
 
                 const renderList = () => {
                     container.innerHTML = `
-                <div class="custom-icons-grid">
-                    ${customIcons.map(icon => `
-                        <div class="custom-icon-item ${selectionMode && selectedIcons.has(icon.id) ? 'selected' : ''}" data-icon-id="${icon.id}">
-                            <div class="custom-icon-preview">
-                                ${IconManager.getIconPreview(icon)}
-                            </div>
-                            <div class="custom-icon-name">${escapeHtml(icon.name)}</div>
-                            ${selectionMode ? `
-                                <div class="icon-select-check">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <polyline points="20 6 9 17 4 12"/>
-                                    </svg>
+                        <div class="custom-icons-grid">
+                            ${customIcons.map(icon => `
+                                <div class="custom-icon-item ${selectionMode && selectedIcons.has(icon.id) ? 'selected' : ''}" 
+                                    data-icon-id="${icon.id}" 
+                                    data-icon-name="${escapeHtml(icon.name)}">
+                                    <div class="custom-icon-preview">
+                                        ${IconManager.getIconPreview(icon)}
+                                    </div>
+                                    <div class="custom-icon-name">${escapeHtml(icon.name)}</div>
+                                    ${selectionMode ? `
+                                        <div class="icon-select-check">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="20 6 9 17 4 12"/>
+                                            </svg>
+                                        </div>
+                                    ` : ''}
+                                    <button class="icon-delete-btn" data-icon-id="${icon.id}" data-icon-name="${escapeHtml(icon.name)}" title="Eliminar icono">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="18" y1="6" x2="6" y2="18"/>
+                                            <line x1="6" y1="6" x2="18" y2="18"/>
+                                        </svg>
+                                    </button>
                                 </div>
-                            ` : ''}
-                            <button class="icon-delete-btn" data-icon-id="${icon.id}" title="Eliminar icono">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="18" y1="6" x2="6" y2="18"/>
-                                    <line x1="6" y1="6" x2="18" y2="18"/>
-                                </svg>
-                            </button>
+                            `).join('')}
                         </div>
-                    `).join('')}
-                </div>
-            `;
-
+                    `;
                     // Event listeners para los iconos
                     container.querySelectorAll('.custom-icon-item').forEach(item => {
                         const iconId = item.dataset.iconId;
+                        const iconName = item.dataset.iconName;
 
                         if (selectionMode) {
                             item.addEventListener('click', (e) => {
@@ -1182,12 +1190,20 @@ const ModalManager = (() => {
                                 }
                             });
                         } else {
-                            // Eliminación individual
                             const deleteBtn = item.querySelector('.icon-delete-btn');
                             if (deleteBtn) {
                                 deleteBtn.addEventListener('click', async (e) => {
                                     e.stopPropagation();
-                                    if (confirm('¿Eliminar este icono? Las carpetas que lo usen volverán al icono por defecto.')) {
+
+                                    // Usar modal de confirmación
+                                    const confirmed = await ModalManager.showConfirmModal(
+                                        'Eliminar icono',
+                                        `¿Eliminar el icono "${iconName}"? Las carpetas que lo usen volverán al icono por defecto.`,
+                                        'Eliminar',
+                                        'Cancelar'
+                                    );
+
+                                    if (confirmed) {
                                         try {
                                             await IconManager.deleteIcon(iconId);
                                             showNotification('Icono eliminado');
@@ -1201,35 +1217,33 @@ const ModalManager = (() => {
                         }
                     });
                 };
-
                 renderList();
 
                 // Botón de selección múltiple
+                const selectBtn = modal.querySelector('#btnSelectMultiple');
                 const bulkActions = modal.querySelector('#iconsBulkActions');
-                const uploadArea = modal.querySelector('.upload-icon-area');
 
-                // Eliminar botón existente si lo hay
-                const existingSelectBtn = modal.querySelector('#btnSelectMultiple');
-                if (existingSelectBtn) existingSelectBtn.remove();
+                if (selectBtn) {
+                    // Clonar para eliminar event listeners anteriores
+                    const newSelectBtn = selectBtn.cloneNode(true);
+                    selectBtn.parentNode.replaceChild(newSelectBtn, selectBtn);
 
-                const selectBtn = document.createElement('button');
-                selectBtn.id = 'btnSelectMultiple';
-                selectBtn.className = 'btn-select-multiple';
-                selectBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 6 21 6 19 18 5 18 3 6"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="10" y1="10" x2="14" y2="10"/></svg> Seleccionar múltiples';
-                uploadArea.appendChild(selectBtn);
-
-                selectBtn.addEventListener('click', () => {
-                    selectionMode = true;
-                    selectedIcons.clear();
-                    renderList();
-                    if (bulkActions) bulkActions.style.display = 'flex';
-                    selectBtn.style.display = 'none';
-                });
+                    newSelectBtn.addEventListener('click', () => {
+                        selectionMode = true;
+                        selectedIcons.clear();
+                        renderList();
+                        if (bulkActions) bulkActions.style.display = 'flex';
+                        newSelectBtn.style.display = 'none';
+                    });
+                }
 
                 // Botón eliminar seleccionados
                 const deleteSelectedBtn = modal.querySelector('#btnDeleteSelectedIcons');
                 if (deleteSelectedBtn) {
-                    deleteSelectedBtn.addEventListener('click', async () => {
+                    const newDeleteBtn = deleteSelectedBtn.cloneNode(true);
+                    deleteSelectedBtn.parentNode.replaceChild(newDeleteBtn, deleteSelectedBtn);
+
+                    newDeleteBtn.addEventListener('click', async () => {
                         if (selectedIcons.size === 0) return;
                         if (confirm(`¿Eliminar ${selectedIcons.size} iconos? Las carpetas que los usen volverán al icono por defecto.`)) {
                             for (const iconId of selectedIcons) {
@@ -1242,7 +1256,8 @@ const ModalManager = (() => {
                             showNotification(`${selectedIcons.size} iconos eliminados`);
                             selectionMode = false;
                             selectedIcons.clear();
-                            if (selectBtn) selectBtn.style.display = 'inline-flex';
+                            const selectBtnRefresh = modal.querySelector('#btnSelectMultiple');
+                            if (selectBtnRefresh) selectBtnRefresh.style.display = 'inline-flex';
                             if (bulkActions) bulkActions.style.display = 'none';
                             await loadCustomIconsList();
                         }
@@ -1252,12 +1267,16 @@ const ModalManager = (() => {
                 // Botón cancelar selección
                 const cancelSelectionBtn = modal.querySelector('#btnCancelSelection');
                 if (cancelSelectionBtn) {
-                    cancelSelectionBtn.addEventListener('click', () => {
+                    const newCancelBtn = cancelSelectionBtn.cloneNode(true);
+                    cancelSelectionBtn.parentNode.replaceChild(newCancelBtn, cancelSelectionBtn);
+
+                    newCancelBtn.addEventListener('click', () => {
                         selectionMode = false;
                         selectedIcons.clear();
                         renderList();
                         if (bulkActions) bulkActions.style.display = 'none';
-                        if (selectBtn) selectBtn.style.display = 'inline-flex';
+                        const selectBtnRefresh = modal.querySelector('#btnSelectMultiple');
+                        if (selectBtnRefresh) selectBtnRefresh.style.display = 'inline-flex';
                     });
                 }
             }
