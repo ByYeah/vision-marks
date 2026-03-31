@@ -607,11 +607,6 @@
 }
 
 /** ICONOS SECTION **/
-
-.custom-icons-manager {
-    padding: var(--spacing-md) 0;
-}
-
 .upload-icon-area {
     margin-bottom: var(--spacing-lg);
 }
@@ -623,18 +618,22 @@
     flex-wrap: wrap;
 }
 
-.btn-upload-icon {
+.btn-upload-icon,
+.btn-select-multiple {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     padding: 0.6rem 1.2rem;
-    background: var(--primary-color);
-    color: white;
-    border: none;
     border-radius: var(--border-radius-sm);
     cursor: pointer;
     font-size: 0.9rem;
     transition: all var(--transition-fast);
+}
+
+.btn-upload-icon {
+    background: var(--primary-color);
+    color: white;
+    border: none;
 }
 
 .btn-upload-icon:hover {
@@ -643,17 +642,9 @@
 }
 
 .btn-select-multiple {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0.6rem 1.2rem;
     background: var(--bg-tertiary);
     color: var(--text-primary);
     border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-sm);
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all var(--transition-fast);
 }
 
 .btn-select-multiple:hover {
@@ -665,6 +656,8 @@
     font-size: 0.8rem;
     color: var(--text-muted);
     margin: 0;
+    padding-top: 4px;
+    clear: both;
 }
 
 .custom-icons-grid {
@@ -964,7 +957,7 @@
         text-align: center;
         justify-content: center;
     }
-    
+
     .btn-export-action,
     .btn-import-action {
         width: 100%;
