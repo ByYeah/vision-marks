@@ -432,9 +432,7 @@ const ModalManager = (() => {
                 <!-- Iconos carpetas -->
                 <button class="settings-menu-item" data-section="customicons">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" fill="none"/>
-                        <circle cx="12" cy="12" r="3" stroke="currentColor" fill="none"/>
-                        <path d="M7 7 L9 9 M17 7 L15 9 M7 17 L9 15 M17 17 L15 15" stroke="currentColor" stroke-width="1.5"/>
+                        <path fill="none" stroke="currentColor" stroke-width="1.5" d="M17.75 3A3.25 3.25 0 0 1 21 6.25v6.879a2.25 2.25 0 0 1-.659 1.59l-5.621 5.622a2.25 2.25 0 0 1-1.591.659H6.25A3.25 3.25 0 0 1 3 17.75V6.25A3.25 3.25 0 0 1 6.25 3zm0 1.5H6.25A1.75 1.75 0 0 0 4.5 6.25v11.5c0 .966.784 1.75 1.75 1.75H13v-3.064a7 7 0 0 1-.673.066L12 16.51a6.33 6.33 0 0 1-3.678-1.14.75.75 0 1 1 .854-1.234c.844.584 1.78.874 2.824.874q.693 0 1.324-.171a3.25 3.25 0 0 1 2.713-1.832l.213-.007H19.5V6.25a1.75 1.75 0 0 0-1.75-1.75m.689 10h-2.188c-.918 0-1.671.707-1.744 1.607l-.006.143-.001 2.189zM9 7.751a1.25 1.25 0 1 1 0 2.499A1.25 1.25 0 0 1 9 7.75m6 0a1.25 1.25 0 1 1 0 2.499 1.25 1.25 0 0 1 0-2.499"/>
                     </svg>
                     Iconos personalizados
                 </button>
@@ -1122,8 +1120,7 @@ const ModalManager = (() => {
                     container.innerHTML = `
                 <div class="empty-icons">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/>
-                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M17.75 3A3.25 3.25 0 0 1 21 6.25v6.879a2.25 2.25 0 0 1-.659 1.59l-5.621 5.622a2.25 2.25 0 0 1-1.591.659H6.25A3.25 3.25 0 0 1 3 17.75V6.25A3.25 3.25 0 0 1 6.25 3zm0 1.5H6.25A1.75 1.75 0 0 0 4.5 6.25v11.5c0 .966.784 1.75 1.75 1.75H13v-3.064a7 7 0 0 1-.673.066L12 16.51a6.33 6.33 0 0 1-3.678-1.14.75.75 0 1 1 .854-1.234c.844.584 1.78.874 2.824.874q.693 0 1.324-.171a3.25 3.25 0 0 1 2.713-1.832l.213-.007H19.5V6.25a1.75 1.75 0 0 0-1.75-1.75m.689 10h-2.188c-.918 0-1.671.707-1.744 1.607l-.006.143-.001 2.189zM9 7.751a1.25 1.25 0 1 1 0 2.499A1.25 1.25 0 0 1 9 7.75m6 0a1.25 1.25 0 1 1 0 2.499 1.25 1.25 0 0 1 0-2.499"/>
                     </svg>
                     <p>No hay iconos personalizados</p>
                     <small>Sube archivos SVG para usarlos en tus carpetas</small>
