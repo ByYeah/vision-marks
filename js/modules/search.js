@@ -22,8 +22,6 @@ const SearchManager = (function () {
         createDropdown();
         bindEvents();
         addKeyboardShortcut();
-
-        console.log('🔍 SearchManager initialized');
     }
 
     // Crear el dropdown de resultados
