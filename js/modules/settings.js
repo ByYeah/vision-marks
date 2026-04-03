@@ -142,6 +142,7 @@ const SettingsManager = (() => {
         applyTheme();
         applyFontFamily();
         applyGlobalColors();
+        applyCustomThemeColors();
         Object.keys(settings.containers).forEach(container => {
             applyContainerDisplay(container, settings.containers[container].display);
             applyContainerColors(container, settings.containers[container].colors);
@@ -162,6 +163,11 @@ const SettingsManager = (() => {
     function applyLayout() {
         const grid = document.querySelector('.dashboard-grid');
         if (grid) {
+            // Validar que el layout existe en el CSS, si no, usar 'double'
+            const validLayouts = ['double', 'extended', 'widgets', 'free'];
+            if (!validLayouts.includes(settings.layout)) {
+                settings.layout = 'double';
+            }
             grid.classList.remove('layout-double', 'layout-extended', 'layout-widgets', 'layout-free');
             grid.classList.add(`layout-${settings.layout}`);
 
@@ -182,6 +188,15 @@ const SettingsManager = (() => {
     }
 
     function applyTheme() {
+        // Limpiar variables de temas previos del root para evitar conflictos
+        const rootStyles = document.documentElement.style;
+        rootStyles.removeProperty('--bg-primary');
+        rootStyles.removeProperty('--bg-secondary');
+        rootStyles.removeProperty('--bg-tertiary');
+        rootStyles.removeProperty('--text-primary');
+        rootStyles.removeProperty('--text-secondary');
+        rootStyles.removeProperty('--border-color');
+
         const currentTheme = settings.theme;
 
         // Si es 'auto', determinar según hora
@@ -193,8 +208,8 @@ const SettingsManager = (() => {
 
         // Si es custom, NO aplicar variables de tema predefinido
         if (currentTheme === 'custom') {
-            // En custom, usamos 'light' como base pero sin forzar variables
-            document.body.setAttribute('data-theme', 'light');
+            document.body.setAttribute('data-theme', 'custom');
+            applyCustomThemeColors();
             return;
         }
 
@@ -591,6 +606,11 @@ const SettingsManager = (() => {
 
     function saveSettings() {
         localStorage.setItem('vmarks_settings', JSON.stringify(settings));
+
+        // Sincronizar con IndexedDB a través del StateManager para que los cambios persistan al recargar
+        if (window.StateManager && typeof StateManager.setState === 'function') {
+            StateManager.setState({ settings: settings });
+        }
     }
 
     function loadSettings() {
@@ -601,9 +621,15 @@ const SettingsManager = (() => {
                 settings = deepMerge(JSON.parse(JSON.stringify(DEFAULT_SETTINGS)), parsed);
 
                 // Validar temas permitidos
-                const validThemes = ['light', 'dark', 'auto', 'amoled'];
+                const validThemes = ['light', 'dark', 'auto', 'amoled', 'custom'];
                 if (!validThemes.includes(settings.theme)) {
                     settings.theme = DEFAULT_SETTINGS.theme;
+                }
+
+                // Validar layouts permitidos
+                const validLayouts = ['double', 'extended', 'widgets', 'free'];
+                if (!validLayouts.includes(settings.layout)) {
+                    settings.layout = 'double';
                 }
 
                 // Validar displays permitidos
@@ -645,6 +671,42 @@ const SettingsManager = (() => {
         return true;
     }
 
+    function updateSettings(newSettings) {
+        if (!newSettings) return;
+
+        // Actualizar layout
+        const validLayouts = ['double', 'extended', 'widgets', 'free'];
+        if (newSettings.layout && validLayouts.includes(newSettings.layout)) {
+            settings.layout = newSettings.layout;
+        }
+
+        // Actualizar tema
+        if (newSettings.theme) settings.theme = newSettings.theme;
+
+        // Actualizar fuente
+        if (newSettings.fontFamily) settings.fontFamily = newSettings.fontFamily;
+
+        // Actualizar colores
+        if (newSettings.colors) {
+            settings.colors = { ...settings.colors, ...newSettings.colors };
+        }
+
+        // Actualizar contenedores
+        if (newSettings.containers) {
+            Object.keys(newSettings.containers).forEach(container => {
+                if (settings.containers[container]) {
+                    settings.containers[container] = {
+                        ...settings.containers[container],
+                        ...newSettings.containers[container]
+                    };
+                }
+            });
+        }
+        // Guardar y aplicar
+        saveSettings();
+        applySettings();
+    }
+
     return {
         loadSettings,
         saveSettings,
@@ -657,6 +719,11 @@ const SettingsManager = (() => {
         updateContainerDisplay,
         updateContainerColors,
         applySettings,
-        applyGlobalColors
+        applyGlobalColors,
+        applyContainerColors,
+        applyContainerDisplay,
+        applyCustomThemeColors,
+        updateSettings
     };
 })();
+window.SettingsManager = SettingsManager;

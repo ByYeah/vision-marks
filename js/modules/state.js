@@ -12,7 +12,7 @@ const StateManager = (() => {
         },
         settings: {
             theme: 'light',
-            layout: 'grid'
+            layout: 'double'
         }
     };
 
@@ -48,7 +48,7 @@ const StateManager = (() => {
         });
     }
 
-    // Nueva función para guardar en IndexedDB
+    // Función para guardar en IndexedDB
     async function saveToIndexedDB() {
         if (isSaving || !window.DatabaseManager) return;
         isSaving = true;
@@ -76,18 +76,19 @@ const StateManager = (() => {
             }
 
             // Guardar configuraciones
-             if (window.SettingsManager) {
-            const realSettings = SettingsManager.getSettings();
-            await DatabaseManager.settings.set('theme', realSettings.theme).catch(() => {});
-            await DatabaseManager.settings.set('layout', realSettings.layout).catch(() => {});
-            await DatabaseManager.settings.set('fontFamily', realSettings.fontFamily).catch(() => {});
-            await DatabaseManager.settings.set('colors', realSettings.colors).catch(() => {});
-        }
-        
-        localStorage.setItem('bookmarkManagerContainers', JSON.stringify(state.containers));
+            if (window.SettingsManager) {
+                const realSettings = SettingsManager.getSettings();
+                await DatabaseManager.settings.set('theme', realSettings.theme).catch(() => { });
+                await DatabaseManager.settings.set('layout', realSettings.layout).catch(() => { });
+                await DatabaseManager.settings.set('fontFamily', realSettings.fontFamily).catch(() => { });
+                await DatabaseManager.settings.set('colors', realSettings.colors).catch(() => { });
+                await DatabaseManager.settings.set('containers', realSettings.containers).catch(() => { });
+            }
+
+            localStorage.setItem('bookmarkManagerContainers', JSON.stringify(state.containers));
 
         } catch (error) {
-             console.debug('IndexedDB save failed (using localStorage only):', error);
+            console.debug('IndexedDB save failed (using localStorage only):', error);
             // Fallback a localStorage
             StorageManager.saveState(state);
         } finally {
@@ -95,60 +96,62 @@ const StateManager = (() => {
         }
     }
 
-    // Nueva función para cargar desde IndexedDB
+    // Función para cargar desde IndexedDB con fallback a localStorage
     async function loadFromIndexedDB() {
-    if (!window.DatabaseManager) return false;
-    
-    try {
-        await DatabaseManager.init();
-        
-        // Intentar cargar de IndexedDB
-        const folders = await DatabaseManager.folders.getAll().catch(() => []);
-        const bookmarks = await DatabaseManager.bookmarks.getAll().catch(() => []);
-        const settings = await DatabaseManager.settings.getAll().catch(() => ({}));
-        
-        if (folders.length > 0) state.folders = folders;
-        if (bookmarks.length > 0) state.bookmarks = bookmarks;
-        
-        // Si hay settings en IndexedDB, actualizar SettingsManager
-        if (Object.keys(settings).length > 0 && window.SettingsManager) {
-            const currentSettings = SettingsManager.getSettings();
-            
-            // Solo actualizar si encontramos valores nuevos
-            if (settings.theme) currentSettings.theme = settings.theme;
-            if (settings.layout) currentSettings.layout = settings.layout;
-            if (settings.fontFamily) currentSettings.fontFamily = settings.fontFamily;
-            if (settings.colors) currentSettings.colors = settings.colors;
-            
-            SettingsManager.updateSettings(currentSettings);
-        }
-        
-        const containers = localStorage.getItem('bookmarkManagerContainers');
-        if (containers) {
-            state.containers = JSON.parse(containers);
-        }
-        
-        return true;
-    } catch (error) {
-        console.warn('Error loading from IndexedDB, using localStorage:', error);
-        
-        // Fallback completo a localStorage
-        const saved = StorageManager.loadState();
-        if (saved) {
-            state = { ...state, ...saved };
-        }
-        
-        // Cargar settings de SettingsManager desde localStorage
-        if (window.SettingsManager) {
-            const settingsBackup = localStorage.getItem('vmarks_settings_backup');
-            if (settingsBackup) {
-                SettingsManager.updateSettings(JSON.parse(settingsBackup));
+        if (!window.DatabaseManager) return false;
+
+        try {
+            await DatabaseManager.init();
+
+            // Intentar cargar de IndexedDB
+            const folders = await DatabaseManager.folders.getAll().catch(() => []);
+            const bookmarks = await DatabaseManager.bookmarks.getAll().catch(() => []);
+            const settings = await DatabaseManager.settings.getAll().catch(() => ({}));
+
+            if (folders.length > 0) state.folders = folders;
+            if (bookmarks.length > 0) state.bookmarks = bookmarks;
+
+            // Si hay settings en IndexedDB, actualizar SettingsManager
+            if (Object.keys(settings).length > 0 && window.SettingsManager) {
+                // Clonar para evitar problemas de referencia
+                const currentSettings = JSON.parse(JSON.stringify(SettingsManager.getSettings()));
+
+                // Solo actualizar si encontramos valores nuevos
+                if (settings.theme) currentSettings.theme = settings.theme;
+                if (settings.layout && settings.layout !== 'grid') currentSettings.layout = settings.layout;
+                if (settings.fontFamily) currentSettings.fontFamily = settings.fontFamily;
+                if (settings.colors) currentSettings.colors = settings.colors;
+                if (settings.containers) currentSettings.containers = settings.containers;
+
+                SettingsManager.updateSettings(currentSettings);
             }
+
+            const containers = localStorage.getItem('bookmarkManagerContainers');
+            if (containers) {
+                state.containers = JSON.parse(containers);
+            }
+
+            return true;
+        } catch (error) {
+            console.warn('Error loading from IndexedDB, using localStorage:', error);
+
+            // Fallback completo a localStorage
+            const saved = StorageManager.loadState();
+            if (saved) {
+                state = { ...state, ...saved };
+            }
+
+            // Cargar settings de SettingsManager desde localStorage
+            if (window.SettingsManager) {
+                const settingsBackup = localStorage.getItem('vmarks_settings_backup');
+                if (settingsBackup) {
+                    SettingsManager.updateSettings(JSON.parse(settingsBackup));
+                }
+            }
+
+            return false;
         }
-        
-        return false;
     }
-}
 
     // Versión asíncrona de loadState
     async function loadState() {
@@ -441,7 +444,8 @@ const StateManager = (() => {
         getFavoritesCount,
         canAddFavorite,
         getMaxFavorites,
-        toggleFolderFavorite
+        toggleFolderFavorite,
+        saveToIndexedDB
     };
 })();
 

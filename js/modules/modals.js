@@ -1338,12 +1338,17 @@ const ModalManager = (() => {
 
             // Guardar cambios
             modal.querySelector('[data-action="save"]')?.addEventListener('click', () => {
-                // Guardar layout y tema...
                 const selLayout = modal.querySelector('.layout-option.active');
                 if (selLayout) SettingsManager.updateLayout(selLayout.dataset.layout);
 
                 const selTheme = modal.querySelector('.theme-option.active');
-                if (selTheme) SettingsManager.updateTheme(selTheme.dataset.theme);
+                if (selTheme) {
+                    const newTheme = selTheme.dataset.theme;
+                    SettingsManager.updateTheme(newTheme);
+
+                    // Debug: verificar que se guardó
+                    console.log('Tema guardado:', newTheme);
+                }
 
                 const selFont = modal.querySelector('.font-option.active');
                 if (selFont) {
@@ -1362,7 +1367,6 @@ const ModalManager = (() => {
                 modal.querySelectorAll('.color-input').forEach(input => {
                     const c = input.dataset.container;
                     const p = input.dataset.property;
-                    // Solo guardar si no está disabled
                     if (!input.disabled) {
                         SettingsManager.updateContainerColors(c, { [p]: input.value });
                     }
@@ -1371,10 +1375,11 @@ const ModalManager = (() => {
                 if (SettingsManager.getSettings().theme === 'custom') {
                     setTimeout(() => {
                         Object.keys(SettingsManager.getSettings().containers).forEach(container => {
-                            SettingsManager.applyContainerColors(container,
-                                SettingsManager.getSettings().containers[container].colors);
+                            const colors = SettingsManager.getSettings().containers[container].colors;
+                            if (SettingsManager.applyContainerColors) {
+                                SettingsManager.applyContainerColors(container, colors);
+                            }
                         });
-                        // Re-aplicar colores globales de tema custom
                         if (typeof SettingsManager.applyCustomThemeColors === 'function') {
                             SettingsManager.applyCustomThemeColors();
                         }
@@ -1382,6 +1387,10 @@ const ModalManager = (() => {
                 }
 
                 SettingsManager.saveSettings();
+
+                const saved = localStorage.getItem('vmarks_settings');
+                console.log('Settings guardados en localStorage:', saved);
+
                 closeModal(modal);
                 showNotification('Configuración guardada ✨');
             });

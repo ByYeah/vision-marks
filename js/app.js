@@ -10,77 +10,101 @@ const AppState = {
     folders: [],
     settings: {
         theme: 'light',
-        layout: 'grid'
+        layout: 'double'
     }
 };
 
 // Inicialización de la aplicación
 document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        // 1. Inicializar DatabaseManager
+        if (window.DatabaseManager) {
+            await DatabaseManager.init();
+        }
 
-    if (window.DatabaseManager) {
-        DatabaseManager.init().catch(() => { });  // <-- Inicializar DB
-    }
-
-    // 2. Inicializar IconManager
+        // 2. Inicializar IconManager
         if (window.IconManager) {
             await IconManager.init();
             console.log('🎨 IconManager inicializado');
         }
 
-    // Cargar estado
-    await StateManager.loadState();
-
-    const state = StateManager.getState();
-    AppState.containers = state.containers;
-    AppState.bookmarks = state.bookmarks;
-    AppState.folders = state.folders;
-    AppState.settings = state.settings;
-
-    // Debug: mostrar settings actuales
-    setTimeout(() => {
+        // 3. Cargar SettingsManager (esto aplica tema y layout)
         if (window.SettingsManager) {
-            const s = SettingsManager.getSettings();
-            console.log('⚙️ Settings actuales:', {
-                layout: s.layout,
-                favDisplay: s.containers.favbookmarks.display,
-                theme: s.theme
-            });
+            SettingsManager.loadSettings();
+            console.log('⚙️ SettingsManager cargado');
         }
-    }, 200);
 
-    // Renderizar inicial
-    if (window.RenderManager) {
-        RenderManager.renderAll();
-    }
-
-    if (window.ReorderManager && typeof ReorderManager.init === 'function') {
-        ReorderManager.init(StorageManager, StateManager, RenderManager);
-    }
-
-    // Inicializar eventos
-    if (window.EventsManager) {
-        EventsManager.init();
-    }
-
-    setTimeout(() => {
-        if (window.SearchManager) {
-            SearchManager.init();
-            console.log('🔍 SearchManager initialized');
+        // 4. Cargar StateManager (carga marcadores y carpetas desde IndexedDB)
+        if (window.StateManager) {
+            await StateManager.loadState();
         }
-    }, 500);
 
-    // Suscribirse a cambios de estado
-    StateManager.subscribe((newState) => {
-        // Mantener AppState sincronizado
-        AppState.containers = newState.containers;
-        AppState.bookmarks = newState.bookmarks;
-        AppState.folders = newState.folders;
-        AppState.settings = newState.settings;
-    });
+        // 5. Sincronizar AppState con StateManager
+        const state = StateManager.getState();
+        AppState.containers = state.containers;
+        AppState.bookmarks = state.bookmarks;
+        AppState.folders = state.folders;
+        AppState.settings = state.settings;
 
-    // Cargar iconos SVG
-    if (window.SvgLoader) {
-        SvgLoader.loadAll();
+        // Debug: mostrar settings actuales
+        setTimeout(() => {
+            if (window.SettingsManager) {
+                const s = SettingsManager.getSettings();
+                console.log('⚙️ Settings actuales:', {
+                    layout: s.layout,
+                    favDisplay: s.containers?.favbookmarks?.display,
+                    theme: s.theme
+                });
+            }
+        }, 200);
+
+        // 6. Renderizar inicial
+        if (window.RenderManager) {
+            RenderManager.renderAll();
+        }
+
+        // 7. Inicializar ReorderManager
+        if (window.ReorderManager && typeof ReorderManager.init === 'function') {
+            ReorderManager.init(StorageManager, StateManager, RenderManager);
+        }
+
+        // 8. Inicializar eventos
+        if (window.EventsManager) {
+            EventsManager.init();
+        }
+
+        // 9. Inicializar SearchManager (con delay)
+        setTimeout(() => {
+            if (window.SearchManager) {
+                SearchManager.init();
+                console.log('🔍 SearchManager initialized');
+            }
+        }, 500);
+
+        // 10. Suscribirse a cambios de estado (para mantener AppState sincronizado)
+        StateManager.subscribe((newState) => {
+            AppState.containers = newState.containers;
+            AppState.bookmarks = newState.bookmarks;
+            AppState.folders = newState.folders;
+            AppState.settings = newState.settings;
+        });
+
+        // 11. Cargar iconos SVG
+        if (window.SvgLoader) {
+            SvgLoader.loadAll();
+        }
+
+        console.log('✅ Vision Marks iniciado correctamente');
+
+    } catch (error) {
+        console.error('❌ Error en inicialización:', error);
+        // Fallback a inicialización básica
+        if (window.RenderManager) {
+            RenderManager.renderAll();
+        }
+        if (window.EventsManager) {
+            EventsManager.init();
+        }
     }
 });
 
@@ -91,7 +115,7 @@ function initEventListeners() {
         btn.addEventListener('click', handleToggleContainer);
     });
 
-    // Botones de añadir (preparación para F2)
+    // Botones de añadir
     document.querySelectorAll('[data-action="addBookmark"], [data-action="addFolder"]').forEach(btn => {
         btn.addEventListener('click', handleAddAction);
     });
@@ -107,11 +131,16 @@ function initEventListeners() {
         });
     }
 
-    // Settings y Profile (preparación)
+    // Settings y Profile
     document.getElementById('settingsBtn')?.addEventListener('click', () => {
+        if (window.ModalManager) {
+            const modal = ModalManager.createSettingsModal();
+            ModalManager.openModal(modal);
+        }
     });
 
     document.getElementById('profileBtn')?.addEventListener('click', () => {
+        console.log('Profile clicked');
     });
 }
 
@@ -135,7 +164,9 @@ function handleToggleContainer(e) {
         svg.innerHTML = '<polyline points="6 9 12 15 18 9"></polyline>';
     }
 
-    StateManager.setState({ containers: AppState.containers });
+    if (window.StateManager) {
+        StateManager.setState({ containers: AppState.containers });
+    }
 }
 
 // Manejar envío de chat
@@ -148,13 +179,9 @@ function handleChatSend() {
     const message = chatInput.value.trim();
     if (!message) return;
 
-    // Añadir mensaje del usuario
     addChatMessage(message, 'user');
-
-    // Limpiar input
     chatInput.value = '';
 
-    // Respuesta simulada (en F3 se conectará con la API)
     setTimeout(() => {
         addChatMessage('Esta es una respuesta simulada. En la Fase 3 conectaré con la API para analizar tus marcadores.', 'bot');
     }, 500);
@@ -173,38 +200,24 @@ function addChatMessage(text, sender) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-// Función handleAddAction necesaria para los botones
+// Función handleAddAction
 function handleAddAction(e) {
     const action = e.target.closest('[data-action]')?.dataset.action;
     if (action === 'addBookmark') {
-        // Aquí irá la lógica para añadir marcador
         console.log('Añadir marcador');
     } else if (action === 'addFolder') {
-        // Aquí irá la lógica para añadir carpeta
         console.log('Añadir carpeta');
     }
 }
 
-// Manejar búsqueda
-function handleSearch(e) {
-    const query = e.target.value.trim().toLowerCase();
-    // En F2 se implementará la lógica de búsqueda
-}
-
-// Renderizar estado inicial (si es necesario)
-function renderInitialState() {
-    // Aquí se renderizarán los datos iniciales
-}
-
-
-// Guardar estado en localStorage
+// Guardar estado en localStorage (backup)
 function saveState() {
     try {
         localStorage.setItem('bookmarkManagerContainers', JSON.stringify(AppState.containers));
     } catch (error) { }
 }
 
-// Cargar estado desde localStorage
+// Cargar estado desde localStorage (backup)
 function loadState() {
     try {
         const saved = localStorage.getItem('bookmarkManagerContainers');
@@ -215,23 +228,23 @@ function loadState() {
     } catch (error) { }
 }
 
-// Cargar estado al iniciar
+// Cargar estado al iniciar (backup)
+loadState();
+
 window.saveState = saveState;
 window.loadState = loadState;
 
-// Cargar iconos SVG después del DOM ready
+// Cargar iconos SVG después del DOM ready (asegurar que se ejecute solo una vez)
 document.addEventListener('DOMContentLoaded', () => {
-
-    // Cargar iconos SVG externos
     if (typeof SvgLoader !== 'undefined') {
         SvgLoader.loadAll();
     }
 });
 
-window.checkStorage = async function() {
+// Función de verificación
+window.checkStorage = async function () {
     console.log('%c📦 VERIFICACIÓN DE ALMACENAMIENTO', 'font-size:16px; font-weight:bold;');
-    
-    // 1. IndexedDB
+
     console.group('📀 IndexedDB:');
     if (DatabaseManager) {
         const folders = await DatabaseManager.folders.getAll();
@@ -244,20 +257,18 @@ window.checkStorage = async function() {
         console.log('No disponible');
     }
     console.groupEnd();
-    
-    // 2. SettingsManager real
+
     console.group('⚙️ SettingsManager real:');
     if (SettingsManager) {
         console.log(SettingsManager.getSettings());
     }
     console.groupEnd();
-    
-    // 3. localStorage backups
+
     console.group('💾 localStorage:');
     console.log('vmarks_settings:', localStorage.getItem('vmarks_settings'));
     console.log('vmarks_settings_backup:', localStorage.getItem('vmarks_settings_backup'));
     console.log('bookmarkManagerContainers:', localStorage.getItem('bookmarkManagerContainers'));
     console.groupEnd();
-    
+
     console.log('%c✅ Verificación completa', 'color:green');
 };
