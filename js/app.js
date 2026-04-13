@@ -272,3 +272,27 @@ window.checkStorage = async function () {
 
     console.log('%c✅ Verificación completa', 'color:green');
 };
+
+// Registro del Service Worker
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+                console.log('Service Worker registrado con éxito:', registration.scope);
+
+                // Verificar si hay actualizaciones
+                registration.addEventListener('updatefound', () => {
+                    const newWorker = registration.installing;
+                    console.log('Nuevo Service Worker instalando');
+                    newWorker.addEventListener('statechange', () => {
+                        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                            console.log('Nueva versión disponible, recarga para actualizar');
+                        }
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Error al registrar el Service Worker:', error);
+            });
+    });
+}
