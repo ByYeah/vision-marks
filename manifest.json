@@ -1,18 +1,49 @@
 {
-    "name": "VisionMarks",
-    "short_name": "Vmarks",
-    "description": "Gestor ligero de marcadores web",
+    "name": "Vision Marks",
+    "short_name": "VisionMarks",
+    "description": "Lightweight PWA for manager bookmarks with a stylish personalizations and better order",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#f7fafc",
     "theme_color": "#667eea",
+    "background_color": "#f7fafc",
     "orientation": "portrait-primary",
     "icons": [
+        {
+            "src": "assets/icons/icon-72.png",
+            "sizes": "72x72",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "assets/icons/icon-96.png",
+            "sizes": "96x96",
+            "type": "image/png"
+        },
+        {
+            "src": "assets/icons/icon-128.png",
+            "sizes": "128x128",
+            "type": "image/png"
+        },
+        {
+            "src": "assets/icons/icon-144.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        },
+        {
+            "src": "assets/icons/icon-152.png",
+            "sizes": "152x152",
+            "type": "image/png"
+        },
         {
             "src": "assets/icons/icon-192.png",
             "sizes": "192x192",
             "type": "image/png",
             "purpose": "any maskable"
+        },
+        {
+            "src": "assets/icons/icon-384.png",
+            "sizes": "384x384",
+            "type": "image/png"
         },
         {
             "src": "assets/icons/icon-512.png",
