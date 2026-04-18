@@ -55,11 +55,86 @@ const BookmarksManager = (() => {
         return true;
     }
 
+    function testImageUrl(url) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            const timeout = setTimeout(() => {
+                img.src = '';
+                resolve(false);
+            }, 3000);
+
+            img.onload = () => {
+                clearTimeout(timeout);
+
+                // Detectar si es el placeholder de Google
+                const isGooglePlaceholder = url.includes('google.com') && (
+                    img.width === 16 ||
+                    img.width === 64 ||
+                    img.naturalWidth === 16 ||
+                    img.naturalHeight === 16
+                );
+
+                if (isGooglePlaceholder) {
+                    console.log(`Google placeholder detectado para: ${url}`);
+                    resolve(false);
+                } else {
+                    resolve(true);
+                }
+            };
+
+            img.onerror = () => {
+                clearTimeout(timeout);
+                resolve(false);
+            };
+            img.src = url;
+        });
+    }
+
     async function fetchBookmarkIcon(url) {
         try {
             const urlObj = new URL(url);
-            return `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=64`;
+            const domain = urlObj.hostname;
+
+            // Limpieza y extracción del dominio base 
+            const cleanDomain = domain.replace(/^www\./, '');
+            const baseDomain = cleanDomain;
+
+            // Lista de URLs a probar en orden (fallback chain)
+            const iconUrls = [
+                // Capa 1: Favicon directo en assets
+                `https://${baseDomain}/assets/favicon.ico`,
+                `https://${baseDomain}/assets/favicon.png`,
+
+                // Capa 2: Favicon directo en la raíz
+                `https://${baseDomain}/favicon.ico`,
+                `https://${baseDomain}/favicon.png`,
+
+                // Capa 3: Google Favicon API
+                `https://www.google.com/s2/favicons?domain=${baseDomain}&sz=64`,
+
+                // Capa 4: DuckDuckGo
+                `https://icons.duckduckgo.com/ip3/${baseDomain}.ico`,
+
+                // Capa 5: Favicone
+                `https://favicone.com/${baseDomain}?s=64`
+            ];
+
+            // Probar cada nivel de fallback hasta validar
+            for (const iconUrl of iconUrls) {
+                console.log(`Probando: ${iconUrl}`);
+                const isValid = await testImageUrl(iconUrl);
+                if (isValid) {
+                    console.log(`Favicon encontrado para ${baseDomain}: ${iconUrl}`);
+                    return iconUrl;
+                }
+            }
+
+            // Si todo falla, devolver icono por defecto
+            console.warn(`No se encontró favicon para ${baseDomain}, usando default`);
+            return 'assets/icons/default-bookmark.png';
+
         } catch (error) {
+            console.error('Error al obtener favicon:', error);
             return 'assets/icons/default-bookmark.png';
         }
     }
