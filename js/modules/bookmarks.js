@@ -1,58 +1,89 @@
 const BookmarksManager = (() => {
-    async function createBookmark(data) {
-        // Validar límite de favoritos
-        if (data.isFavorite && !StateManager.canAddFavorite()) {
-            alert(`Límite de ${StateManager.getMaxFavorites()} favoritos alcanzado. Elimina alguno antes de añadir otro.`);
-            return false;
-        }
+    // Caché de favicons en memoria
+    const faviconCache = new Map();
+    const PERSISTENT_CACHE_PREFIX = 'favicon_cache_';
+    const MAX_CACHE_SIZE = 50;
 
-        // Si no hay título, obtenerlo de la URL
-        if (!data.title || data.title.trim() === '') {
-            try {
-                const urlObj = new URL(data.url);
-                data.title = urlObj.hostname.replace('www.', '');
-            } catch {
-                data.title = 'Marcador';
+    // Cargar caché persistente desde localStorage al iniciar
+    function loadPersistentCache() {
+        try {
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith(PERSISTENT_CACHE_PREFIX)) {
+                    const domain = key.replace(PERSISTENT_CACHE_PREFIX, '');
+                    const value = localStorage.getItem(key);
+                    if (value) {
+                        faviconCache.set(domain, value);
+                    }
+                }
             }
+            console.log(`Caché de favicons cargada: ${faviconCache.size} entradas`);
+        } catch (error) {
+            console.error('Error cargando caché persistente:', error);
         }
-
-        // Obtener icono si no se proporcionó
-        if (!data.icon) {
-            data.icon = await fetchBookmarkIcon(data.url);
-        }
-
-        StateManager.addBookmark(data);
-        RenderManager.renderAll();
-        return true;
     }
 
-    async function updateBookmark(id, data) {
-        const bookmark = StateManager.getBookmarkById(id);
+    // Guardar en caché persistente
+    function saveToPersistentCache(domain, faviconUrl) {
+        try {
+            localStorage.setItem(`${PERSISTENT_CACHE_PREFIX}${domain}`, faviconUrl);
 
-        // Si se está marcando como favorito y no lo era antes, verificar límite
-        if (data.isFavorite && !bookmark.isFavorite && !StateManager.canAddFavorite()) {
-            alert(`Límite de ${StateManager.getMaxFavorites()} favoritos alcanzado.`);
-            return false;
+            // Limitar tamaño de caché persistente
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith(PERSISTENT_CACHE_PREFIX)) {
+                    keysToRemove.push(key);
+                }
+            }
+
+            if (keysToRemove.length > MAX_CACHE_SIZE) {
+                const oldestKeys = keysToRemove.slice(0, keysToRemove.length - MAX_CACHE_SIZE);
+                oldestKeys.forEach(key => localStorage.removeItem(key));
+            }
+        } catch (error) {
+            console.error('Error guardando en caché persistente:', error);
         }
+    }
 
-        // Si no hay título, obtenerlo de la URL (solo si la URL cambió o el título estaba vacío)
-        if ((!data.title || data.title.trim() === '') && data.url) {
-            try {
-                const urlObj = new URL(data.url);
-                data.title = urlObj.hostname.replace('www.', '');
-            } catch {
-                data.title = 'Marcador';
+    // Obtener favicon con caché
+    async function getFaviconWithCache(url) {
+        try {
+            const urlObj = new URL(url);
+            const domain = urlObj.hostname.replace(/^www\./, '');
+
+            // Verificar caché en memoria
+            if (faviconCache.has(domain)) {
+                const cached = faviconCache.get(domain);
+                console.log(`Favicon en caché para ${domain}`);
+                return cached;
+            }
+
+            // Obtener favicon
+            const favicon = await fetchBookmarkIcon(url);
+
+            // Guardar en caché
+            faviconCache.set(domain, favicon);
+            saveToPersistentCache(domain, favicon);
+
+            return favicon;
+
+        } catch (error) {
+            console.error('Error en getFaviconWithCache:', error);
+            return 'assets/icons/default-bookmark.png';
+        }
+    }
+
+    // Limpiar caché de favicons
+    function clearFaviconCache() {
+        faviconCache.clear();
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith(PERSISTENT_CACHE_PREFIX)) {
+                localStorage.removeItem(key);
             }
         }
-
-        // Obtener icono si no se proporcionó y la URL cambió
-        if (!data.icon && data.url !== bookmark.url) {
-            data.icon = await fetchBookmarkIcon(data.url);
-        }
-
-        StateManager.updateBookmark(id, data);
-        RenderManager.renderAll();
-        return true;
+        console.log('Caché de favicons limpiado');
     }
 
     function testImageUrl(url) {
@@ -128,7 +159,6 @@ const BookmarksManager = (() => {
                     return iconUrl;
                 }
             }
-
             // Si todo falla, devolver icono por defecto
             console.warn(`No se encontró favicon para ${baseDomain}, usando default`);
             return 'assets/icons/default-bookmark.png';
@@ -137,6 +167,54 @@ const BookmarksManager = (() => {
             console.error('Error al obtener favicon:', error);
             return 'assets/icons/default-bookmark.png';
         }
+    }
+
+    async function createBookmark(data) {
+        if (data.isFavorite && !StateManager.canAddFavorite()) {
+            alert(`Límite de ${StateManager.getMaxFavorites()} favoritos alcanzado. Elimina alguno antes de añadir otro.`);
+            return false;
+        }
+
+        if (!data.title || data.title.trim() === '') {
+            try {
+                const urlObj = new URL(data.url);
+                data.title = urlObj.hostname.replace('www.', '', '.com');
+            } catch {
+                data.title = 'Marcador';
+            }
+        }
+
+        if (!data.icon) {
+            data.icon = await getFaviconWithCache(data.url);
+        }
+        StateManager.addBookmark(data);
+        RenderManager.renderAll();
+        return true;
+    }
+
+    async function updateBookmark(id, data) {
+        const bookmark = StateManager.getBookmarkById(id);
+
+        if (data.isFavorite && !bookmark.isFavorite && !StateManager.canAddFavorite()) {
+            alert(`Límite de ${StateManager.getMaxFavorites()} favoritos alcanzado.`);
+            return false;
+        }
+
+        if ((!data.title || data.title.trim() === '') && data.url) {
+            try {
+                const urlObj = new URL(data.url);
+                data.title = urlObj.hostname.replace('www.', '');
+            } catch {
+                data.title = 'Marcador';
+            }
+        }
+
+        if (!data.icon && data.url !== bookmark.url) {
+            data.icon = await getFaviconWithCache(data.url);
+        }
+        StateManager.updateBookmark(id, data);
+        RenderManager.renderAll();
+        return true;
     }
 
     function openBookmarkModal(folderId = null, bookmarkId = null, forceFavorite = false) {
@@ -169,6 +247,8 @@ const BookmarksManager = (() => {
         StateManager.toggleFavorite(bookmarkId);
         RenderManager.renderAll();
     }
+    // Inicializar caché persistente
+    loadPersistentCache();
 
     return {
         createBookmark,
@@ -176,7 +256,8 @@ const BookmarksManager = (() => {
         openBookmarkModal,
         deleteBookmark,
         toggleFavorite,
-        fetchBookmarkIcon
+        fetchBookmarkIcon,
+        clearFaviconCache
     };
 })();
 window.BookmarksManager = BookmarksManager;
