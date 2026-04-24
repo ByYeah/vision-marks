@@ -443,6 +443,16 @@ const ModalManager = (() => {
                     </svg>
                     Importar/Exportar
                 </button>
+                <!-- Chat-IA -->
+                <button class="settings-menu-item" data-section="chatia">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <g>
+                            <path d="M18.25 7a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0" fill="currentColor"/>
+                            <path d="M15.5 2.05A6.554 6.554 0 0 0 8.95 8.6c0 .387.05.76.11 1.104a.28.28 0 0 1-.069.244l-6.236 6.236a2.75 2.75 0 0 0-.805 1.944V20.3c0 .966.783 1.75 1.75 1.75h2.5a1.75 1.75 0 0 0 1.75-1.75v-1.25H9.7c.69 0 1.25-.56 1.25-1.25v-1.75h1.75a1.25 1.25 0 0 0 1.25-1.204c.496.128 1.02.204 1.55.204a6.554 6.554 0 0 0 6.55-6.55c0-3.631-2.953-6.45-6.55-6.45M10.45 8.6a5.054 5.054 0 0 1 5.05-5.05c2.803 0 5.05 2.181 5.05 4.95a5.054 5.054 0 0 1-5.05 5.05c-.68 0-1.379-.171-2.005-.44a.75.75 0 0 0-1.045.69v.75H10.7c-.69 0-1.25.56-1.25 1.25v1.75H7.7c-.69 0-1.25.56-1.25 1.25v1.5a.25.25 0 0 1-.25.25H3.7a.25.25 0 0 1-.25-.25v-2.172c0-.331.132-.649.366-.884l6.236-6.235a1.77 1.77 0 0 0 .486-1.564 5 5 0 0 1-.088-.845" fill="currentColor"/>
+                        </g>
+                    </svg>
+                    Chat-IA
+                </button>
                 <div class="settings-sidebar-divider"></div>
                     <!-- Acerca de -->
                     <button class="settings-menu-item" data-section="about">
@@ -698,6 +708,56 @@ const ModalManager = (() => {
                             <line x1="12" y1="8" x2="12.01" y2="8"/>
                         </svg>
                         <span>Formato soportado: JSON de Vision Marks, HTML de marcadores (Chrome/Firefox/Edge)</span>
+                    </div>
+                </div>
+
+                <!-- Chat-IA -->
+                <div class="settings-section" id="section-chatia">
+                    <h3>Configuración del Asistente IA</h3>
+                    <p>Configura tu clave de API para usar el asistente inteligente con tus marcadores.</p>
+                    
+                    <div class="chatia-config">
+                        <div class="api-key-field">
+                            <label for="apiKeyInput">Clave de API</label>
+                            <div class="api-key-input-group">
+                                <input type="password" id="apiKeyInput" placeholder="Ingresa tu clave de API (ej: sk-...)" 
+                                       autocomplete="off" spellcheck="false">
+                                <button type="button" id="toggleApiKeyVisibility" class="btn-icon" title="Mostrar/Ocultar clave">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <p class="api-key-note">
+                                💡 Tu clave se almacena de forma local y encriptada. 
+                                Solo se usa para comunicarte con el asistente IA.
+                                <br>
+                            </p>
+                        </div>
+                        
+                        <div class="api-key-actions">
+                            <button type="button" id="saveApiKeyBtn" class="btn-primary">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                    <polyline points="17 21 17 13 7 13 7 21"/>
+                                    <polyline points="7 3 7 8 15 8"/>
+                                </svg>
+                                Guardar clave
+                            </button>
+                            <button type="button" id="clearApiKeyBtn" class="btn-secondary">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                                Eliminar clave
+                            </button>
+                        </div>
+                        
+                        <div class="api-key-status" id="apiKeyStatus" style="display: none;">
+                            <div class="status-icon"></div>
+                            <div class="status-message"></div>
+                        </div>
                     </div>
                 </div>
 
