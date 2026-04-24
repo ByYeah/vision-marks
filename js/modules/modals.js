@@ -717,6 +717,39 @@ const ModalManager = (() => {
                     <p>Configura tu clave de API para usar el asistente inteligente con tus marcadores.</p>
                     
                     <div class="chatia-config">
+
+                    <!-- Proveedor y Modelo -->
+                    <div class="provider-model-row">
+                        <div class="provider-field">
+                            <label for="aiProvider">Proveedor</label>
+                            <select id="aiProvider" class="provider-select">
+                                <option value="groq">Groq (Rápido y gratuito)</option>
+                                <option value="openai">OpenAI (ChatGPT)</option>
+                                <option value="anthropic">Anthropic (Claude)</option>
+                                <option value="mistral">Mistral AI</option>
+                                <option value="gemini">Gemini AI</option>
+                                <option value="deepseek">DeepSeek</option>
+                                <option value="custom">Personalizado (URL propia)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="model-field">
+                            <label for="aiModel">Modelo</label>
+                            <input type="text" id="aiModel" placeholder="Ej: llama3-8b-8192" autocomplete="off">
+                            <small class="model-hint">Puedes escribir cualquier modelo compatible con tu proveedor</small>
+                        </div>
+                    </div>
+                    
+                    <!-- URL Personalizada (solo visible para custom) -->
+                    <div id="customUrlGroup" style="display: none;">
+                        <div class="custom-url-field">
+                            <label for="customApiUrl">URL de la API</label>
+                            <input type="text" id="customApiUrl" placeholder="https://tu-api.com/v1/chat/completions">
+                            <small>Ej: https://api.openai.com/v1/chat/completions</small>
+                        </div>
+                    </div>
+
+                    <!-- Clave de API -->
                         <div class="api-key-field">
                             <label for="apiKeyInput">Clave de API</label>
                             <div class="api-key-input-group">
@@ -1395,6 +1428,178 @@ const ModalManager = (() => {
 
             // Cargar la lista inicial
             loadCustomIconsList();
+
+            // Logica para Chat IA
+            const apiKeyInput = modal.querySelector('#apiKeyInput');
+            const toggleVisibilityBtn = modal.querySelector('#toggleApiKeyVisibility');
+            const saveApiKeyBtn = modal.querySelector('#saveApiKeyBtn');
+            const clearApiKeyBtn = modal.querySelector('#clearApiKeyBtn');
+            const apiKeyStatus = modal.querySelector('#apiKeyStatus');
+            const providerSelect = modal.querySelector('#aiProvider');
+            const modelInput = modal.querySelector('#aiModel');
+            const customUrlGroup = modal.querySelector('#customUrlGroup');
+            const customApiUrlInput = modal.querySelector('#customApiUrl');
+
+            // Función para mostrar estado
+            function showApiKeyStatus(message, isSuccess = true) {
+                if (apiKeyStatus) {
+                    const statusIcon = apiKeyStatus.querySelector('.status-icon');
+                    const statusMessage = apiKeyStatus.querySelector('.status-message');
+                    if (statusIcon) statusIcon.textContent = isSuccess ? '✅' : '❌';
+                    if (statusMessage) statusMessage.textContent = message;
+                    apiKeyStatus.style.display = 'flex';
+                    setTimeout(() => {
+                        apiKeyStatus.style.display = 'none';
+                    }, 3000);
+                }
+            }
+
+            // Cargar configuración guardada
+            if (window.ChatManager) {
+                // Cargar proveedor guardado
+                const savedProvider = localStorage.getItem('vision_marks_ai_provider') || 'groq';
+                if (providerSelect) providerSelect.value = savedProvider;
+
+                // Cargar modelo guardado
+                const savedModel = localStorage.getItem('vision_marks_ai_model') || '';
+                if (modelInput) modelInput.value = savedModel;
+
+                // Cargar URL personalizada
+                const savedCustomUrl = localStorage.getItem('vision_marks_custom_api_url') || '';
+                if (customApiUrlInput) customApiUrlInput.value = savedCustomUrl;
+
+                // Mostrar/ocultar campo de URL personalizada
+                if (customUrlGroup) {
+                    customUrlGroup.style.display = savedProvider === 'custom' ? 'block' : 'none';
+                }
+            }
+
+            // Cargar clave existente
+            const existingKey = ChatManager ? ChatManager.getStoredApiKey() : null;
+            if (existingKey && apiKeyInput) {
+                apiKeyInput.value = '•'.repeat(20);
+                apiKeyInput.placeholder = 'Clave guardada';
+            }
+
+            // Toggle visibilidad de la clave
+            if (toggleVisibilityBtn && apiKeyInput) {
+                toggleVisibilityBtn.addEventListener('click', () => {
+                    if (apiKeyInput.type === 'password') {
+                        const storedKey = ChatManager ? ChatManager.getStoredApiKey() : null;
+                        if (storedKey) {
+                            apiKeyInput.value = storedKey;
+                            apiKeyInput.type = 'text';
+                            toggleVisibilityBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="2" y1="2" x2="22" y2="22"/></svg>';
+                        } else {
+                            apiKeyInput.type = 'text';
+                        }
+                    } else {
+                        apiKeyInput.type = 'password';
+                        const storedKey = ChatManager ? ChatManager.getStoredApiKey() : null;
+                        if (storedKey) {
+                            apiKeyInput.value = '•'.repeat(20);
+                        } else {
+                            apiKeyInput.value = '';
+                        }
+                        toggleVisibilityBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+                    }
+                });
+            }
+
+            // Cambio de proveedor
+            if (providerSelect) {
+                providerSelect.addEventListener('change', () => {
+                    const selected = providerSelect.value;
+                    localStorage.setItem('vision_marks_ai_provider', selected);
+
+                    // Mostrar/ocultar campo de URL personalizada
+                    if (customUrlGroup) {
+                        customUrlGroup.style.display = selected === 'custom' ? 'block' : 'none';
+                    }
+
+                    // Actualizar placeholder del modelo según el proveedor
+                    if (modelInput) {
+                        const defaultModels = {
+                            groq: 'llama3-8b-8192',
+                            openai: 'gpt-3.5-turbo',
+                            anthropic: 'claude-3-haiku-20240307',
+                            mistral: 'mistral-tiny',
+                            gemini: 'gemini-1.5-flash',
+                            deepseek: 'deepseek-chat',
+                            custom: 'custom-model'
+                        };
+                        modelInput.placeholder = `Ej: ${defaultModels[selected] || 'modelo'}`;
+                    }
+
+                    showApiKeyStatus(`Proveedor cambiado a ${providerSelect.options[providerSelect.selectedIndex].text}`, true);
+                });
+            }
+
+            // Cambio en URL personalizada
+            if (customApiUrlInput) {
+                customApiUrlInput.addEventListener('change', () => {
+                    const url = customApiUrlInput.value.trim();
+                    localStorage.setItem('vision_marks_custom_api_url', url);
+                    if (window.ChatManager) {
+                        ChatManager.saveCustomApiUrl(url);
+                    }
+                    showApiKeyStatus('URL personalizada guardada', true);
+                });
+            }
+
+            // Guardar clave y configuración
+            if (saveApiKeyBtn) {
+                saveApiKeyBtn.addEventListener('click', () => {
+                    let newKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+                    const newProvider = providerSelect ? providerSelect.value : 'groq';
+                    const newModel = modelInput ? modelInput.value.trim() : '';
+
+                    // Verificar si es modo password con puntos
+                    if (apiKeyInput && apiKeyInput.type === 'password' && newKey === '•'.repeat(20)) {
+                        newKey = null;
+                    }
+
+                    // Guardar proveedor y modelo
+                    if (window.ChatManager) {
+                        ChatManager.saveProvider(newProvider);
+                        if (newModel) ChatManager.saveModel(newModel);
+                        if (newKey) ChatManager.saveApiKey(newKey);
+                    } else {
+                        localStorage.setItem('vision_marks_ai_provider', newProvider);
+                        if (newModel) localStorage.setItem('vision_marks_ai_model', newModel);
+                        if (newKey) localStorage.setItem('vision_marks_api_key', btoa(newKey));
+                    }
+
+                    // Actualizar visualmente
+                    if (apiKeyInput) {
+                        apiKeyInput.value = '•'.repeat(20);
+                        apiKeyInput.type = 'password';
+                        if (toggleVisibilityBtn) {
+                            toggleVisibilityBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+                        }
+                    }
+
+                    showApiKeyStatus('Configuración guardada correctamente', true);
+                });
+            }
+
+            // Limpiar configuración
+            if (clearApiKeyBtn) {
+                clearApiKeyBtn.addEventListener('click', () => {
+                    if (window.ChatManager) {
+                        ChatManager.clearApiKey();
+                    } else {
+                        localStorage.removeItem('vision_marks_api_key');
+                    }
+
+                    if (apiKeyInput) {
+                        apiKeyInput.value = '';
+                        apiKeyInput.placeholder = 'Ingresa tu clave de API (ej: sk-...)';
+                    }
+
+                    showApiKeyStatus('Configuración eliminada', true);
+                });
+            }
 
             // Guardar cambios
             modal.querySelector('[data-action="save"]')?.addEventListener('click', () => {
