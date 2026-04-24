@@ -13,6 +13,9 @@ const StateManager = (() => {
         settings: {
             theme: 'light',
             layout: 'double'
+        },
+        chat: {
+            messages: []
         }
     };
 
