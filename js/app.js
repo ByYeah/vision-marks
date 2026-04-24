@@ -81,7 +81,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }, 500);
 
-        // 10. Suscribirse a cambios de estado (para mantener AppState sincronizado)
+        // 10. Inicializar ChatManager (con delay)
+        setTimeout(() => {
+            if (window.ChatManager) {
+                ChatManager.init();
+                console.log('💬 ChatManager initialized');
+            }
+        }, 600);
+
+        // 11. Suscribirse a cambios de estado (para mantener AppState sincronizado)
         StateManager.subscribe((newState) => {
             AppState.containers = newState.containers;
             AppState.bookmarks = newState.bookmarks;
@@ -89,7 +97,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             AppState.settings = newState.settings;
         });
 
-        // 11. Cargar iconos SVG
+        // 12. Cargar iconos SVG
         if (window.SvgLoader) {
             SvgLoader.loadAll();
         }
@@ -119,17 +127,6 @@ function initEventListeners() {
     document.querySelectorAll('[data-action="addBookmark"], [data-action="addFolder"]').forEach(btn => {
         btn.addEventListener('click', handleAddAction);
     });
-
-    // Chat
-    const chatInput = document.getElementById('chatInput');
-    const btnSendChat = document.getElementById('btnSendChat');
-
-    if (chatInput && btnSendChat) {
-        btnSendChat.addEventListener('click', handleChatSend);
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleChatSend();
-        });
-    }
 
     // Settings y Profile
     document.getElementById('settingsBtn')?.addEventListener('click', () => {
@@ -167,37 +164,6 @@ function handleToggleContainer(e) {
     if (window.StateManager) {
         StateManager.setState({ containers: AppState.containers });
     }
-}
-
-// Manejar envío de chat
-function handleChatSend() {
-    const chatInput = document.getElementById('chatInput');
-    const chatMessages = document.getElementById('chatMessages');
-
-    if (!chatInput || !chatMessages) return;
-
-    const message = chatInput.value.trim();
-    if (!message) return;
-
-    addChatMessage(message, 'user');
-    chatInput.value = '';
-
-    setTimeout(() => {
-        addChatMessage('Esta es una respuesta simulada. En la Fase 3 conectaré con la API para analizar tus marcadores.', 'bot');
-    }, 500);
-}
-
-// Añadir mensaje al chat
-function addChatMessage(text, sender) {
-    const chatMessages = document.getElementById('chatMessages');
-    if (!chatMessages) return;
-
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `chat-message ${sender}`;
-    messageDiv.innerHTML = `<p>${text}</p>`;
-
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 // Función handleAddAction
