@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vision-marks-v2';
+const CACHE_NAME = 'vision-marks-v5';
 const urlsToCache = [
     '/',
     '/index.html',
@@ -18,7 +18,8 @@ const urlsToCache = [
     '/js/modules/importExport.js',
     '/js/modules/iconManager.js',
     '/js/utils/svg-loader.js',
-    '/js/modules/events.js'
+    '/js/modules/events.js',
+    '/js/modules/chat.js'
 ];
 
 // Instalación del Service Worker
