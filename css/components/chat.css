@@ -30,6 +30,7 @@
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -41,6 +42,7 @@
     background: var(--bg-tertiary);
     align-self: flex-start;
     border-bottom-left-radius: 4px;
+    position: relative;
 }
 
 /* Mensaje del usuario */
@@ -101,6 +103,43 @@
     height: 20px;
     fill: currentColor;
     stroke: currentColor;
+}
+
+.btn-clear-chat {
+    background: var(--bg-tertiary);
+    border: none;
+    border-radius: var(--border-radius-sm);
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-clear-chat:hover {
+    background: #ef4444;
+    color: white;
+}
+
+/* Mensaje de thinking */
+.chat-message.thinking p {
+    opacity: 0.7;
+    font-style: italic;
+}
+
+/* Toast animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }
 
 /** CHAT EN TEMAS OSCUROS **/

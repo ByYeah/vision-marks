@@ -11,7 +11,10 @@ const ChatManager = (() => {
         MAX_HISTORY_MESSAGES: 50,
         SYSTEM_PROMPT: `Eres un asistente útil especializado en organizar y recomendar marcadores web. 
         Responde de manera concisa y amigable. Si no sabes algo relacionado con los marcadores, 
-        sugiere al usuario que revise su lista o busque en la web. Siempre responde en el mismo idioma del usuario.`
+        sugiere al usuario que revise su lista o busque en la web. Siempre responde en el mismo idioma del usuario.`,
+        REQUEST_TIMEOUT: 30000,
+        MAX_CONTENT_BOOKMARKS: 50,
+        ENABLE_DEBUG: true,
     };
 
     // Proveedores disponibles
@@ -49,8 +52,8 @@ const ChatManager = (() => {
             requiresApiKey: true
         },
         gemini: {
-            name: 'Google Gemini',
-            url: 'https://generativelanguage.googleapis.com/v1beta/models',
+            name: 'Gemini',
+            url: 'https://generativelanguage.googleapis.com/v1beta',
             defaultModel: 'gemini-1.5-flash',
             requiresApiKey: true,
             formatRequest: (messages, model, systemPrompt) => {
@@ -69,10 +72,16 @@ const ChatManager = (() => {
 
                 // Convertir historial de mensajes
                 for (const msg of chatMessages) {
-                    contents.push({
-                        role: msg.role === 'user' ? 'user' : 'model',
-                        parts: [{ text: msg.content }]
-                    });
+                    const lastContent = contents[contents.length - 1];
+                    if (lastContent && lastContent.role === (msg.role === 'user' ? 'user' : 'model')) {
+                        // Si es el mismo rol, fusionar
+                        lastContent.parts.push({ text: msg.content });
+                    } else {
+                        contents.push({
+                            role: msg.role === 'user' ? 'user' : 'model',
+                            parts: [{ text: msg.content }]
+                        });
+                    }
                 }
 
                 const requestBody = {
@@ -80,12 +89,13 @@ const ChatManager = (() => {
                     generationConfig: {
                         temperature: 0.7,
                         maxOutputTokens: 500,
-                        topP: 0.95
+                        topP: 0.95,
+                        topK: 40
                     }
                 };
 
                 // Añadir instrucción del sistema si existe
-                if (systemInstruction) {
+                if (systemInstruction && systemInstruction.trim()) {
                     requestBody.systemInstruction = {
                         parts: [{ text: systemInstruction }]
                     };
@@ -93,14 +103,28 @@ const ChatManager = (() => {
 
                 return requestBody;
             },
-            // Gemini requiere la API key en la URL, no en el header
+            // Gemini requiere la API key en la URL
             buildUrl: (baseUrl, model, apiKey) => {
-                return `${baseUrl}/${model}:generateContent?key=${apiKey}`;
+                const cleanApiKey = apiKey ? apiKey.trim() : '';
+                const url = `${baseUrl}/models/${model}:generateContent?key=${cleanApiKey}`;
+                return url;
             },
             extractResponse: (data) => {
                 try {
-                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "No pude generar una respuesta.";
+                    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                        const parts = data.candidates[0].content.parts;
+                        if (parts && parts[0] && parts[0].text) {
+                            return parts[0].text;
+                        }
+                    }
+                    // Verificar si hay mensaje de error
+                    if (data.error) {
+                        console.error('Gemini API Error:', data.error);
+                        return `Error de Gemini: ${data.error.message || 'Error desconocido'}`;
+                    }
+                    return "No pude generar una respuesta en este momento.";
                 } catch (e) {
+                    console.error('Error extracting Gemini response:', e);
                     return "Error al procesar la respuesta de Gemini.";
                 }
             }
@@ -180,21 +204,52 @@ const ChatManager = (() => {
     }
 
     function getStoredApiKey() {
-        if (cachedApiKey) return cachedApiKey;
-        const encrypted = localStorage.getItem(CONFIG.API_STORAGE_KEY);
-        const decrypted = decryptApiKey(encrypted);
-        if (decrypted) cachedApiKey = decrypted;
-        return decrypted;
+        console.log('🔍 getStoredApiKey llamado');
+        if (cachedApiKey) {
+            console.log('📦 Devuelve desde caché');
+            return cachedApiKey;
+        }
+
+        const stored = localStorage.getItem(CONFIG.API_STORAGE_KEY);
+        console.log('💾 Desde localStorage:', stored ? `Encontrado (${stored.length} chars)` : 'No encontrado');
+
+        if (!stored) return null;
+
+        // Intentar desencriptar, si falla, usar como está
+        try {
+            const decrypted = atob(stored);
+            console.log('🔓 Desencriptado OK, longitud:', decrypted.length);
+            cachedApiKey = decrypted;
+            return decrypted;
+        } catch (e) {
+            // No está encriptada o es texto plano
+            console.log('📄 Texto plano, usando directamente');
+            cachedApiKey = stored;
+            return stored;
+        }
     }
 
     function saveApiKey(key) {
-        if (!key) {
+        console.log('📝 saveApiKey llamado, key:', key ? key.substring(0, 5) + '...' : 'null');
+
+        if (!key || !key.trim()) {
+            console.log('❌ Key vacía, eliminando');
             localStorage.removeItem(CONFIG.API_STORAGE_KEY);
             cachedApiKey = null;
             return;
         }
-        localStorage.setItem(CONFIG.API_STORAGE_KEY, encryptApiKey(key));
-        cachedApiKey = key;
+
+        const cleanedKey = key.trim();
+        console.log('🔑 Key limpia, longitud:', cleanedKey.length);
+
+        // TEMPORAL: Guardar sin encriptar para depurar
+        localStorage.setItem(CONFIG.API_STORAGE_KEY, cleanedKey);
+        cachedApiKey = cleanedKey;
+
+        // Verificar que se guardó
+        const saved = localStorage.getItem(CONFIG.API_STORAGE_KEY);
+        console.log('💾 Verificación localStorage:', saved ? `Guardado (${saved.length} chars)` : 'No guardado');
+        console.log('✅ API key guardada correctamente');
     }
 
     function clearApiKey() {
@@ -212,7 +267,8 @@ const ChatManager = (() => {
             id: Date.now(),
             text: text,
             sender: sender,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            isThinking: sender === 'thinking'
         };
 
         const currentState = StateManager.getState();
@@ -230,6 +286,25 @@ const ChatManager = (() => {
         return newMessage;
     }
 
+    async function sendMessage(messageText) {
+        if (!messageText || !messageText.trim()) return;
+
+        await addMessage(messageText.trim(), 'user');
+
+        const chatInput = document.getElementById('chatInput');
+        if (chatInput) chatInput.value = '';
+
+        const thinkingId = await addMessage('🤔 Pensando...', 'thinking');
+
+        try {
+            const aiResponse = await getAIResponse(messageText);
+            await replaceMessage(thinkingId.id, aiResponse, 'bot');
+        } catch (error) {
+            console.error('SendMessage Error:', error);
+            await replaceMessage(thinkingId.id, '❌ Ocurrió un error inesperado. Por favor, intenta de nuevo.', 'bot');
+        }
+    }
+
     function renderMessageToUI(message) {
         const chatMessagesContainer = document.getElementById('chatMessages');
         if (!chatMessagesContainer) return;
@@ -239,10 +314,29 @@ const ChatManager = (() => {
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${message.sender}`;
         messageDiv.setAttribute('data-id', message.id);
-        messageDiv.innerHTML = `<p>${escapeHtml(message.text)}</p>`;
+
+        // Añadir botón de copiar solo para mensajes del bot (no para thinking)
+        const copyButton = message.sender === 'bot' && !message.isThinking ?
+            `<button class="chat-copy-btn" data-id="${message.id}" title="Copiar respuesta">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+        </button>` : '';
+
+        messageDiv.innerHTML = `
+        <p>${escapeHtml(message.text)}</p>
+        ${copyButton}
+    `;
 
         chatMessagesContainer.appendChild(messageDiv);
         chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+
+        // Event listener para copiar
+        if (copyButton) {
+            const btn = messageDiv.querySelector('.chat-copy-btn');
+            btn.addEventListener('click', () => copyMessageToClipboard(message.id));
+        }
     }
 
     function renderChatHistory() {
@@ -335,14 +429,29 @@ const ChatManager = (() => {
         return context;
     }
 
+    // * Funcion con timeout *
+    function fetchWithTimeout(url, options, timeout = CONFIG.REQUEST_TIMEOUT) {
+        return Promise.race([
+            fetch(url, options),
+            new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Request timeout')), timeout)
+            )
+        ]);
+    }
+
     // * Funciones de API IA *
     async function getAIResponse(userMessage, retryCount = 0) {
         const provider = getSelectedProvider();
         const model = getSelectedModel();
 
-        // Verificar API key si es requerida
+        if (CONFIG.ENABLE_DEBUG) {
+            console.log(`🤖 Usando proveedor: ${provider.name}, modelo: ${model}`);
+        }
+
+        // Verificar API key
+        let apiKey = null;
         if (provider.requiresApiKey) {
-            const apiKey = getStoredApiKey();
+            apiKey = getStoredApiKey();
             if (!apiKey) {
                 return `⚠️ No se ha configurado una clave de API para ${provider.name}. Ve a Configuración > Chat-IA para añadirla.`;
             }
@@ -361,28 +470,26 @@ const ChatManager = (() => {
 
         const messages = [
             { role: 'system', content: systemPrompt },
-            ...recentMessages.filter(m => m.sender !== 'system').map(m => ({
+            ...recentMessages.filter(m => m.sender !== 'system' && m.sender !== 'thinking').map(m => ({
                 role: m.sender === 'user' ? 'user' : 'assistant',
                 content: m.text
             })),
             { role: 'user', content: userMessage }
         ];
 
-        // Construir headers (Gemini no necesita headers especiales)
-        const headers = {
+        // Construir headers
+        let headers = {
             'Content-Type': 'application/json'
         };
 
         // Para Anthropic usa headers específicos
         if (provider.name === 'Anthropic') {
-            const apiKey = getStoredApiKey();
             headers['x-api-key'] = apiKey;
             headers['anthropic-version'] = '2023-06-01';
         }
 
-        // Para OpenAI y compatibles (Groq, Mistral, DeepSeek, Together)
+        // Para OpenAI y compatibles (Groq, Mistral, DeepSeek)
         else if (provider.name !== 'Gemini' && provider.requiresApiKey && !provider.isCustom) {
-            const apiKey = getStoredApiKey();
             headers['Authorization'] = `Bearer ${apiKey}`;
         }
 
@@ -403,12 +510,17 @@ const ChatManager = (() => {
 
         // Construir URL final (especial para Gemini)
         if (provider.buildUrl) {
-            const apiKey = getStoredApiKey();
             finalUrl = provider.buildUrl(provider.url, model, apiKey);
         }
 
+        if (provider.name === 'Gemini') {
+            console.log('🔑 API Key (primeros 10 chars):', apiKey ? apiKey.substring(0, 10) + '...' : 'NULL');
+            console.log('🌐 URL final:', finalUrl.replace(apiKey, 'HIDDEN_KEY'));
+            console.log('📦 Request Body:', JSON.stringify(requestBody, null, 2));
+        }
+
         try {
-            const response = await fetch(finalUrl, {
+            const response = await fetchWithTimeout(finalUrl, {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify(requestBody)
@@ -422,48 +534,134 @@ const ChatManager = (() => {
                     clearApiKey();
                     return `❌ La clave de API para ${provider.name} parece ser inválida. Por favor, revísala en Configuración > Chat-IA.`;
                 }
+
+                if (response.status === 429 && retryCount === 0) {
+                    return "⏳ Demasiadas peticiones. Por favor, espera unos segundos y vuelve a intentarlo.";
+                }
                 throw new Error(`API Error: ${response.status}`);
             }
 
             const data = await response.json();
 
             // Extraer respuesta según el proveedor
+            let aiResponse;
             if (provider.extractResponse) {
-                return provider.extractResponse(data);
+                aiResponse = provider.extractResponse(data);
+            } else {
+                aiResponse = data.choices?.[0]?.message?.content || "No pude generar una respuesta en este momento.";
             }
-            return data.choices?.[0]?.message?.content || "No pude generar una respuesta en este momento.";
+
+            // Limpiar la respuesta (eliminar markdown excessivo, etc.)
+            aiResponse = cleanResponse(aiResponse);
+
+            return aiResponse;
 
         } catch (error) {
             console.error('AI Request Error:', error);
+
+            if (error.message === 'Request timeout') {
+                return "⏰ La petición está tomando demasiado tiempo. Por favor, intenta de nuevo o cambia a un modelo más rápido en Configuración.";
+            }
+
+            if (retryCount === 0) {
+                if (CONFIG.ENABLE_DEBUG) console.log('Reintentando petición...');
+                return await getAIResponse(userMessage, retryCount + 1);
+            }
             return "❌ Lo siento, hubo un error obteniendo respuesta del asistente. Por favor, intenta de nuevo más tarde.";
         }
     }
 
-    // * Función principal *
-    async function sendMessage(messageText) {
-        if (!messageText || !messageText.trim()) return;
+    // * Funciones auxiliares *
+    function cleanResponse(response) {
+        if (!response) return response;
 
-        await addMessage(messageText.trim(), 'user');
+        // Eliminar markdown excesivo pero mantener formato básico
+        let cleaned = response
+            .replace(/\*\*(.*?)\*\*/g, '$1')  // negritas a texto normal
+            .replace(/\*(.*?)\*/g, '$1');      // cursiva a texto normal
 
-        const chatInput = document.getElementById('chatInput');
-        if (chatInput) chatInput.value = '';
-
-        const thinkingId = await addMessage('🤔 Pensando...', 'bot');
-
-        try {
-            const aiResponse = await getAIResponse(messageText);
-            await replaceMessage(thinkingId.id, aiResponse, 'bot');
-        } catch (error) {
-            console.error('SendMessage Error:', error);
-            await replaceMessage(thinkingId.id, '❌ Ocurrió un error inesperado. Por favor, intenta de nuevo.', 'bot');
+        // Limitar longitud si es demasiado larga
+        if (cleaned.length > 2000) {
+            cleaned = cleaned.substring(0, 1997) + '...';
         }
+        return cleaned;
+    }
+
+    function addClearChatButton() {
+        const chatContainer = document.querySelector('[data-container="chat"] .container-actions');
+        if (!chatContainer) return;
+
+        // Verificar si ya existe
+        if (document.querySelector('.btn-clear-chat')) return;
+
+        const clearBtn = document.createElement('button');
+        clearBtn.className = 'btn-clear-chat';
+        clearBtn.title = 'Limpiar historial';
+        clearBtn.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        </svg>
+    `;
+
+        clearBtn.addEventListener('click', () => clearChatHistory());
+        chatContainer.appendChild(clearBtn);
     }
 
     async function clearChatHistory() {
+        // Confirmar antes de limpiar
+        const confirmed = await ModalManager.showConfirmModal(
+            'Limpiar historial',
+            '¿Estás seguro de que quieres borrar todo el historial de conversación? Esta acción no se puede deshacer.',
+            'Limpiar',
+            'Cancelar'
+        );
+
+        if (!confirmed) return;
+
         StateManager.setState({ chat: { messages: [] } });
         await saveChatToIndexedDB([]);
         renderChatHistory();
-        await addMessage('¡Hola! Puedo ayudarte a encontrar marcadores. ¿Qué buscas?', 'bot');
+        await addMessage('✨ Historial limpiado. ¿En qué puedo ayudarte?', 'bot');
+
+        if (CONFIG.ENABLE_DEBUG) console.log('🧹 Historial de chat limpiado');
+    }
+
+    function copyMessageToClipboard(messageId) {
+        const messageElement = document.querySelector(`.chat-message[data-id="${messageId}"]`);
+        if (!messageElement) return;
+
+        const text = messageElement.querySelector('p')?.innerText || '';
+        if (!text) return;
+
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('Mensaje copiado al portapapeles');
+        }).catch(() => {
+            showToast('No se pudo copiar el mensaje', 'error');
+        });
+    }
+
+    function showToast(message, type = 'success') {
+        const toast = document.createElement('div');
+        toast.className = `chat-toast ${type}`;
+        toast.textContent = message;
+        toast.style.cssText = `
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        padding: 8px 16px;
+        background: ${type === 'error' ? '#ef4444' : '#10b981'};
+        color: white;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        z-index: 10000;
+        animation: slideIn 0.3s ease;
+    `;
+
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
     }
 
     // * Inicialización *
@@ -476,6 +674,7 @@ const ChatManager = (() => {
         }
 
         setupEventListeners();
+        addClearChatButton();
         console.log('💬 ChatManager initialized');
     }
 

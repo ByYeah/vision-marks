@@ -1549,13 +1549,28 @@ const ModalManager = (() => {
 
             // Guardar clave y configuración
             if (saveApiKeyBtn) {
-                saveApiKeyBtn.addEventListener('click', () => {
-                    let newKey = apiKeyInput ? apiKeyInput.value.trim() : '';
+                // Eliminar event listeners anteriores clonando
+                const newSaveBtn = saveApiKeyBtn.cloneNode(true);
+                saveApiKeyBtn.parentNode.replaceChild(newSaveBtn, saveApiKeyBtn);
+
+                newSaveBtn.addEventListener('click', () => {
+                    console.log('🔘 Botón guardar clickeado');
+
+                    let newKey = '';
+                    if (apiKeyInput) {
+                        newKey = apiKeyInput.value.trim();
+                        console.log('📝 Valor del input:', newKey === '•'.repeat(20) ? 'PUNTOS (clave existente)' : newKey.substring(0, 5) + '...');
+                    }
+
                     const newProvider = providerSelect ? providerSelect.value : 'groq';
                     const newModel = modelInput ? modelInput.value.trim() : '';
 
-                    // Verificar si es modo password con puntos
+                    console.log('📦 Proveedor:', newProvider);
+                    console.log('📦 Modelo:', newModel);
+
+                    // Si está en modo password y tiene puntos, significa que no se cambió la clave
                     if (apiKeyInput && apiKeyInput.type === 'password' && newKey === '•'.repeat(20)) {
+                        console.log('ℹ️ No se modificó la clave, solo proveedor/modelo');
                         newKey = null;
                     }
 
@@ -1563,17 +1578,26 @@ const ModalManager = (() => {
                     if (window.ChatManager) {
                         ChatManager.saveProvider(newProvider);
                         if (newModel) ChatManager.saveModel(newModel);
-                        if (newKey) ChatManager.saveApiKey(newKey);
-                    } else {
-                        localStorage.setItem('vision_marks_ai_provider', newProvider);
-                        if (newModel) localStorage.setItem('vision_marks_ai_model', newModel);
-                        if (newKey) localStorage.setItem('vision_marks_api_key', btoa(newKey));
+                        if (newKey) {
+                            console.log('💾 Guardando nueva clave de longitud:', newKey.length);
+                            ChatManager.saveApiKey(newKey);
+                        } else {
+                            console.log('ℹ️ Usando clave existente');
+                        }
                     }
 
-                    // Actualizar visualmente
+                    // Verificar que se guardó
+                    const savedKey = ChatManager ? ChatManager.getStoredApiKey() : null;
+                    console.log('🔑 Verificación post-guardado:', savedKey ? `OK (${savedKey.length} chars)` : 'NO GUARDADA');
+
+                    // Actualizar visualmente el input
                     if (apiKeyInput) {
-                        apiKeyInput.value = '•'.repeat(20);
-                        apiKeyInput.type = 'password';
+                        if (savedKey) {
+                            apiKeyInput.value = '•'.repeat(20);
+                            apiKeyInput.type = 'password';
+                        } else {
+                            apiKeyInput.value = '';
+                        }
                         if (toggleVisibilityBtn) {
                             toggleVisibilityBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
                         }
