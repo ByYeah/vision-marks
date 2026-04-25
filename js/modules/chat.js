@@ -186,7 +186,9 @@ const ChatManager = (() => {
     function encryptApiKey(key) {
         if (!key) return null;
         try {
-            return btoa(key);
+            const utf8Bytes = new TextEncoder().encode(key);
+            const utf8String = String.fromCharCode(...utf8Bytes);
+            return btoa(utf8String);
         } catch (e) {
             console.error('Error encrypting API key:', e);
             return null;
@@ -196,60 +198,47 @@ const ChatManager = (() => {
     function decryptApiKey(encrypted) {
         if (!encrypted) return null;
         try {
-            return atob(encrypted);
+            const decrypted = atob(encrypted);
+            const utf8Bytes = Uint8Array.from([...decrypted].map(c => c.charCodeAt(0)));
+            return new TextDecoder().decode(utf8Bytes);
         } catch (e) {
             console.error('Error decrypting API key:', e);
-            return null;
+            return encrypted;
         }
     }
 
     function getStoredApiKey() {
-        console.log('🔍 getStoredApiKey llamado');
-        if (cachedApiKey) {
-            console.log('📦 Devuelve desde caché');
-            return cachedApiKey;
-        }
+        if (cachedApiKey) return cachedApiKey;
 
         const stored = localStorage.getItem(CONFIG.API_STORAGE_KEY);
-        console.log('💾 Desde localStorage:', stored ? `Encontrado (${stored.length} chars)` : 'No encontrado');
-
         if (!stored) return null;
 
-        // Intentar desencriptar, si falla, usar como está
-        try {
-            const decrypted = atob(stored);
-            console.log('🔓 Desencriptado OK, longitud:', decrypted.length);
+        // Intentar desencriptar
+        const decrypted = decryptApiKey(stored);
+        if (decrypted) {
             cachedApiKey = decrypted;
             return decrypted;
-        } catch (e) {
-            // No está encriptada o es texto plano
-            console.log('📄 Texto plano, usando directamente');
-            cachedApiKey = stored;
-            return stored;
         }
+        return null;
     }
 
     function saveApiKey(key) {
         console.log('📝 saveApiKey llamado, key:', key ? key.substring(0, 5) + '...' : 'null');
 
         if (!key || !key.trim()) {
-            console.log('❌ Key vacía, eliminando');
             localStorage.removeItem(CONFIG.API_STORAGE_KEY);
             cachedApiKey = null;
             return;
         }
 
         const cleanedKey = key.trim();
-        console.log('🔑 Key limpia, longitud:', cleanedKey.length);
 
-        // TEMPORAL: Guardar sin encriptar para depurar
-        localStorage.setItem(CONFIG.API_STORAGE_KEY, cleanedKey);
+        // Guardar ENCRIPTADO
+        const encrypted = encryptApiKey(cleanedKey);
+        localStorage.setItem(CONFIG.API_STORAGE_KEY, encrypted);
         cachedApiKey = cleanedKey;
 
-        // Verificar que se guardó
-        const saved = localStorage.getItem(CONFIG.API_STORAGE_KEY);
-        console.log('💾 Verificación localStorage:', saved ? `Guardado (${saved.length} chars)` : 'No guardado');
-        console.log('✅ API key guardada correctamente');
+        console.log('✅ API key guardada correctamente (encriptada)');
     }
 
     function clearApiKey() {
@@ -266,7 +255,7 @@ const ChatManager = (() => {
         const newMessage = {
             id: Date.now(),
             text: text,
-            sender: sender,
+            sender: sender === 'thinking' ? 'bot' : sender,
             timestamp: new Date().toISOString(),
             isThinking: sender === 'thinking'
         };
@@ -314,6 +303,10 @@ const ChatManager = (() => {
         const messageDiv = document.createElement('div');
         messageDiv.className = `chat-message ${message.sender}`;
         messageDiv.setAttribute('data-id', message.id);
+
+        if (message.isThinking) {
+            messageDiv.classList.add('thinking');
+        }
 
         // Añadir botón de copiar solo para mensajes del bot (no para thinking)
         const copyButton = message.sender === 'bot' && !message.isThinking ?
@@ -377,14 +370,33 @@ const ChatManager = (() => {
     async function replaceMessage(messageId, newText, sender) {
         const currentState = StateManager.getState();
         const updatedMessages = currentState.chat.messages.map(msg =>
-            msg.id === messageId ? { ...msg, text: newText } : msg
+            msg.id === messageId ? { ...msg, text: newText, sender: sender, isThinking: false } : msg
         );
         StateManager.setState({ chat: { messages: updatedMessages } });
 
+        // Actualizar el DOM directamente preservando la estructura
         const messageElement = document.querySelector(`.chat-message[data-id="${messageId}"]`);
         if (messageElement) {
+            // Mantener la misma estructura pero actualizar el texto
             const p = messageElement.querySelector('p');
             if (p) p.innerHTML = escapeHtml(newText);
+            // Asegurar la clase correcta
+            messageElement.classList.remove('thinking');
+            messageElement.classList.add(sender);
+
+            // Si es mensaje del bot y no tiene botón de copiar, añadirlo
+            if (sender === 'bot' && !messageElement.querySelector('.chat-copy-btn')) {
+                const copyButton = document.createElement('button');
+                copyButton.className = 'chat-copy-btn';
+                copyButton.setAttribute('data-id', messageId);
+                copyButton.title = 'Copiar respuesta';
+                copyButton.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>`;
+                copyButton.addEventListener('click', () => copyMessageToClipboard(messageId));
+                messageElement.appendChild(copyButton);
+            }
         } else {
             renderChatHistory();
         }
