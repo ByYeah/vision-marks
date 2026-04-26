@@ -1483,25 +1483,38 @@ const ModalManager = (() => {
 
             // Toggle visibilidad de la clave
             if (toggleVisibilityBtn && apiKeyInput) {
+                let isShowing = false;
+
                 toggleVisibilityBtn.addEventListener('click', () => {
                     if (apiKeyInput.type === 'password') {
-                        const storedKey = ChatManager ? ChatManager.getStoredApiKey() : null;
-                        if (storedKey) {
-                            apiKeyInput.value = storedKey;
-                            apiKeyInput.type = 'text';
-                            toggleVisibilityBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="2" y1="2" x2="22" y2="22"/></svg>';
-                        } else {
-                            apiKeyInput.type = 'text';
-                        }
+                        apiKeyInput.type = 'text';
+                        toggleVisibilityBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/><line x1="2" y1="2" x2="22" y2="22"/></svg>';
+                        isShowing = true;
                     } else {
+                        const currentValue = apiKeyInput.value;
                         apiKeyInput.type = 'password';
+
+                        apiKeyInput.setAttribute('data-real-value', currentValue);
+
                         const storedKey = ChatManager ? ChatManager.getStoredApiKey() : null;
                         if (storedKey) {
-                            apiKeyInput.value = '•'.repeat(20);
+                            apiKeyInput.value = '•'.repeat(Math.min(storedKey.length, 20));
+                        } else if (currentValue && currentValue !== '') {
+                            apiKeyInput.value = '•'.repeat(Math.min(currentValue.length, 20));
                         } else {
                             apiKeyInput.value = '';
                         }
                         toggleVisibilityBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+                        isShowing = false;
+                    }
+                });
+
+                apiKeyInput.addEventListener('focus', () => {
+                    if (apiKeyInput.type === 'password' && !isShowing) {
+                        const realValue = apiKeyInput.getAttribute('data-real-value');
+                        if (realValue && realValue !== '') {
+                            apiKeyInput.value = realValue;
+                        }
                     }
                 });
             }
