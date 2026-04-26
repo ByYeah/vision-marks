@@ -803,7 +803,7 @@ const ModalManager = (() => {
                         <!-- Versión -->
                         <div>
                             <strong style="color:var(--text-primary)">Versión</strong>
-                            <p style="color:var(--text-secondary);margin:4px 0 0 0">1.0.0 (Fase 1)</p>
+                            <p style="color:var(--text-secondary);margin:4px 0 0 0">2.0.1 (Fase 2)</p>
                         </div>
                         
                         <!-- Creador -->
@@ -1554,12 +1554,10 @@ const ModalManager = (() => {
                 saveApiKeyBtn.parentNode.replaceChild(newSaveBtn, saveApiKeyBtn);
 
                 newSaveBtn.addEventListener('click', () => {
-                    console.log('🔘 Botón guardar clickeado');
 
                     let newKey = '';
                     if (apiKeyInput) {
                         newKey = apiKeyInput.value.trim();
-                        console.log('📝 Valor del input:', newKey === '•'.repeat(20) ? 'PUNTOS (clave existente)' : newKey.substring(0, 5) + '...');
                     }
 
                     const newProvider = providerSelect ? providerSelect.value : 'groq';
@@ -1579,7 +1577,6 @@ const ModalManager = (() => {
                         ChatManager.saveProvider(newProvider);
                         if (newModel) ChatManager.saveModel(newModel);
                         if (newKey) {
-                            console.log('💾 Guardando nueva clave de longitud:', newKey.length);
                             ChatManager.saveApiKey(newKey);
                         } else {
                             console.log('ℹ️ Usando clave existente');
@@ -1588,7 +1585,6 @@ const ModalManager = (() => {
 
                     // Verificar que se guardó
                     const savedKey = ChatManager ? ChatManager.getStoredApiKey() : null;
-                    console.log('🔑 Verificación post-guardado:', savedKey ? `OK (${savedKey.length} chars)` : 'NO GUARDADA');
 
                     // Actualizar visualmente el input
                     if (apiKeyInput) {
