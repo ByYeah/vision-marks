@@ -9,9 +9,14 @@ const ChatManager = (() => {
         MODEL_KEY: 'vision_marks_ai_model',
         CUSTOM_URL_KEY: 'vision_marks_custom_api_url',
         MAX_HISTORY_MESSAGES: 50,
-        SYSTEM_PROMPT: `Eres un asistente útil especializado en organizar y recomendar marcadores web. 
-        Responde de manera concisa y amigable. Si no sabes algo relacionado con los marcadores, 
-        sugiere al usuario que revise su lista o busque en la web. Siempre responde en el mismo idioma del usuario.`,
+        SYSTEM_PROMPT: `Eres un asistente especializado en marcadores web. 
+        Reglas IMPORTANTES:
+        1. Sé EXTREMADAMENTE CONCISO. Usa frases cortas y directas.
+        2. Cuando recomiendes un marcador, SOLO muestra su título y URL en una línea.
+        3. No uses asteriscos, negritas ni formato especial.
+        4. Responde en el mismo idioma del usuario.
+        5. Si el usuario pide una recomendación, brinda los 5 mas relevantes del tema, si no los hay solo los disponibles.
+        6. Evita emojis y lenguaje florido. Ve al grano.`,
         REQUEST_TIMEOUT: 30000,
         MAX_CONTENT_BOOKMARKS: 50,
         ENABLE_DEBUG: true,
@@ -22,7 +27,7 @@ const ChatManager = (() => {
         groq: {
             name: 'Groq',
             url: 'https://api.groq.com/openai/v1/chat/completions',
-            defaultModel: 'llama3-8b-8192',
+            defaultModel: 'llama-3.1-8b-instant',
             requiresApiKey: true
         },
         openai: {
@@ -223,8 +228,6 @@ const ChatManager = (() => {
     }
 
     function saveApiKey(key) {
-        console.log('📝 saveApiKey llamado, key:', key ? key.substring(0, 5) + '...' : 'null');
-
         if (!key || !key.trim()) {
             localStorage.removeItem(CONFIG.API_STORAGE_KEY);
             cachedApiKey = null;
@@ -238,7 +241,7 @@ const ChatManager = (() => {
         localStorage.setItem(CONFIG.API_STORAGE_KEY, encrypted);
         cachedApiKey = cleanedKey;
 
-        console.log('✅ API key guardada correctamente (encriptada)');
+        console.log('API key guardada correctamente (encriptada)');
     }
 
     function clearApiKey() {
@@ -318,7 +321,7 @@ const ChatManager = (() => {
         </button>` : '';
 
         messageDiv.innerHTML = `
-        <p>${escapeHtml(message.text)}</p>
+        <p>${message.isThinking ? escapeHtml(message.text) : message.text}</p>
         ${copyButton}
     `;
 
@@ -379,7 +382,10 @@ const ChatManager = (() => {
         if (messageElement) {
             // Mantener la misma estructura pero actualizar el texto
             const p = messageElement.querySelector('p');
-            if (p) p.innerHTML = escapeHtml(newText);
+            if (p) {
+                // No escapamos HTML porque queremos que los enlaces funcionen
+                p.innerHTML = newText;
+            }
             // Asegurar la clase correcta
             messageElement.classList.remove('thinking');
             messageElement.classList.add(sender);
@@ -393,7 +399,7 @@ const ChatManager = (() => {
                 copyButton.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-            </svg>`;
+                </svg>`;
                 copyButton.addEventListener('click', () => copyMessageToClipboard(messageId));
                 messageElement.appendChild(copyButton);
             }
@@ -429,9 +435,9 @@ const ChatManager = (() => {
 
         for (const [folderId, bookmarksList] of bookmarksByFolder) {
             const folderName = folderId === 'root' ? 'Sin carpeta' : folderMap.get(folderId) || 'Sin carpeta';
-            context += `\n📁 ${folderName}:\n`;
+            context += `\n📁 ${folderName}: \n`;
             bookmarksList.slice(0, 20).forEach(b => {
-                context += `  - ${b.title}: ${b.url}\n`;
+                context += `  - ${b.title}: ${b.url} \n`;
             });
             if (bookmarksList.length > 20) {
                 context += `  ... y ${bookmarksList.length - 20} más\n`;
@@ -456,16 +462,12 @@ const ChatManager = (() => {
         const provider = getSelectedProvider();
         const model = getSelectedModel();
 
-        if (CONFIG.ENABLE_DEBUG) {
-            console.log(`🤖 Usando proveedor: ${provider.name}, modelo: ${model}`);
-        }
-
         // Verificar API key
         let apiKey = null;
         if (provider.requiresApiKey) {
             apiKey = getStoredApiKey();
             if (!apiKey) {
-                return `⚠️ No se ha configurado una clave de API para ${provider.name}. Ve a Configuración > Chat-IA para añadirla.`;
+                return `⚠️ No se ha configurado una clave de API para ${provider.name}. Ve a Configuración > Chat - IA para añadirla.`;
             }
         }
 
@@ -475,7 +477,7 @@ const ChatManager = (() => {
         }
 
         const context = getBookmarksContext();
-        const systemPrompt = `${CONFIG.SYSTEM_PROMPT}\n\n${context}`;
+        const systemPrompt = `${CONFIG.SYSTEM_PROMPT} \n\n${context} `;
 
         const currentState = StateManager.getState();
         const recentMessages = (currentState.chat?.messages || []).slice(-10);
@@ -502,7 +504,7 @@ const ChatManager = (() => {
 
         // Para OpenAI y compatibles (Groq, Mistral, DeepSeek)
         else if (provider.name !== 'Gemini' && provider.requiresApiKey && !provider.isCustom) {
-            headers['Authorization'] = `Bearer ${apiKey}`;
+            headers['Authorization'] = `Bearer ${apiKey} `;
         }
 
         // Construir body según el proveedor
@@ -525,12 +527,6 @@ const ChatManager = (() => {
             finalUrl = provider.buildUrl(provider.url, model, apiKey);
         }
 
-        if (provider.name === 'Gemini') {
-            console.log('🔑 API Key (primeros 10 chars):', apiKey ? apiKey.substring(0, 10) + '...' : 'NULL');
-            console.log('🌐 URL final:', finalUrl.replace(apiKey, 'HIDDEN_KEY'));
-            console.log('📦 Request Body:', JSON.stringify(requestBody, null, 2));
-        }
-
         try {
             const response = await fetchWithTimeout(finalUrl, {
                 method: 'POST',
@@ -544,13 +540,13 @@ const ChatManager = (() => {
 
                 if (response.status === 401 && retryCount === 0 && provider.requiresApiKey) {
                     clearApiKey();
-                    return `❌ La clave de API para ${provider.name} parece ser inválida. Por favor, revísala en Configuración > Chat-IA.`;
+                    return `❌ La clave de API para ${provider.name} parece ser inválida.Por favor, revísala en Configuración > Chat - IA.`;
                 }
 
                 if (response.status === 429 && retryCount === 0) {
                     return "⏳ Demasiadas peticiones. Por favor, espera unos segundos y vuelve a intentarlo.";
                 }
-                throw new Error(`API Error: ${response.status}`);
+                throw new Error(`API Error: ${response.status} `);
             }
 
             const data = await response.json();
@@ -563,8 +559,17 @@ const ChatManager = (() => {
                 aiResponse = data.choices?.[0]?.message?.content || "No pude generar una respuesta en este momento.";
             }
 
-            // Limpiar la respuesta (eliminar markdown excessivo, etc.)
+            // Limpiar la respuesta
             aiResponse = cleanResponse(aiResponse);
+
+            // Obtener marcadores para formatear enlaces
+            const bookmarks = StateManager.getBookmarks();
+            aiResponse = formatResponseWithLinks(aiResponse, bookmarks);
+
+            if (aiResponse.includes('</a>') && aiResponse.length < 150) {
+                
+                aiResponse = aiResponse;
+            }
 
             return aiResponse;
 
@@ -589,8 +594,8 @@ const ChatManager = (() => {
 
         // Eliminar markdown excesivo pero mantener formato básico
         let cleaned = response
-            .replace(/\*\*(.*?)\*\*/g, '$1')  // negritas a texto normal
-            .replace(/\*(.*?)\*/g, '$1');      // cursiva a texto normal
+            .replace(/\*\*(.*?)\*\*/g, '$1')
+            .replace(/\*(.*?)\*/g, '$1');
 
         // Limitar longitud si es demasiado larga
         if (cleaned.length > 2000) {
@@ -609,13 +614,10 @@ const ChatManager = (() => {
         const clearBtn = document.createElement('button');
         clearBtn.className = 'btn-clear-chat';
         clearBtn.title = 'Limpiar historial';
-        clearBtn.innerHTML = `
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="3 6 5 6 21 6"/>
-            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-        </svg>
-    `;
-
+        clearBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="3 6 5 6 21 6"/>
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+        </svg>`;
         clearBtn.addEventListener('click', () => clearChatHistory());
         chatContainer.appendChild(clearBtn);
     }
@@ -664,16 +666,45 @@ const ChatManager = (() => {
         padding: 8px 16px;
         background: ${type === 'error' ? '#ef4444' : '#10b981'};
         color: white;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        z-index: 10000;
+        border - radius: 8px;
+        font - size: 0.85rem;
+        z - index: 10000;
         animation: slideIn 0.3s ease;
-    `;
+        `;
 
         document.body.appendChild(toast);
         setTimeout(() => {
             toast.remove();
         }, 3000);
+    }
+
+    function formatResponseWithLinks(response, bookmarks) {
+        if (!response || !bookmarks || bookmarks.length === 0) return response;
+
+        let formattedResponse = response;
+
+        // Crear un mapa de URLs a títulos para búsqueda más eficiente
+        const urlToTitle = new Map();
+        bookmarks.forEach(bookmark => {
+            urlToTitle.set(bookmark.url, bookmark.title);
+        });
+
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        formattedResponse = formattedResponse.replace(urlRegex, (url) => {
+            const title = urlToTitle.get(url) || url;
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="chat-bookmark-link">${escapeHtml(title)}</a>`;
+        });
+
+        const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+        formattedResponse = formattedResponse.replace(markdownLinkRegex, (match, text, url) => {
+            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="chat-bookmark-link">${escapeHtml(text)}</a>`;
+        });
+        return formattedResponse;
+    }
+
+    // Escapar regex
+    function escapeRegex(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
     // * Inicialización *
@@ -687,7 +718,6 @@ const ChatManager = (() => {
 
         setupEventListeners();
         addClearChatButton();
-        console.log('💬 ChatManager initialized');
     }
 
     function setupEventListeners() {
