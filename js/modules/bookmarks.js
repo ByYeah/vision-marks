@@ -4,6 +4,60 @@ const BookmarksManager = (() => {
     const PERSISTENT_CACHE_PREFIX = 'favicon_cache_';
     const MAX_CACHE_SIZE = 50;
 
+    // Función para normalizar URLs (remover slash final si es seguro)
+    function normalizeUrl(url) {
+        if (!url || typeof url !== 'string') return url;
+        
+        try {
+            const urlObj = new URL(url);
+            
+            let pathname = urlObj.pathname;
+            
+            // Verificar si el pathname termina con '/' y no hay más después
+            // Ejemplo: "https://ejemplo.com/" -> pathname = "/"
+            // Ejemplo: "https://ejemplo.com/ruta/" -> pathname = "/ruta/"
+            if (pathname.endsWith('/') && pathname !== '/') {
+                // Tiene una ruta que termina en slash, ej: "/ruta/"
+                // Verificar si no hay query params ni hash que dependan de esa estructura
+                if (!urlObj.search && !urlObj.hash) {
+                    // Es seguro remover el slash final
+                    urlObj.pathname = pathname.slice(0, -1);
+                }
+            } else if (pathname === '/' && !urlObj.search && !urlObj.hash) {
+                // Es exactamente la raíz con slash: "https://ejemplo.com/"
+                // Remover el slash
+                urlObj.pathname = '';
+            }
+            
+            return urlObj.toString();
+        } catch (error) {
+            // Si no es una URL válida, devolverla sin cambios
+            console.warn('Error normalizando URL:', url, error);
+            return url;
+        }
+    }
+
+    // Función para limpiar URL al importar
+    function sanitizeImportUrl(url) {
+        if (!url || typeof url !== 'string') return url;
+        
+        // Trim y eliminar espacios
+        let cleanUrl = url.trim();
+        
+        // Si termina con / y no hay más caracteres después (solo el slash)
+        if (cleanUrl.endsWith('/') && !cleanUrl.match(/\/[^\/]+$/)) {
+            // Verificar que después del slash no haya nada
+            const withoutSlash = cleanUrl.slice(0, -1);
+            // Si la URL sin slash sigue siendo válida, usarla
+            if (withoutSlash.match(/^https?:\/\/[^\s]+$/)) {
+                cleanUrl = withoutSlash;
+            }
+        }
+        
+        // Intentar normalizar completamente
+        return normalizeUrl(cleanUrl);
+    }
+
     // Cargar caché persistente desde localStorage al iniciar
     function loadPersistentCache() {
         try {
@@ -123,7 +177,8 @@ const BookmarksManager = (() => {
 
     async function fetchBookmarkIcon(url) {
         try {
-            const urlObj = new URL(url);
+            const normalizedUrl = normalizeUrl(url);
+            const urlObj = new URL(normalizedUrl);
             const domain = urlObj.hostname;
 
             // Limpieza y extracción del dominio base 
@@ -170,6 +225,11 @@ const BookmarksManager = (() => {
     }
 
     async function createBookmark(data) {
+        // Normalizar URL
+        if (data.url) {
+            data.url = normalizeUrl(data.url);
+        }
+
         if (data.isFavorite && !StateManager.canAddFavorite()) {
             alert(`Límite de ${StateManager.getMaxFavorites()} favoritos alcanzado. Elimina alguno antes de añadir otro.`);
             return false;
@@ -178,7 +238,7 @@ const BookmarksManager = (() => {
         if (!data.title || data.title.trim() === '') {
             try {
                 const urlObj = new URL(data.url);
-                data.title = urlObj.hostname.replace('www.', '', '.com');
+                data.title = urlObj.hostname.replace('www.', '').replace('.com', '');
             } catch {
                 data.title = 'Marcador';
             }
@@ -195,6 +255,11 @@ const BookmarksManager = (() => {
     async function updateBookmark(id, data) {
         const bookmark = StateManager.getBookmarkById(id);
 
+        // Normalizar URL si está siendo actualizada
+        if (data.url && data.url !== bookmark.url) {
+            data.url = normalizeUrl(data.url);
+        }
+
         if (data.isFavorite && !bookmark.isFavorite && !StateManager.canAddFavorite()) {
             alert(`Límite de ${StateManager.getMaxFavorites()} favoritos alcanzado.`);
             return false;
@@ -203,7 +268,7 @@ const BookmarksManager = (() => {
         if ((!data.title || data.title.trim() === '') && data.url) {
             try {
                 const urlObj = new URL(data.url);
-                data.title = urlObj.hostname.replace('www.', '');
+                data.title = urlObj.hostname.replace('www.', '').replace('.com', '');
             } catch {
                 data.title = 'Marcador';
             }
@@ -257,7 +322,8 @@ const BookmarksManager = (() => {
         deleteBookmark,
         toggleFavorite,
         fetchBookmarkIcon,
-        clearFaviconCache
+        clearFaviconCache,
+        normalizeUrl
     };
 })();
 window.BookmarksManager = BookmarksManager;
