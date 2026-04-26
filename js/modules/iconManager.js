@@ -23,7 +23,6 @@ const IconManager = (function () {
 
     async function init() {
         await loadCustomIcons();
-        console.log('🎨 IconManager initialized');
     }
 
     async function loadCustomIcons() {
