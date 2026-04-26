@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vision-marks-v5';
+const CACHE_NAME = 'vision-marks-v8';
 const urlsToCache = [
     '/',
     '/index.html',
@@ -84,4 +84,11 @@ self.addEventListener('fetch', event => {
                 });
             })
     );
+});
+
+// Escuchar mensajes desde la app para forzar actualización
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
 });

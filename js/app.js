@@ -246,13 +246,28 @@ if ('serviceWorker' in navigator) {
             .then(registration => {
                 console.log('Service Worker registrado con éxito:', registration.scope);
 
-                // Verificar si hay actualizaciones
+                // Detectar cuando hay una nueva versión
                 registration.addEventListener('updatefound', () => {
                     const newWorker = registration.installing;
                     console.log('Nuevo Service Worker instalando');
+
                     newWorker.addEventListener('statechange', () => {
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                            console.log('Nueva versión disponible, recarga para actualizar');
+                            console.log('Nueva versión disponible, actualizando...');
+                            // Mostrar notificación al usuario
+                            if (window.ModalManager) {
+                                ModalManager.showConfirmModal(
+                                    'Actualización disponible',
+                                    'Hay una nueva versión de la aplicación. ¿Deseas actualizar ahora?',
+                                    'Actualizar',
+                                    'Más tarde'
+                                ).then(confirmed => {
+                                    if (confirmed) {
+                                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                        window.location.reload();
+                                    }
+                                });
+                            }
                         }
                     });
                 });
