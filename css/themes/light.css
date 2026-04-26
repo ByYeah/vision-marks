@@ -31,6 +31,18 @@ body:not([data-theme="dark"]):not([data-theme="amoled"])
   border-color: #e2e8f0 !important;
 }
 
+/** Temas para el chat bot IA **/
+[data-theme="light"] .chat-message.bot .chat-copy-btn svg {
+    stroke: #666;
+}
+
+[data-theme="light"] .chat-message.bot .chat-copy-btn:hover {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .chat-message.bot .chat-copy-btn:hover svg {
+    stroke: #333;
+}
 
 body:not([data-theme="custom"]) .chat-message.bot {
 background: var(--bg-tertiary) !important;

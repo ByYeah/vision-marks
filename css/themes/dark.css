@@ -311,3 +311,19 @@
 [data-theme="dark"] .icon-option:hover {
     background: #4a5568;
 }
+
+/** Temas para el chat bot IA **/
+[data-theme="dark"] .chat-message.bot .chat-copy-btn svg,
+[data-theme="auto"] .chat-message.bot .chat-copy-btn svg {
+    stroke: #999;
+}
+
+[data-theme="dark"] .chat-message.bot .chat-copy-btn:hover,
+[data-theme="auto"] .chat-message.bot .chat-copy-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .chat-message.bot .chat-copy-btn:hover svg,
+[data-theme="auto"] .chat-message.bot .chat-copy-btn:hover svg {
+    stroke: #fff;
+}

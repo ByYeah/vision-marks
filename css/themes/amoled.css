@@ -334,3 +334,16 @@ body:not([data-theme="dark"]):not([data-theme="auto"]):not([data-theme="light"])
 [data-theme="amoled"] .icon-option.selected {
     background: rgba(102, 126, 234, 0.25);
 }
+
+/** Temas para el chat bot IA **/
+[data-theme="amoled"] .chat-message.bot .chat-copy-btn svg {
+    stroke: #888;
+}
+
+[data-theme="amoled"] .chat-message.bot .chat-copy-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="amoled"] .chat-message.bot .chat-copy-btn:hover svg {
+    stroke: #fff;
+}

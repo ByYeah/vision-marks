@@ -133,6 +133,27 @@
     display: none;
 }
 
+/* Botón de copiar mejorado */
+.chat-message.bot .chat-copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    opacity: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-message.bot:hover .chat-copy-btn {
+    opacity: 1;
+}
+
 /* Toast animations */
 @keyframes slideIn {
     from {
