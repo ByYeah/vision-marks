@@ -163,19 +163,37 @@ const ChatManager = (() => {
         return provider;
     }
 
+    function getSelectedProviderKey() {
+        return localStorage.getItem(CONFIG.PROVIDER_KEY) || 'groq';
+    }
+
     function getSelectedModel() {
-        const savedModel = localStorage.getItem(CONFIG.MODEL_KEY);
-        if (savedModel) return savedModel;
+        const currentProvider = getSelectedProviderKey();
+        const savedModel = localStorage.getItem(`vision_marks_ai_model_${currentProvider}`);
+
+        if (savedModel && savedModel.trim()) {
+            return savedModel;
+        }
         return getSelectedProvider().defaultModel;
     }
 
     function saveProvider(providerKey) {
         localStorage.setItem(CONFIG.PROVIDER_KEY, providerKey);
+
+        const modelInput = document.getElementById('aiModel');
+        if (modelInput) {
+            const currentModel = getSelectedModel();
+            modelInput.value = currentModel;
+        }
     }
 
     function saveModel(model) {
+        const currentProvider = getSelectedProviderKey();
         if (model && model.trim()) {
-            localStorage.setItem(CONFIG.MODEL_KEY, model.trim());
+            localStorage.setItem(`vision_marks_ai_model_${currentProvider}`, model.trim());
+        } else {
+            // Si está vacío, eliminar la clave específica del proveedor
+            localStorage.removeItem(`vision_marks_ai_model_${currentProvider}`);
         }
     }
 
@@ -185,6 +203,49 @@ const ChatManager = (() => {
 
     function getCustomApiUrl() {
         return localStorage.getItem(CONFIG.CUSTOM_URL_KEY) || '';
+    }
+
+    function syncModelInputWithProvider() {
+        const modelInput = document.getElementById('aiModel');
+        const providerSelect = document.getElementById('aiProvider');
+
+        if (!modelInput) return;
+
+        const updateModelField = () => {
+            const currentModel = getSelectedModel();
+            modelInput.value = currentModel;
+        };
+
+        // Actualizar al cambiar proveedor manualmente
+        if (providerSelect) {
+            providerSelect.removeEventListener('change', updateModelField);
+            providerSelect.addEventListener('change', () => {
+                updateModelField();
+                // Limpiar modelo específico del proveedor anterior si estaba vacío
+                const previousProvider = localStorage.getItem(CONFIG.PROVIDER_KEY);
+                if (previousProvider && previousProvider !== providerSelect.value) {
+                    const modelForNewProvider = localStorage.getItem(`vision_marks_ai_model_${providerSelect.value}`);
+                    if (!modelForNewProvider) {
+                        // No hay modelo guardado, usar default automáticamente
+                        modelInput.value = getSelectedProvider().defaultModel;
+                    }
+                }
+            });
+        }
+        modelInput.removeEventListener('change', handleModelInputChange);
+        modelInput.addEventListener('change', handleModelInputChange);
+
+        updateModelField();
+    }
+
+    function handleModelInputChange(e) {
+        const value = e.target.value.trim();
+        if (value === '') {
+            const currentProvider = getSelectedProviderKey();
+            localStorage.removeItem(`vision_marks_ai_model_${currentProvider}`);
+        } else {
+            saveModel(value);
+        }
     }
 
     // * Funciones de encriptación *
@@ -567,7 +628,7 @@ const ChatManager = (() => {
             aiResponse = formatResponseWithLinks(aiResponse, bookmarks);
 
             if (aiResponse.includes('</a>') && aiResponse.length < 150) {
-                
+
                 aiResponse = aiResponse;
             }
 
@@ -623,7 +684,6 @@ const ChatManager = (() => {
     }
 
     async function clearChatHistory() {
-        // Confirmar antes de limpiar
         const confirmed = await ModalManager.showConfirmModal(
             'Limpiar historial',
             '¿Estás seguro de que quieres borrar todo el historial de conversación? Esta acción no se puede deshacer.',
@@ -666,9 +726,9 @@ const ChatManager = (() => {
         padding: 8px 16px;
         background: ${type === 'error' ? '#ef4444' : '#10b981'};
         color: white;
-        border - radius: 8px;
-        font - size: 0.85rem;
-        z - index: 10000;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        z-index: 10000;
         animation: slideIn 0.3s ease;
         `;
 
@@ -702,14 +762,11 @@ const ChatManager = (() => {
         return formattedResponse;
     }
 
-    // Escapar regex
-    function escapeRegex(string) {
-        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-
     // * Inicialización *
     async function init() {
         await loadChatFromIndexedDB();
+
+        syncModelInputWithProvider();
 
         const currentState = StateManager.getState();
         if (!currentState.chat?.messages?.length) {
@@ -746,7 +803,6 @@ const ChatManager = (() => {
         return div.innerHTML;
     }
 
-    // * API Pública *
     return {
         init,
         sendMessage,
