@@ -6,11 +6,58 @@ const ImportExportManager = (function () {
         FIREFOX: 'firefox',
         EDGE: 'edge',
         BRAVE: 'brave',
-        HTML: 'html'  // Formato estándar de marcadores
+        HTML: 'html'
     };
 
     // Versión actual del formato
     const CURRENT_VERSION = '1.0';
+
+    // Función para normalizar URL (remover slash final si está solo)
+    function normalizeUrl(url) {
+        if (!url || typeof url !== 'string') return url;
+
+        try {
+            const urlObj = new URL(url);
+
+            let pathname = urlObj.pathname;
+
+            // Caso: "https://ejemplo.com/" -> pathname = "/"
+            if (pathname === '/' && !urlObj.search && !urlObj.hash) {
+                urlObj.pathname = '';
+            }
+            // Caso: "https://ejemplo.com/ruta/" -> remover slash final si no hay query/hash
+            else if (pathname.endsWith('/') && pathname !== '/') {
+                if (!urlObj.search && !urlObj.hash) {
+                    urlObj.pathname = pathname.slice(0, -1);
+                }
+            }
+            return urlObj.toString();
+        } catch (error) {
+            return url;
+        }
+    }
+
+    // Función para limpiar URL al importar (más completa)
+    function sanitizeImportUrl(url) {
+        if (!url || typeof url !== 'string') return url;
+
+        let cleanUrl = url.trim();
+
+        // Eliminar espacios en blanco
+        cleanUrl = cleanUrl.trim();
+
+        // Eliminar caracteres no deseados al final
+        cleanUrl = cleanUrl.replace(/[?#][^\s]*$/, ''); // Remover query params y hash
+
+        // Si termina con / y no hay más texto después
+        if (cleanUrl.endsWith('/')) {
+            const withoutSlash = cleanUrl.slice(0, -1);
+            if (withoutSlash.match(/^https?:\/\/[^\s]+$/)) {
+                cleanUrl = withoutSlash;
+            }
+        }
+        return normalizeUrl(cleanUrl);
+    }
 
     // Exportar marcadores a JSON
     async function exportToJSON() {
@@ -34,7 +81,7 @@ const ImportExportManager = (function () {
                     bookmarks: state.bookmarks.map(b => ({
                         id: b.id,
                         title: b.title,
-                        url: b.url,
+                        url: normalizeUrl(b.url),
                         icon: b.icon,
                         folderId: b.folderId,
                         isFavorite: b.isFavorite,
@@ -74,6 +121,12 @@ const ImportExportManager = (function () {
                         return;
                     }
 
+                    // Normalizar URLs en los datos importados
+                    data.data.bookmarks = data.data.bookmarks.map(bookmark => ({
+                        ...bookmark,
+                        url: sanitizeImportUrl(bookmark.url)
+                    }));
+
                     // Mostrar modal con opciones: Fusionar o Cancelar
                     const shouldMerge = await ModalManager.showConfirmModal(
                         'Importar desde Vision Marks',
@@ -82,7 +135,7 @@ const ImportExportManager = (function () {
                     );
 
                     if (!shouldMerge) {
-                        resolve({ success: false, cancelled: true }); // No enviar mensaje
+                        resolve({ success: false, cancelled: true });
                         return;
                     }
 
@@ -175,11 +228,16 @@ const ImportExportManager = (function () {
 
                         for (const bookmark of folder.bookmarks) {
                             try {
-                                const exists = StateManager.getState().bookmarks.some(b => b.url === bookmark.url);
+                                // Normalizar URL del marcador importado
+                                const normalizedUrl = sanitizeImportUrl(bookmark.url);
+
+                                const exists = StateManager.getState().bookmarks.some(b =>
+                                    sanitizeImportUrl(b.url) === bookmark.urlnormalizedUrl
+                                );
                                 if (!exists) {
                                     await StateManager.addBookmark({
                                         title: bookmark.title,
-                                        url: bookmark.url,
+                                        url: normalizedUrl,
                                         icon: bookmark.icon,
                                         folderId: newFolder.id,
                                         isFavorite: false
@@ -231,9 +289,15 @@ const ImportExportManager = (function () {
 
             // Agrupar marcadores por carpeta
             bookmarks.forEach(bookmark => {
+                // Normalizar URL para exportación
+                const normalizedUrl = normalizeUrl(bookmark.url);
+
                 const folderId = bookmark.folderId;
                 if (folderId && folderMap.has(folderId)) {
-                    folderMap.get(folderId).bookmarks.push(bookmark);
+                    folderMap.get(folderId).bookmarks.push({
+                        ...bookmark,
+                        url: normalizedUrl
+                    });
                 } else {
                     // Marcadores sin carpeta (raíz)
                     if (!folderMap.has('root')) {
@@ -243,7 +307,10 @@ const ImportExportManager = (function () {
                             bookmarks: []
                         });
                     }
-                    folderMap.get('root').bookmarks.push(bookmark);
+                    folderMap.get('root').bookmarks.push({
+                        ...bookmark,
+                        url: normalizedUrl
+                    });
                 }
             });
 
@@ -257,7 +324,7 @@ const ImportExportManager = (function () {
 
             // Añadir carpetas con sus marcadores
             for (const [id, folder] of folderMap) {
-                if (id === 'root') continue; // La raíz se maneja aparte
+                if (id === 'root') continue;
 
                 html += `
                     <DT><H3 ADD_DATE="${Date.now()}" LAST_MODIFIED="${Date.now()}">${escapeHtml(folder.name)}</H3>
@@ -363,10 +430,12 @@ const ImportExportManager = (function () {
             // Cuando encontramos un A (marcador)
             else if (node.tagName === 'A') {
                 const title = node.textContent.trim();
-                const url = node.getAttribute('href');
+                let url = node.getAttribute('href');
 
                 if (title && url && !url.startsWith('about:') && !url.startsWith('javascript:')) {
                     try {
+                        // Normalizar URL del marcador importado
+                        url = sanitizeImportUrl(url);
                         const icon = `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}`;
                         const bookmark = { title, url, icon };
 
@@ -408,9 +477,10 @@ const ImportExportManager = (function () {
             const bookmarks = [];
             links.forEach(link => {
                 const title = link.textContent.trim();
-                const url = link.getAttribute('href');
+                let url = link.getAttribute('href');
                 if (title && url && !url.startsWith('about:') && !url.startsWith('javascript:')) {
                     try {
+                        url = sanitizeImportUrl(url);
                         const icon = `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}`;
                         bookmarks.push({ title, url, icon });
                     } catch (e) { }
@@ -429,8 +499,8 @@ const ImportExportManager = (function () {
         const currentFolders = currentState.folders || [];
         const currentBookmarks = currentState.bookmarks || [];
 
-        // Mapa de URLs existentes para evitar duplicados
-        const existingUrls = new Set(currentBookmarks.map(b => b.url));
+        // Mapa de URLs normalizadas existentes para evitar duplicados
+        const existingUrls = new Set(currentBookmarks.map(b => normalizeUrl(b.url)));
 
         // Crear carpetas nuevas que no existan (por nombre)
         for (const folder of data.data.folders) {
@@ -447,8 +517,9 @@ const ImportExportManager = (function () {
         // Añadir marcadores nuevos
         const folders = StateManager.getState().folders;
         for (const bookmark of data.data.bookmarks) {
-            if (!existingUrls.has(bookmark.url)) {
-                // Buscar carpeta correspondiente
+            // Normalizar URL antes de verificar duplicados
+            const normalizedUrl = normalizeUrl(bookmark.url);
+            if (!existingUrls.has(normalizedUrl)) {
                 const sourceFolder = data.data.folders.find(f => f.id === bookmark.folderId);
                 let targetFolderId = null;
 
@@ -459,7 +530,7 @@ const ImportExportManager = (function () {
 
                 await StateManager.addBookmark({
                     title: bookmark.title,
-                    url: bookmark.url,
+                    url: normalizedUrl,
                     icon: bookmark.icon,
                     folderId: targetFolderId,
                     isFavorite: bookmark.isFavorite
