@@ -44,6 +44,11 @@ body:not([data-theme="dark"]):not([data-theme="amoled"])
     stroke: #333;
 }
 
+[data-theme="light"] .chat-bookmark-link {
+    color: #2563eb !important;
+    border-bottom: 1px solid #93c5fd !important;
+}
+
 body:not([data-theme="custom"]) .chat-message.bot {
 background: var(--bg-tertiary) !important;
 color: var(--text-primary) !important;

@@ -154,6 +154,32 @@
     opacity: 1;
 }
 
+/* Enlaces de marcadores en el chat */
+.chat-bookmark-link {
+    display: inline-block;
+    padding: 2px 8px;
+    margin: 0 2px;
+    background: rgba(59, 130, 246, 0.1);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+
+.chat-bookmark-link:hover {
+    background: rgba(59, 130, 246, 0.2);
+    transform: translateY(-1px);
+}
+
+.chat-message.bot p {
+    line-height: 1.5;
+}
+
+.chat-message.bot p a {
+    text-decoration: none;
+}
+
 /* Toast animations */
 @keyframes slideIn {
     from {
