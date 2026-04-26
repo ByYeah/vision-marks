@@ -9,17 +9,26 @@ const ChatManager = (() => {
         MODEL_KEY: 'vision_marks_ai_model',
         CUSTOM_URL_KEY: 'vision_marks_custom_api_url',
         MAX_HISTORY_MESSAGES: 50,
-        SYSTEM_PROMPT: `Eres un asistente especializado en marcadores web. 
-        Reglas IMPORTANTES:
-        1. Sé EXTREMADAMENTE CONCISO. Usa frases cortas y directas.
-        2. Cuando recomiendes un marcador, SOLO muestra su título y URL en una línea.
-        3. No uses asteriscos, negritas ni formato especial.
-        4. Responde en el mismo idioma del usuario.
-        5. Si el usuario pide una recomendación, brinda los 5 mas relevantes del tema, si no los hay solo los disponibles.
-        6. Evita emojis y lenguaje florido. Ve al grano.`,
+        SYSTEM_PROMPT: `Eres un asistente especializado en marcadores web.
+        REGLAS ESTRICTAS (NUNCA LAS ROMPAS):
+        1. PROHIBIDO INVENTAR: NUNCA menciones sitios que no aparezcan EXPLÍCITAMENTE en el contexto que recibes.
+        2. Si no hay marcadores relevantes, responde EXACTAMENTE: "No tengo marcadores sobre [tema]. Revisa tus carpetas manualmente."
+        3. Si HAY marcadores relevantes, responde en formato lista simple:
+            1. Título exacto: URL exacta
+            2. Otro título: otra URL
+        4. NUNCA uses paréntesis, corchetes, asteriscos o símbolos raros.
+        5. Máximo 5 marcadores por respuesta.
+        6. Sé ULTRA CONCISO. Una línea por marcador.
+        7. Responde en el mismo idioma que el usuario.`,
         REQUEST_TIMEOUT: 30000,
         MAX_CONTENT_BOOKMARKS: 50,
         ENABLE_DEBUG: true,
+        CONTEXT: {
+            HYBRID_THRESHOLD: 300,
+            MAX_FULL_CONTEXT: 150,
+            MAX_SEARCH_RESULTS: 25,
+            CACHE_DURATION: 300000
+        }
     };
 
     // Proveedores disponibles
@@ -470,13 +479,45 @@ const ChatManager = (() => {
     }
 
     // * Funciones de contexto *
-    function getBookmarksContext() {
-        const bookmarks = StateManager.getBookmarks();
-        const folders = StateManager.getFolders();
+    let searchCache = new Map();
 
-        if (!bookmarks.length) {
+    // Detectar si debemos usar búsqueda dinámica
+    function shouldUseDynamicSearch() {
+        const totalBookmarks = StateManager.getBookmarks().length;
+        return totalBookmarks > CONFIG.CONTEXT.HYBRID_THRESHOLD;
+    }
+    // Función principal que decide qué contexto usar
+    function getSmartContext(userMessage) {
+        const totalBookmarks = StateManager.getBookmarks().length;
+
+        if (totalBookmarks === 0) {
             return "El usuario aún no tiene marcadores guardados.";
         }
+
+        // Menos de 300 marcadores: contexto completo
+        if (!shouldUseDynamicSearch()) {
+            return getFullContextOptimized();
+        }
+
+        // Más de 300 marcadores: búsqueda dinámica
+        return getDynamicSearchContext(userMessage);
+    }
+
+    function getBookmarksContext(userMessage = '') {
+        // Si se pasa un mensaje, usar el sistema inteligente
+        if (userMessage && userMessage.length > 0) {
+            return getSmartContext(userMessage);
+        }
+        // Si no hay mensaje, dar contexto general optimizado
+        return getFullContextOptimized();
+    }
+
+    // Contexto completo optimizado (para <300 marcadores)
+    function getFullContextOptimized() {
+        const bookmarks = StateManager.getBookmarks();
+        const folders = StateManager.getFolders();
+        const MAX_TOTAL = CONFIG.CONTEXT.MAX_FULL_CONTEXT;
+        const MAX_PER_FOLDER = 20;
 
         const folderMap = new Map();
         folders.forEach(folder => {
@@ -492,19 +533,230 @@ const ChatManager = (() => {
             bookmarksByFolder.get(folderId).push(bookmark);
         });
 
-        let context = "Estos son los marcadores actuales del usuario:\n";
+        // Ordenar carpetas por cantidad de marcadores
+        const sortedFolders = Array.from(bookmarksByFolder.entries())
+            .sort((a, b) => b[1].length - a[1].length);
 
-        for (const [folderId, bookmarksList] of bookmarksByFolder) {
+        let context = `📚 VISIÓN GENERAL (${bookmarks.length} marcadores en total):\n`;
+        let totalIncluded = 0;
+
+        for (const [folderId, bookmarksList] of sortedFolders) {
+            if (totalIncluded >= MAX_TOTAL) break;
+
             const folderName = folderId === 'root' ? 'Sin carpeta' : folderMap.get(folderId) || 'Sin carpeta';
-            context += `\n📁 ${folderName}: \n`;
-            bookmarksList.slice(0, 20).forEach(b => {
-                context += `  - ${b.title}: ${b.url} \n`;
-            });
-            if (bookmarksList.length > 20) {
-                context += `  ... y ${bookmarksList.length - 20} más\n`;
+            const limit = Math.min(MAX_PER_FOLDER, MAX_TOTAL - totalIncluded);
+            const selected = bookmarksList.slice(0, limit);
+
+            if (selected.length > 0) {
+                context += `\n📁 ${folderName} (${bookmarksList.length} marcadores):\n`;
+                selected.forEach(b => {
+                    const shortUrl = b.url.length > 60 ? b.url.substring(0, 57) + '...' : b.url;
+                    context += `  • ${b.title}: ${shortUrl}\n`;
+                });
+
+                if (bookmarksList.length > limit) {
+                    context += `  ... y ${bookmarksList.length - limit} más\n`;
+                }
+                totalIncluded += selected.length;
             }
         }
+        if (totalIncluded < bookmarks.length) {
+            context += `\n⚠️ Mostrando ${totalIncluded} de ${bookmarks.length} marcadores por eficiencia.\n`;
+        }
+        return context;
+    }
 
+    // Búsqueda dinámica (para >300 marcadores)
+    function getDynamicSearchContext(userMessage) {
+        const cacheKey = userMessage.toLowerCase().trim();
+        const cached = searchCache.get(cacheKey);
+        if (cached && (Date.now() - cached.timestamp) < CONFIG.CONTEXT.CACHE_DURATION) {
+            if (CONFIG.ENABLE_DEBUG) console.log('📦 Usando caché de búsqueda');
+            return cached.context;
+        }
+
+        const bookmarks = StateManager.getBookmarks();
+        const folders = StateManager.getFolders();
+        const query = userMessage.toLowerCase();
+
+        const stopWords = ['el', 'la', 'los', 'las', 'un', 'una', 'unos', 'unas', 'y', 'o', 'pero', 'que', 'como', 'para', 'por', 'con', 'sin', 'sobre', 'busca', 'encuentra', 'recomienda', 'dame', 'quiero', 'necesito', 'brindame', 'sitios', 'paginas', 'webs'];
+        let keywords = query.split(/\s+/)
+            .filter(word => word.length > 2 && !stopWords.includes(word))
+            .slice(0, 5);
+
+        if (keywords.length === 0) {
+            keywords = [query];
+        }
+
+        const synonymMap = {
+            'empleo': ['trabajo', 'job', 'career', 'vacante', 'empleos', 'trabajos', 'jobs', 'carrera', 'laboral'],
+            'trabajo': ['empleo', 'job', 'career', 'vacante', 'empleos', 'trabajos', 'jobs'],
+            'programacion': ['coding', 'developer', 'software', 'programar', 'desarrollo', 'dev', 'code'],
+            'diseno': ['design', 'ui', 'ux', 'creative', 'grafico', 'designer', 'creative'],
+            'ventas': ['sales', 'comercial', 'business', 'marketing', 'venta'],
+            'educacion': ['aprender', 'curso', 'tutorial', 'learning', 'study', 'educación', 'cursos'],
+            'remoto': ['remote', 'teletrabajo', 'home office', 'distancia', 'remoto', 'work from home'],
+            'desarrollo': ['programacion', 'coding', 'developer', 'software', 'dev', 'web', 'app'],
+            'freelance': ['freelancer', 'independiente', 'freelancing', 'contratista'],
+            'tecnologia': ['tech', 'technology', 'informatica', 'it', 'sistemas', 'tecnológico']
+        };
+
+        const expandedKeywords = new Set(keywords);
+        keywords.forEach(keyword => {
+            for (const [mainTerm, synonyms] of Object.entries(synonymMap)) {
+                if (mainTerm.includes(keyword) || synonyms.some(s => s.includes(keyword))) {
+                    synonyms.forEach(syn => expandedKeywords.add(syn));
+                    expandedKeywords.add(mainTerm);
+                } else {
+                    // También buscar si la keyword está dentro de algún sinónimo
+                    synonyms.forEach(syn => {
+                        if (syn.includes(keyword) || keyword.includes(syn)) {
+                            expandedKeywords.add(mainTerm);
+                            synonyms.forEach(s => expandedKeywords.add(s));
+                        }
+                    });
+                }
+            }
+        });
+
+        const relevantBookmarks = bookmarks
+            .map(bookmark => {
+                let score = 0;
+                const titleLower = bookmark.title.toLowerCase();
+                const urlLower = bookmark.url.toLowerCase();
+
+                // Buscar en título (mayor peso)
+                expandedKeywords.forEach(keyword => {
+                    if (titleLower.includes(keyword)) {
+                        score += 15;
+                        // Bonus por coincidencia exacta de palabra
+                        if (titleLower.split(/\s+/).some(word => word === keyword)) {
+                            score += 10;
+                        }
+                    }
+                    if (urlLower.includes(keyword)) score += 5;
+                });
+
+                // Bonus por carpeta
+                if (bookmark.folderId) {
+                    const folder = folders.find(f => f.id === bookmark.folderId);
+                    if (folder && folder.name) {
+                        const folderLower = folder.name.toLowerCase();
+                        expandedKeywords.forEach(keyword => {
+                            if (folderLower.includes(keyword)) {
+                                score += 8;
+                            }
+                        });
+                    }
+                }
+
+                // Bonus por título corto (más relevante generalmente)
+                if (bookmark.title.length < 50) score += 2;
+
+                return { bookmark, score };
+            })
+            .filter(item => item.score > 0)
+            .sort((a, b) => b.score - a.score)
+            .slice(0, CONFIG.CONTEXT.MAX_SEARCH_RESULTS);
+
+        let context;
+
+        if (relevantBookmarks.length === 0) {
+            context = `🔍 No encontré marcadores relacionados con "${userMessage}".\n\n`;
+            context += `📊 Tienes ${bookmarks.length} marcadores guardados.\n\n`;
+            context += `💡 RECOMENDACIONES:\n`;
+            context += `   • Revisa manualmente las carpetas que tengas\n`;
+            context += `   • Usa palabras más específicas (ej: "remote jobs" en lugar de "trabajo")\n`;
+            context += `   • Añade nuevos marcadores para temas que te interesen\n\n`;
+
+            // Listar carpetas disponibles (útil para orientar)
+            const folderNames = new Map();
+            folders.forEach(f => folderNames.set(f.id, f.name));
+            const existingFolders = new Set();
+            bookmarks.forEach(b => {
+                const folderName = b.folderId ? folderNames.get(b.folderId) : 'Sin carpeta';
+                existingFolders.add(folderName);
+            });
+
+            if (existingFolders.size > 0) {
+                context += `📁 Tus carpetas:\n`;
+                Array.from(existingFolders).slice(0, 10).forEach(f => {
+                    context += `   • ${f}\n`;
+                });
+            }
+
+            context += `\n💬 Ejemplo: "muéstrame marcadores de ${Array.from(existingFolders)[0] || 'tu carpeta principal'}"`;
+
+        } else {
+            context = `🎯 RESULTADOS RELEVANTES para "${userMessage}":\n\n`;
+
+            // Agrupar por carpeta y mostrar SOLO los relevantes
+            const byFolder = new Map();
+            relevantBookmarks.forEach(({ bookmark }) => {
+                const folderId = bookmark.folderId || 'root';
+                if (!byFolder.has(folderId)) byFolder.set(folderId, []);
+                byFolder.get(folderId).push(bookmark);
+            });
+
+            const folderMap = new Map();
+            folders.forEach(folder => {
+                folderMap.set(folder.id, folder.name);
+            });
+
+            let totalShown = 0;
+            for (const [folderId, bookmarksList] of byFolder) {
+                if (totalShown >= 15) break;
+                const folderName = folderId === 'root' ? 'Sin carpeta' : folderMap.get(folderId) || 'Sin carpeta';
+                context += `📁 ${folderName}:\n`;
+                bookmarksList.forEach(bookmark => {
+                    if (totalShown < 15) {
+                        context += `  • ${bookmark.title}: ${bookmark.url}\n`;
+                        totalShown++;
+                    }
+                });
+            }
+            context += `\n📌 IMPORTANTE: Solo estos ${relevantBookmarks.length} marcadores son relevantes para "${userMessage}". NO inventes otros.`;
+        }
+
+        // Guardar en caché
+        searchCache.set(cacheKey, {
+            context: context,
+            timestamp: Date.now()
+        });
+
+        // Limpiar caché
+        if (searchCache.size > 50) {
+            const oldest = Array.from(searchCache.entries())
+                .sort((a, b) => a[1].timestamp - b[1].timestamp)[0];
+            searchCache.delete(oldest[0]);
+        }
+        return context;
+    }
+
+
+    // Contexto de respaldo (cuando no hay palabras clave claras)
+    function getFallbackContext() {
+        const bookmarks = StateManager.getBookmarks();
+        const folders = StateManager.getFolders();
+
+        const folderCount = new Map();
+        bookmarks.forEach(bookmark => {
+            const folderId = bookmark.folderId || 'root';
+            folderCount.set(folderId, (folderCount.get(folderId) || 0) + 1);
+        });
+
+        const folderMap = new Map();
+        folders.forEach(folder => {
+            folderMap.set(folder.id, folder.name);
+        });
+
+        let context = `📊 RESUMEN (${bookmarks.length} marcadores totales):\n\n📂 Carpetas disponibles:\n`;
+        for (const [folderId, count] of folderCount) {
+            const folderName = folderId === 'root' ? 'Sin carpeta' : folderMap.get(folderId) || 'Sin carpeta';
+            context += `  • ${folderName}: ${count} marcadores\n`;
+        }
+
+        context += `\n💡 Para buscar, pregunta: "busca sobre [tema]" o "tienes marcadores de [categoría]".\n`;
         return context;
     }
 
@@ -537,8 +789,13 @@ const ChatManager = (() => {
             return "⚠️ No has configurado una URL personalizada. Ve a Configuración > Chat-IA y añade la URL de tu API.";
         }
 
-        const context = getBookmarksContext();
+        const context = getBookmarksContext(userMessage);
         const systemPrompt = `${CONFIG.SYSTEM_PROMPT} \n\n${context} `;
+
+        if (CONFIG.ENABLE_DEBUG) {
+            console.log(`📊 Contexto obtenido (${context.length} caracteres):`);
+            console.log(context.substring(0, 500) + (context.length > 500 ? '...' : ''));
+        }
 
         const currentState = StateManager.getState();
         const recentMessages = (currentState.chat?.messages || []).slice(-10);
@@ -653,12 +910,32 @@ const ChatManager = (() => {
     function cleanResponse(response) {
         if (!response) return response;
 
-        // Eliminar markdown excesivo pero mantener formato básico
         let cleaned = response
             .replace(/\*\*(.*?)\*\*/g, '$1')
             .replace(/\*(.*?)\*/g, '$1');
 
-        // Limitar longitud si es demasiado larga
+        // Limpiar URLs
+        cleaned = cleaned.replace(/https?:\/\/[^\s]+/g, (url) => {
+            let cleanUrl = url.replace(/[\\\/]+$/, '');
+            cleanUrl = cleanUrl.replace(/[\)\]\}]+$/, '');
+            cleanUrl = cleanUrl.replace(/[\“\”\'\"]+$/, '');
+            return cleanUrl;
+        });
+
+        cleaned = cleaned.replace(/(\d+)\.\s+([^\d\n][^:\n]*?)\s*\n?\s*(https?:\/\/[^\s\n]+)/g, (match, num, text, url) => {
+            return `${num}. ${text.trim()}: ${url}`;
+        });
+
+        cleaned = cleaned.replace(/(\d+)\.([^\s])/g, '$1. $2');
+
+        cleaned = cleaned.replace(/(\d+\.\s[^\n]+)\n{2,}(\d+\.)/g, '$1\n$2');
+
+        // Limpiar caracteres sobrantes
+        cleaned = cleaned.replace(/\]\s*\(/g, ': ');
+        cleaned = cleaned.replace(/[\[\]]/g, '');
+        cleaned = cleaned.replace(/\s+/g, ' ').replace(/\. /g, '.\n');
+
+        // Limitar longitud
         if (cleaned.length > 2000) {
             cleaned = cleaned.substring(0, 1997) + '...';
         }
@@ -697,8 +974,6 @@ const ChatManager = (() => {
         await saveChatToIndexedDB([]);
         renderChatHistory();
         await addMessage('✨ Historial limpiado. ¿En qué puedo ayudarte?', 'bot');
-
-        if (CONFIG.ENABLE_DEBUG) console.log('🧹 Historial de chat limpiado');
     }
 
     function copyMessageToClipboard(messageId) {
@@ -743,21 +1018,41 @@ const ChatManager = (() => {
 
         let formattedResponse = response;
 
-        // Crear un mapa de URLs a títulos para búsqueda más eficiente
-        const urlToTitle = new Map();
-        bookmarks.forEach(bookmark => {
-            urlToTitle.set(bookmark.url, bookmark.title);
-        });
+        const validUrls = new Set(bookmarks.map(b => b.url));
+        const validTitles = new Set(bookmarks.map(b => b.title.toLowerCase()));
 
-        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const urlRegex = /(https?:\/\/[^\s<>\[\]{}\|\\^`\n]+)/g;
+        let hasFakeUrls = false;
+
         formattedResponse = formattedResponse.replace(urlRegex, (url) => {
-            const title = urlToTitle.get(url) || url;
-            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="chat-bookmark-link">${escapeHtml(title)}</a>`;
+            let cleanUrl = url.trim();
+            cleanUrl = cleanUrl.replace(/[\\\/]+$/, '');
+            cleanUrl = cleanUrl.replace(/[.,;:!?)\]}]+$/, '');
+
+            // Si la URL NO está en los marcadores del usuario
+            if (!validUrls.has(cleanUrl) && !validUrls.has(url)) {
+                hasFakeUrls = true;
+                // Reemplazar con advertencia en lugar del link falso
+                return `[URL no encontrada en tus marcadores]`;
+            }
+
+            const bookmark = bookmarks.find(b => b.url === cleanUrl || b.url === url);
+            const title = bookmark ? bookmark.title : cleanUrl;
+            return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="chat-bookmark-link" title="${escapeHtml(title)}">${escapeHtml(title.length > 50 ? title.substring(0, 47) + '...' : title)}</a>`;
         });
 
+        if (hasFakeUrls) {
+            formattedResponse += '\n\n⚠️ Algunos enlaces sugeridos no están en tus marcadores. Revisa tus carpetas para ver los que realmente tienes guardados.';
+        }
+
+        // Formato markdown
         const markdownLinkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
         formattedResponse = formattedResponse.replace(markdownLinkRegex, (match, text, url) => {
-            return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="chat-bookmark-link">${escapeHtml(text)}</a>`;
+            let cleanUrl = url.replace(/[\\\/]+$/, '');
+            if (!validUrls.has(cleanUrl)) {
+                return `[${text} - no encontrado]`;
+            }
+            return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer" class="chat-bookmark-link">${escapeHtml(text)}</a>`;
         });
         return formattedResponse;
     }
@@ -767,6 +1062,7 @@ const ChatManager = (() => {
         await loadChatFromIndexedDB();
 
         syncModelInputWithProvider();
+        startCacheCleaner();
 
         const currentState = StateManager.getState();
         if (!currentState.chat?.messages?.length) {
@@ -801,6 +1097,21 @@ const ChatManager = (() => {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    // Limpiar caché periódicamente (cada 10 minutos)
+    function startCacheCleaner() {
+        setInterval(() => {
+            const now = Date.now();
+            for (const [key, value] of searchCache) {
+                if (now - value.timestamp > CONFIG.CONTEXT.CACHE_DURATION) {
+                    searchCache.delete(key);
+                }
+            }
+            if (CONFIG.ENABLE_DEBUG && searchCache.size > 0) {
+                console.log(`🧹 Caché limpiada. Tamaño actual: ${searchCache.size}`);
+            }
+        }, 10 * 60 * 1000);
     }
 
     return {
