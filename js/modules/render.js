@@ -959,6 +959,22 @@ const RenderManager = (() => {
         }
     }
 
+    function showWidgetsLayout() {
+        // Mostrar contenedores
+        document.querySelectorAll('[data-container^="widgets-"]').forEach(container => {
+            container.style.display = 'flex';
+        });
+        // Renderizar widgets
+        WidgetManager.renderAllWidgets();
+    }
+
+    // Cuando se oculta un layout
+    function hideWidgetsLayout() {
+        document.querySelectorAll('[data-container^="widgets-"]').forEach(container => {
+            container.style.display = 'none';
+        });
+    }
+
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
@@ -973,7 +989,9 @@ const RenderManager = (() => {
         updateFolderNavigation,
         renderFavoritesGrid,
         resetPage,
-        updateFavoritesButton
+        updateFavoritesButton,
+        showWidgetsLayout,
+        hideWidgetsLayout,
     };
 })();
 window.RenderManager = RenderManager;
