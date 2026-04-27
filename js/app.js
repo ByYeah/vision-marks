@@ -89,7 +89,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }, 600);
 
-        // 11. Suscribirse a cambios de estado (para mantener AppState sincronizado)
+        console.log('📋 Widgets disponibles:', {
+            PhotoGrid: !!window.PhotoGridWidget,
+            RecentBookmarks: !!window.RecentBookmarksWidget,
+            DailyQuote: !!window.DailyQuoteWidget,
+            GoalsCounter: !!window.GoalsCounterWidget,
+            WidgetManager: !!window.WidgetManager
+        });
+
+        // 11. Registrar widgets ANTES de inicializar WidgetManager
+        if (window.registerAllWidgets) {
+            window.registerAllWidgets();
+        }
+
+        // 12. Inicializar WidgetManager (después de registrar widgets)
+        setTimeout(() => {
+            if (window.WidgetManager) {
+                WidgetManager.init();
+                console.log('🎲 WidgetManager initialized');
+            }
+        }, 650);
+
+        // 13. Suscribirse a cambios de estado (para mantener AppState sincronizado)
         StateManager.subscribe((newState) => {
             AppState.containers = newState.containers;
             AppState.bookmarks = newState.bookmarks;
@@ -97,7 +118,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             AppState.settings = newState.settings;
         });
 
-        // 12. Cargar iconos SVG
+        // 14. Cargar iconos SVG
         if (window.SvgLoader) {
             SvgLoader.loadAll();
         }
