@@ -303,7 +303,6 @@
 }
 
 /* Para SVG con stroke y fill */
-.folder-icon svg path,
 .folder-icon svg circle,
 .folder-icon svg rect,
 .folder-icon .custom-icon path,
