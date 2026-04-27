@@ -429,9 +429,14 @@ const RenderManager = (() => {
 
             // Determinar el HTML del icono
             let iconHTML = '';
-            if (window.IconManager && f.iconType === 'custom' && f.iconId) {
-                iconHTML = IconManager.getIconHTML(f.iconId);
+            if (window.IconManager) {
+                iconHTML = IconManager.getIconHTML(
+                    f.iconId || f.icon,
+                    f.iconType || 'emoji',
+                    f.icon || '📁'
+                );
             } else {
+                // Fallback sin IconManager
                 iconHTML = `<span class="folder-icon-emoji">${f.icon || '📁'}</span>`;
             }
 
