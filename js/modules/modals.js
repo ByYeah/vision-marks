@@ -219,22 +219,34 @@ const ModalManager = (() => {
     function createFolderModal(folder = null) {
         const isEdit = folder !== null;
 
-        // Obtener iconos personalizados de IconManager
-        let customIconsHTML = '';
-        if (window.IconManager) {
-            const customIcons = IconManager.getCustomIcons();
-            customIconsHTML = customIcons.map(icon => `
-            <button type="button" class="icon-option custom-icon-option ${folder?.iconType === 'custom' && folder?.iconId === icon.id ? 'selected' : ''}" 
-                    data-icon-type="custom" data-icon-id="${icon.id}">
-                ${IconManager.getIconPreview(icon)}
-            </button>
-        `).join('');
+        let selectedEmojiId = null;
+        let selectedCustomId = null;
+
+        if (folder) {
+            if (folder.iconType === 'custom') {
+                selectedCustomId = folder.iconId;
+            } else {
+                selectedEmojiId = folder.iconId || 'default-folder';
+            }
+        } else {
+            selectedEmojiId = 'default-folder';
         }
 
-        // Determinar el icono seleccionado actualmente
-        let selectedEmoji = '';
-        if (folder && folder.iconType !== 'custom') {
-            selectedEmoji = folder.icon || '📁';
+        let iconPickerHTML = '';
+        if (window.IconManager) {
+            iconPickerHTML = IconManager.getIconPickerHTML(selectedEmojiId, selectedCustomId);
+        } else {
+            // Fallback por si IconManager no está disponible
+            iconPickerHTML = `
+            <div class="icon-picker-section">
+                <h4>Emojis</h4>
+                <div class="icon-picker">
+                    ${['📁', '📂', '🗂️', '📦', '🗃️', '💼', '🎯', '⭐', '🔖', '📌'].map(icon => `
+                        <button type="button" class="icon-option">${icon}</button>
+                    `).join('')}
+                </div>
+            </div>
+        `;
         }
 
         const content = `
@@ -247,24 +259,10 @@ const ModalManager = (() => {
             </div>
             <div class="form-group">
                 <label>Icono</label>
-                <div class="icon-picker-section">
-                    <h4>Emojis</h4>
-                    <div class="icon-picker">
-                        ${['📁', '📂', '🗂️', '📦', '🗃️', '💼', '🎯', '⭐', '🔖', '📌'].map(icon => `
-                            <button type="button" class="icon-option ${folder?.iconType !== 'custom' && folder?.icon === icon ? 'selected' : ''}" 
-                                    data-icon-type="emoji" data-icon-value="${icon}">${icon}</button>
-                        `).join('')}
-                    </div>
-                    ${customIconsHTML ? `
-                        <h4 style="margin-top:1rem;">Personalizados</h4>
-                        <div class="icon-picker custom-icons-picker">
-                            ${customIconsHTML}
-                        </div>
-                    ` : ''}
-                </div>
-                <input type="hidden" id="folderIcon" name="icon" value="${folder?.iconType !== 'custom' ? (folder?.icon || '📁') : ''}">
+                ${iconPickerHTML}
+                <input type="hidden" id="folderIconId" name="iconId" value="${selectedEmojiId || selectedCustomId || ''}">
                 <input type="hidden" id="folderIconType" name="iconType" value="${folder?.iconType || 'emoji'}">
-                <input type="hidden" id="folderIconId" name="iconId" value="${folder?.iconId || ''}">
+                <input type="hidden" id="folderIconValue" name="iconValue" value="">
             </div>
         </form>
     `;
@@ -277,25 +275,23 @@ const ModalManager = (() => {
         const modal = createModal('folderModal', isEdit ? 'Editar Carpeta' : 'Nueva Carpeta', content, actions);
 
         setTimeout(() => {
-            // Manejador para iconos emoji
-            modal.querySelectorAll('.icon-picker .icon-option').forEach(btn => {
+            modal.querySelectorAll('.emoji-picker .icon-option').forEach(btn => {
                 btn.addEventListener('click', () => {
                     modal.querySelectorAll('.icon-option').forEach(b => b.classList.remove('selected'));
                     btn.classList.add('selected');
-                    modal.querySelector('#folderIcon').value = btn.dataset.iconValue;
+                    modal.querySelector('#folderIconId').value = btn.dataset.iconId;
                     modal.querySelector('#folderIconType').value = 'emoji';
-                    modal.querySelector('#folderIconId').value = '';
+                    modal.querySelector('#folderIconValue').value = btn.dataset.iconValue;
                 });
             });
 
-            // Manejador para iconos personalizados
             modal.querySelectorAll('.custom-icons-picker .icon-option').forEach(btn => {
                 btn.addEventListener('click', () => {
                     modal.querySelectorAll('.icon-option').forEach(b => b.classList.remove('selected'));
                     btn.classList.add('selected');
-                    modal.querySelector('#folderIcon').value = '';
-                    modal.querySelector('#folderIconType').value = 'custom';
                     modal.querySelector('#folderIconId').value = btn.dataset.iconId;
+                    modal.querySelector('#folderIconType').value = 'custom';
+                    modal.querySelector('#folderIconValue').value = '';
                 });
             });
 
@@ -329,11 +325,20 @@ const ModalManager = (() => {
                     return;
                 }
 
+                const iconType = modal.querySelector('#folderIconType').value;
+                const iconId = modal.querySelector('#folderIconId').value;
+                let iconValue = '';
+
+                // Obtener el valor del emoji si es necesario
+                if (iconType === 'emoji' && window.IconManager) {
+                    iconValue = IconManager.getIconValue(iconId, 'emoji', '📁');
+                }
+
                 const data = {
                     name: nameInput.value.trim(),
-                    icon: modal.querySelector('#folderIcon').value,
-                    iconType: modal.querySelector('#folderIconType').value,
-                    iconId: modal.querySelector('#folderIconId').value || null
+                    icon: iconValue || '📁',
+                    iconType: iconType,
+                    iconId: iconId || null
                 };
 
                 if (isEdit) {
