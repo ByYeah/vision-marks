@@ -7,10 +7,10 @@ const WidgetManager = (() => {
 
     // Widgets disponibles para elegir
     const AVAILABLE_WIDGETS = [
-        { id: 'photo-grid', name: 'Photo Grid', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 28 28"><path fill="currentColor" fill-rule="nonzero" d="M22.993 6.008A3.24 3.24 0 0 1 24.5 8.75v10.5c0 2.9-2.35 5.25-5.25 5.25H8.75a3.25 3.25 0 0 1-2.744-1.507l.122.005.122.002h13A3.75 3.75 0 0 0 23 19.25v-13q0-.122-.007-.242M18.75 3A3.25 3.25 0 0 1 22 6.25v12.5A3.25 3.25 0 0 1 18.75 22H6.25A3.25 3.25 0 0 1 3 18.75V6.25A3.25 3.25 0 0 1 6.25 3zm.582 17.401-6.307-6.178a.75.75 0 0 0-.966-.07l-.084.07-6.307 6.178q.275.098.582.099h12.5q.307-.002.582-.099l-6.307-6.178zM18.75 4.5H6.25A1.75 1.75 0 0 0 4.5 6.25v12.5q.001.314.103.593l6.322-6.192a2.25 2.25 0 0 1 3.02-.116l.13.116 6.322 6.193q.102-.28.103-.594V6.25a1.75 1.75 0 0 0-1.75-1.75M16 7.751a1.25 1.25 0 1 1 0 2.499 1.25 1.25 0 0 1 0-2.499"/></svg>', description: 'Galería de imágenes para tu visión' },
-        { id: 'recent-bookmarks', name: 'Últimos marcadores', icon: '🔖', description: 'Tus últimos 5 marcadores guardados' },
-        { id: 'daily-quote', name: 'Cita del día', icon: '💬', description: 'Inspiración diaria' },
-        { id: 'goals-counter', name: 'Mis Metas', icon: '🎯', description: 'Seguimiento de objetivos' }
+        { id: 'photo-grid', name: 'Photo Grid', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28"><path fill="currentColor" fill-rule="nonzero" d="M22.993 6.008A3.24 3.24 0 0 1 24.5 8.75v10.5c0 2.9-2.35 5.25-5.25 5.25H8.75a3.25 3.25 0 0 1-2.744-1.507l.122.005.122.002h13A3.75 3.75 0 0 0 23 19.25v-13q0-.122-.007-.242M18.75 3A3.25 3.25 0 0 1 22 6.25v12.5A3.25 3.25 0 0 1 18.75 22H6.25A3.25 3.25 0 0 1 3 18.75V6.25A3.25 3.25 0 0 1 6.25 3zm.582 17.401-6.307-6.178a.75.75 0 0 0-.966-.07l-.084.07-6.307 6.178q.275.098.582.099h12.5q.307-.002.582-.099l-6.307-6.178zM18.75 4.5H6.25A1.75 1.75 0 0 0 4.5 6.25v12.5q.001.314.103.593l6.322-6.192a2.25 2.25 0 0 1 3.02-.116l.13.116 6.322 6.193q.102-.28.103-.594V6.25a1.75 1.75 0 0 0-1.75-1.75M16 7.751a1.25 1.25 0 1 1 0 2.499 1.25 1.25 0 0 1 0-2.499"/></svg>', description: 'Galería de imágenes para tu visión' },
+        { id: 'recent-bookmarks', name: 'Últimos marcadores', icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 28 28"><path fill="currentColor" d="M6 6.75A3.25 3.25 0 0 1 9.25 3.5h9.5A3.25 3.25 0 0 1 22 6.75v18a.75.75 0 0 1-1.203.598L14 20.19l-6.797 5.157A.75.75 0 0 1 6 24.75zM9.25 5A1.75 1.75 0 0 0 7.5 6.75v16.49l6.047-4.587a.75.75 0 0 1 .906 0L20.5 23.24V6.75A1.75 1.75 0 0 0 18.75 5z"/></svg>', description: 'Tus últimos 5 marcadores guardados' },
+        { id: 'daily-quote', name: 'Cita del día', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="nonzero" d="M7.5 6a2.5 2.5 0 0 1 2.495 2.336l.005.206c-.01 3.555-1.24 6.614-3.705 9.223a.75.75 0 1 1-1.09-1.03c1.64-1.737 2.66-3.674 3.077-5.859q-.372.122-.782.124a2.5 2.5 0 0 1 0-5m9 0a2.5 2.5 0 0 1 2.495 2.336l.005.206c-.01 3.56-1.237 6.614-3.705 9.223a.75.75 0 0 1-1.09-1.03c1.643-1.738 2.662-3.672 3.078-5.859A2.5 2.5 0 1 1 16.5 6m-9 1.5a1 1 0 1 0 .993 1.117l.007-.124a1 1 0 0 0-1-.993m9 0a1 1 0 1 0 .993 1.117l.007-.124a1 1 0 0 0-1-.993"/></svg>', description: 'Inspiración diaria' },
+        { id: 'goals-counter', name: 'Mis Metas', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="nonzero" d="M8.632 19.28a.75.75 0 0 1 .073.977l-.073.084L7.574 21.4a.75.75 0 0 1-1.134-.977l.073-.084 1.059-1.058a.75.75 0 0 1 1.06 0M6.69 17.335a.75.75 0 0 1 .072.976l-.072.085-2.475 2.474a.75.75 0 0 1-1.133-.976l.072-.084 2.475-2.475a.75.75 0 0 1 1.06 0M18.778 2.232l.258.075.662.205a2.75 2.75 0 0 1 1.747 1.628l.064.182.206.665a6.75 6.75 0 0 1-1.487 6.583l-.186.193-.998.998a3.5 3.5 0 0 1-.183 4.415l-.145.152-1.242 1.243a.75.75 0 0 1-.977.073l-.084-.073-1.59-1.59-.176.177a1.75 1.75 0 0 1-2.35.114l-.125-.114-.497-.497-.798 1.395a.75.75 0 0 1-1.093.233l-.088-.075-3.89-3.89a.75.75 0 0 1 .076-1.126l.083-.055 1.396-.796-.496-.495a1.75 1.75 0 0 1-.113-2.35l.113-.125.18-.18-1.59-1.591a.75.75 0 0 1-.073-.977l.072-.084 1.243-1.242a3.5 3.5 0 0 1 4.402-.445l.167.118.996-.996a6.75 6.75 0 0 1 6.516-1.748M4.745 15.39a.75.75 0 0 1 0 1.061l-1.06 1.06a.75.75 0 0 1-1.061-1.06l1.06-1.06a.75.75 0 0 1 1.061 0m13.22-1.548-2.08 2.08 1.059 1.06.712-.713c.658-.658.76-1.661.308-2.427m-9.505-.394-.898.512 2.5 2.5.514-.897zm5.038-8.574-.175.168-5.397 5.397a.25.25 0 0 0-.04.3l.04.053 5.307 5.307a.25.25 0 0 0 .3.04l.053-.04 5.395-5.396a5.25 5.25 0 0 0 1.368-5.036l-.066-.234-.207-.664a1.25 1.25 0 0 0-.695-.776l-.128-.047-.662-.206a5.25 5.25 0 0 0-5.093 1.134m3.095 2.558a2.5 2.5 0 1 1-3.536 3.536 2.5 2.5 0 0 1 3.536-3.536m-2.475 1.06a1 1 0 1 0 1.414 1.415 1 1 0 0 0-1.414-1.414M7.885 6.248l-.128.117-.712.712 1.06 1.06 2.081-2.08a2 2 0 0 0-2.301.19"/></svg>', description: 'Seguimiento de objetivos' }
     ];
 
     // Widgets registrados
@@ -60,7 +60,7 @@ const WidgetManager = (() => {
         }
 
         registeredWidgets.set(widget.id, widget);
-        console.log(`✅ Widget registrado: ${widget.name} (${widget.id})`);
+        console.log(`Widget registrado: ${widget.name} (${widget.id})`);
         return true;
     }
 
@@ -90,7 +90,7 @@ const WidgetManager = (() => {
             if (saved) {
                 const parsed = JSON.parse(saved);
 
-                // ✅ VERIFICAR Y CORREGIR DUPLICADOS
+                // Verificar Y Corregir duplicados
                 const assignments = parsed.widgetAssignments || widgetAssignments;
                 const usedWidgets = new Set();
                 let hasDuplicates = false;
@@ -180,7 +180,7 @@ const WidgetManager = (() => {
         saveState();
         notifySubscribers();
 
-        await renderWidgetInContainer(containerId);
+        await renderAllWidgets();
         return true;
     }
 
@@ -194,9 +194,7 @@ const WidgetManager = (() => {
         saveState();
         notifySubscribers();
 
-        // Mostrar placeholder
-        await renderPlaceholderInContainer(containerId);
-
+        await renderAllWidgets();
         return true;
     }
 
@@ -234,9 +232,7 @@ const WidgetManager = (() => {
         saveState();
         notifySubscribers();
 
-        // Re-renderizar en modo normal
-        await renderWidgetInContainer(containerId, false);
-
+        await renderAllWidgets();
         return true;
     }
 
