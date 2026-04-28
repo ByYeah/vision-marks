@@ -7,16 +7,18 @@ const DailyQuoteWidget = (() => {
         { text: "El futuro pertenece a quienes creen en la belleza de sus sueños.", author: "Eleanor Roosevelt" },
         { text: "Cree en ti mismo y todo será posible.", author: "Anónimo" },
         { text: "La perseverancia es la clave del éxito.", author: "Anónimo" },
-        { text: "Hazlo ahora. A veces, el 'después' se convierte en 'nunca'.",
-          author: "Anónimo" }
+        {
+            text: "Hazlo ahora. A veces, el 'después' se convierte en 'nunca'.",
+            author: "Anónimo"
+        }
     ];
-    
+
     const STORAGE_KEY = 'widget_daily_quote';
-    
+
     // Obtener cita del día (cambia según la fecha)
     function getQuoteOfTheDay() {
         const today = new Date().toDateString();
-        
+
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
@@ -28,12 +30,12 @@ const DailyQuoteWidget = (() => {
         } catch (error) {
             console.error('Error loading quote:', error);
         }
-        
+
         // Generar nueva cita basada en el día del año
         const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
         const index = dayOfYear % DEFAULT_QUOTES.length;
         const quote = DEFAULT_QUOTES[index];
-        
+
         // Guardar
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify({
@@ -43,14 +45,14 @@ const DailyQuoteWidget = (() => {
         } catch (error) {
             console.error('Error saving quote:', error);
         }
-        
+
         return quote;
     }
-    
+
     // Renderizar preview
     function renderPreview(config, widgetId) {
         const quote = getQuoteOfTheDay();
-        
+
         return `
             <div class="daily-quote-preview">
                 <div class="quote-icon">💬</div>
@@ -59,11 +61,11 @@ const DailyQuoteWidget = (() => {
             </div>
         `;
     }
-    
+
     // Renderizar expandido
     function renderExpanded(config, widgetId) {
         const quote = getQuoteOfTheDay();
-        
+
         return `
             <div class="daily-quote-full">
                 <div class="quote-header">
@@ -94,12 +96,12 @@ const DailyQuoteWidget = (() => {
             </div>
         `;
     }
-    
+
     // Inicializar preview
     function initPreview(element, config) {
         // No necesita inicialización especial
     }
-    
+
     // Inicializar expandido
     function initExpanded(element, config) {
         // Botón refrescar (nueva cita aleatoria)
@@ -111,7 +113,7 @@ const DailyQuoteWidget = (() => {
                 const quotes = [...DEFAULT_QUOTES];
                 const randomIndex = Math.floor(Math.random() * quotes.length);
                 const newQuote = quotes[randomIndex];
-                
+
                 try {
                     localStorage.setItem(STORAGE_KEY, JSON.stringify({
                         date: today,
@@ -120,7 +122,7 @@ const DailyQuoteWidget = (() => {
                 } catch (error) {
                     console.error('Error saving quote:', error);
                 }
-                
+
                 // Actualizar UI
                 const container = element.closest('[data-container]');
                 if (container && WidgetManager) {
@@ -129,7 +131,7 @@ const DailyQuoteWidget = (() => {
                 }
             });
         }
-        
+
         // Botón copiar
         const copyBtn = element.querySelector('.quote-copy-btn');
         if (copyBtn) {
@@ -137,7 +139,7 @@ const DailyQuoteWidget = (() => {
                 const quoteText = element.querySelector('.quote-text')?.textContent || '';
                 const quoteAuthor = element.querySelector('.quote-author')?.textContent || '';
                 const fullQuote = `"${quoteText}" ${quoteAuthor}`;
-                
+
                 try {
                     await navigator.clipboard.writeText(fullQuote);
                     showCopyFeedback(copyBtn);
@@ -147,7 +149,7 @@ const DailyQuoteWidget = (() => {
             });
         }
     }
-    
+
     function showCopyFeedback(btn) {
         const originalText = btn.innerHTML;
         btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> ¡Copiado!';
@@ -155,31 +157,31 @@ const DailyQuoteWidget = (() => {
             btn.innerHTML = originalText;
         }, 2000);
     }
-    
+
     function destroy(element) {
         const refreshBtn = element.querySelector('.quote-refresh');
         if (refreshBtn) {
             const newBtn = refreshBtn.cloneNode(true);
             refreshBtn.parentNode.replaceChild(newBtn, refreshBtn);
         }
-        
+
         const copyBtn = element.querySelector('.quote-copy-btn');
         if (copyBtn) {
             const newBtn = copyBtn.cloneNode(true);
             copyBtn.parentNode.replaceChild(newBtn, copyBtn);
         }
     }
-    
+
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
-    
+
     return {
         id: 'daily-quote',
         name: 'Cita del día',
-        icon: '💬',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="nonzero" d="M7.5 6a2.5 2.5 0 0 1 2.495 2.336l.005.206c-.01 3.555-1.24 6.614-3.705 9.223a.75.75 0 1 1-1.09-1.03c1.64-1.737 2.66-3.674 3.077-5.859q-.372.122-.782.124a2.5 2.5 0 0 1 0-5m9 0a2.5 2.5 0 0 1 2.495 2.336l.005.206c-.01 3.56-1.237 6.614-3.705 9.223a.75.75 0 0 1-1.09-1.03c1.643-1.738 2.662-3.672 3.078-5.859A2.5 2.5 0 1 1 16.5 6m-9 1.5a1 1 0 1 0 .993 1.117l.007-.124a1 1 0 0 0-1-.993m9 0a1 1 0 1 0 .993 1.117l.007-.124a1 1 0 0 0-1-.993"/></svg>',
         description: 'Inspiración diaria para mantener la motivación',
         renderPreview,
         renderExpanded,

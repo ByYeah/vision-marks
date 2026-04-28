@@ -1,7 +1,7 @@
 const RecentBookmarksWidget = (() => {
     // Número de marcadores a mostrar
     const DISPLAY_COUNT = 5;
-    
+
     // Obtener últimos marcadores
     function getRecentBookmarks() {
         const bookmarks = StateManager.getBookmarks();
@@ -13,25 +13,25 @@ const RecentBookmarksWidget = (() => {
         });
         return sorted.slice(0, DISPLAY_COUNT);
     }
-    
+
     // Formatear fecha relativa
     function formatRelativeDate(dateString) {
         if (!dateString) return 'Reciente';
-        
+
         const date = new Date(dateString);
         const now = new Date();
         const diffMs = now - date;
         const diffMins = Math.floor(diffMs / 60000);
         const diffHours = Math.floor(diffMs / 3600000);
         const diffDays = Math.floor(diffMs / 86400000);
-        
+
         if (diffMins < 1) return 'Ahora mismo';
         if (diffMins < 60) return `Hace ${diffMins} min`;
         if (diffHours < 24) return `Hace ${diffHours} h`;
         if (diffDays === 1) return 'Ayer';
         return `Hace ${diffDays} días`;
     }
-    
+
     // Obtener favicon
     function getFaviconUrl(url) {
         try {
@@ -41,11 +41,11 @@ const RecentBookmarksWidget = (() => {
             return '';
         }
     }
-    
+
     // Renderizar preview
     function renderPreview(config, widgetId) {
         const recent = getRecentBookmarks();
-        
+
         if (recent.length === 0) {
             return `
                 <div class="recent-bookmarks-empty">
@@ -55,7 +55,7 @@ const RecentBookmarksWidget = (() => {
                 </div>
             `;
         }
-        
+
         return `
             <div class="recent-bookmarks-preview">
                 <div class="recent-list">
@@ -71,11 +71,11 @@ const RecentBookmarksWidget = (() => {
             </div>
         `;
     }
-    
+
     // Renderizar expandido
     function renderExpanded(config, widgetId) {
         const recent = getRecentBookmarks();
-        
+
         if (recent.length === 0) {
             return `
                 <div class="recent-bookmarks-empty expanded">
@@ -86,7 +86,7 @@ const RecentBookmarksWidget = (() => {
                 </div>
             `;
         }
-        
+
         return `
             <div class="recent-bookmarks-full">
                 <div class="recent-header">
@@ -127,7 +127,7 @@ const RecentBookmarksWidget = (() => {
             </div>
         `;
     }
-    
+
     // Inicializar preview
     function initPreview(element, config) {
         const items = element.querySelectorAll('.recent-item-preview');
@@ -138,7 +138,7 @@ const RecentBookmarksWidget = (() => {
             });
         });
     }
-    
+
     // Inicializar expandido
     function initExpanded(element, config) {
         function refreshContent() {
@@ -148,18 +148,18 @@ const RecentBookmarksWidget = (() => {
                 WidgetManager.renderWidgetInContainer(containerId);
             }
         }
-        
+
         // Abrir enlaces
         const items = element.querySelectorAll('.recent-item-full');
         items.forEach(item => {
             const url = item.dataset.url;
             const openBtn = item.querySelector('.recent-open-btn');
-            
+
             item.addEventListener('click', (e) => {
                 if (openBtn && openBtn.contains(e.target)) return;
                 if (url) window.open(url, '_blank');
             });
-            
+
             if (openBtn) {
                 openBtn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -167,13 +167,13 @@ const RecentBookmarksWidget = (() => {
                 });
             }
         });
-        
+
         // Botón refrescar
         const refreshBtn = element.querySelector('.recent-refresh');
         if (refreshBtn) {
             refreshBtn.addEventListener('click', refreshContent);
         }
-        
+
         // Botón ir a marcadores
         const gotoBtn = element.querySelector('.btn-goto-bookmarks');
         if (gotoBtn) {
@@ -184,7 +184,7 @@ const RecentBookmarksWidget = (() => {
             });
         }
     }
-    
+
     function destroy(element) {
         // Limpiar eventos
         const refreshBtn = element.querySelector('.recent-refresh');
@@ -193,17 +193,17 @@ const RecentBookmarksWidget = (() => {
             refreshBtn.parentNode.replaceChild(newBtn, refreshBtn);
         }
     }
-    
+
     function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
     }
-    
+
     return {
         id: 'recent-bookmarks',
         name: 'Últimos marcadores',
-        icon: '🔖',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 28 28"><path fill="currentColor" d="M6 6.75A3.25 3.25 0 0 1 9.25 3.5h9.5A3.25 3.25 0 0 1 22 6.75v18a.75.75 0 0 1-1.203.598L14 20.19l-6.797 5.157A.75.75 0 0 1 6 24.75zM9.25 5A1.75 1.75 0 0 0 7.5 6.75v16.49l6.047-4.587a.75.75 0 0 1 .906 0L20.5 23.24V6.75A1.75 1.75 0 0 0 18.75 5z"/></svg>',
         description: 'Tus últimos 5 marcadores guardados',
         renderPreview,
         renderExpanded,

@@ -265,9 +265,29 @@
     border-color: var(--primary-color);
 }
 
-/* ============================================
-   PHOTO GRID WIDGET
-   ============================================ */
+.widget-icon-large svg {
+    width: 50px;
+    height: 50px;
+    display: block;
+    margin: 0 auto;
+}
+
+.widget-icon-large svg path,
+.widget-icon-large svg circle,
+.widget-icon-large svg line,
+.widget-icon-large svg polyline {
+    stroke: currentColor;
+    fill: currentColor;
+}
+
+/* Para iconos que solo usan stroke sin fill */
+.widget-icon-large svg[fill="none"] path,
+.widget-icon-large svg[fill="none"] circle,
+.widget-icon-large svg[fill="none"] line {
+    fill: none;
+}
+
+/** PHOTO GRID WIDGET **/
 .photo-grid-preview .photo-grid-mini {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -400,9 +420,7 @@
     margin: 0;
 }
 
-/* ============================================
-   RECENT BOOKMARKS WIDGET
-   ============================================ */
+/** RECENT BOOKMARKS WIDGET **/
 .recent-bookmarks-preview .recent-list {
     display: flex;
     flex-direction: column;
@@ -577,9 +595,7 @@
     font-size: 0.8rem;
 }
 
-/* ============================================
-   DAILY QUOTE WIDGET
-   ============================================ */
+/** DAILY QUOTE WIDGET **/
 .daily-quote-preview {
     text-align: center;
     padding: 8px;
@@ -684,9 +700,7 @@
     border-color: var(--primary-color);
 }
 
-/* ============================================
-   GOALS COUNTER WIDGET
-   ============================================ */
+/** GOALS COUNTER WIDGET **/
 .goals-preview .goals-stats {
     display: flex;
     justify-content: space-around;
