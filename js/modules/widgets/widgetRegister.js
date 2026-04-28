@@ -34,7 +34,6 @@ function registerAllWidgets() {
     }
     
     widgetsRegistered = true;
-    console.log(`✅ ${registered} widgets registrados correctamente`);
     return registered > 0;
 }
 

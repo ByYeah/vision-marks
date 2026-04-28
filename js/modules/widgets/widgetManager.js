@@ -60,7 +60,6 @@ const WidgetManager = (() => {
         }
 
         registeredWidgets.set(widget.id, widget);
-        console.log(`Widget registrado: ${widget.name} (${widget.id})`);
         return true;
     }
 
@@ -116,7 +115,6 @@ const WidgetManager = (() => {
                     saveState();
                 }
             }
-            console.log('📦 Widget state cargado:', widgetAssignments);
         } catch (error) {
             console.error('Error loading widget state:', error);
         }
@@ -254,7 +252,6 @@ const WidgetManager = (() => {
         if (!body) return;
 
         const allWidgets = getAvailableWidgets(containerId);
-        console.table(allWidgets); // Esto te mostrará en la consola si hay 4 widgets o menos
 
         const gridHtml = allWidgets.map(widget => `
             <div class="widget-icon-card ${widget.isUsed ? 'disabled' : ''}" 
@@ -357,130 +354,14 @@ const WidgetManager = (() => {
         }
     }
 
-    // Mostrar selector para elegir widget
-    async function showWidgetSelector(containerId) {
-        const availableWidgets = getAvailableWidgets();
-
-        // También permitir cambiar el widget actual
-        const currentAssignment = widgetAssignments[containerId];
-        let allOptions = [...availableWidgets];
-
-        if (currentAssignment) {
-            const currentWidget = AVAILABLE_WIDGETS.find(w => w.id === currentAssignment.id);
-            if (currentWidget && !allOptions.find(w => w.id === currentWidget.id)) {
-                allOptions.unshift(currentWidget);
-            }
-        }
-
-        if (allOptions.length === 0) {
-            ModalManager.showAlert('Sin widgets disponibles',
-                'Todos los widgets ya están en uso. Elimina uno primero desde el icono ⚙️ en la esquina.');
-            return;
-        }
-
-        const content = `
-            <div class="widget-selector">
-                <p>Selecciona un widget para este espacio:</p>
-                <div class="widget-options">
-                    ${allOptions.map(widget => `
-                        <div class="widget-option" data-widget-id="${widget.id}">
-                            <div class="widget-option-icon">${widget.icon || '📦'}</div>
-                            <div class="widget-option-name">${widget.name}</div>
-                            <div class="widget-option-desc">${widget.description || ''}</div>
-                        </div>
-                    `).join('')}
-                </div>
-                ${currentAssignment ? `
-                    <div class="widget-selector-remove">
-                        <button class="btn-remove-widget" data-container="${containerId}">
-                            🗑️ Eliminar widget actual
-                        </button>
-                    </div>
-                ` : ''}
-            </div>
-        `;
-
-        const modal = ModalManager.createModal('widgetSelector', 'Configurar Widget', content, [
-            { text: 'Cancelar', class: 'btn-secondary', action: 'cancel' }
-        ]);
-
-        ModalManager.openModal(modal);
-
-        setTimeout(() => {
-            // Seleccionar widget
-            modal.querySelectorAll('.widget-option').forEach(option => {
-                option.addEventListener('click', async () => {
-                    const widgetId = option.dataset.widgetId;
-                    await assignWidget(containerId, widgetId);
-                    ModalManager.closeModal(modal);
-                });
-            });
-
-            // Eliminar widget actual
-            const removeBtn = modal.querySelector('.btn-remove-widget');
-            if (removeBtn) {
-                removeBtn.addEventListener('click', async () => {
-                    await removeWidget(containerId);
-                    ModalManager.closeModal(modal);
-                });
-            }
-        }, 100);
-    }
-
-    // Mostrar configuración global de widgets
-    async function showGlobalSettings() {
-        const content = `
-            <div class="widgets-global-settings">
-                <p>Gestiona los widgets en cada espacio:</p>
-                <div class="widgets-assignments">
-                    ${CONFIG.WIDGET_CONTAINERS.map(containerId => {
-            const assignment = widgetAssignments[containerId];
-            const widgetName = assignment ?
-                AVAILABLE_WIDGETS.find(w => w.id === assignment.id)?.name || assignment.id :
-                'Vacío';
-            return `
-                            <div class="widget-assignment-item">
-                                <span class="widget-container-name">${containerId.toUpperCase()}</span>
-                                <span class="widget-assigned-name">${widgetName}</span>
-                                <button class="btn-configure-widget" data-container="${containerId}">
-                                    ⚙️ Configurar
-                                </button>
-                            </div>
-                        `;
-        }).join('')}
-                </div>
-            </div>
-        `;
-
-        const modal = ModalManager.createModal('widgetsGlobalSettings', 'Configurar Widgets', content, [
-            { text: 'Cerrar', class: 'btn-primary', action: 'close' }
-        ]);
-
-        ModalManager.openModal(modal);
-
-        setTimeout(() => {
-            modal.querySelectorAll('.btn-configure-widget').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const containerId = btn.dataset.container;
-                    ModalManager.closeModal(modal);
-                    showWidgetSelector(containerId);
-                });
-            });
-        }, 100);
-    }
-
     async function init() {
         loadState();
 
-        // Ocultar/mostrar contenedores según layout se maneja en render.js
         // Solo renderizamos los widgets existentes
-
         await renderAllWidgets();
 
         // Configurar botones de configuración global (en cada header de widget)
         setupBackButtons();
-
-        console.log('📦 WidgetManager inicializado');
     }
 
     function setupBackButtons() {
@@ -497,21 +378,10 @@ const WidgetManager = (() => {
                 });
             }
         }
-
-        // También añadir un botón global en settings si existe
-        const globalBackBtn = document.querySelector('#widgetsGlobalConfig');
-        if (globalBackBtn) {
-            globalBackBtn.removeEventListener('click', handleGlobalBackClick);
-            globalBackBtn.addEventListener('click', showGlobalSettings);
-        }
     }
 
     function handleBackClick(e) {
         // El evento se maneja directamente arriba
-    }
-
-    function handleGlobalBackClick() {
-        showGlobalSettings();
     }
 
     // Limpiar widget específico (para cuando cambia el layout)
@@ -544,7 +414,6 @@ const WidgetManager = (() => {
         getExpandedContainer: () => expandedContainer,
         subscribe,
         cleanupWidget,
-        showGlobalSettings
     };
 })();
 window.WidgetManager = WidgetManager;
