@@ -89,14 +89,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }, 600);
 
-        console.log('📋 Widgets disponibles:', {
-            PhotoGrid: !!window.PhotoGridWidget,
-            RecentBookmarks: !!window.RecentBookmarksWidget,
-            DailyQuote: !!window.DailyQuoteWidget,
-            GoalsCounter: !!window.GoalsCounterWidget,
-            WidgetManager: !!window.WidgetManager
-        });
-
         // 11. Registrar widgets ANTES de inicializar WidgetManager
         if (window.registerAllWidgets) {
             window.registerAllWidgets();
