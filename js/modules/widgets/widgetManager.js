@@ -5,6 +5,8 @@ const WidgetManager = (() => {
         WIDGET_CONTAINERS: ['widgets-1', 'widgets-2', 'widgets-3', 'widgets-4']
     };
 
+    let initializationComplete = false;
+
     // Widgets disponibles para elegir
     const AVAILABLE_WIDGETS = [
         { id: 'photo-grid', name: 'Photo Grid', icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28"><path fill="currentColor" fill-rule="nonzero" d="M22.993 6.008A3.24 3.24 0 0 1 24.5 8.75v10.5c0 2.9-2.35 5.25-5.25 5.25H8.75a3.25 3.25 0 0 1-2.744-1.507l.122.005.122.002h13A3.75 3.75 0 0 0 23 19.25v-13q0-.122-.007-.242M18.75 3A3.25 3.25 0 0 1 22 6.25v12.5A3.25 3.25 0 0 1 18.75 22H6.25A3.25 3.25 0 0 1 3 18.75V6.25A3.25 3.25 0 0 1 6.25 3zm.582 17.401-6.307-6.178a.75.75 0 0 0-.966-.07l-.084.07-6.307 6.178q.275.098.582.099h12.5q.307-.002.582-.099l-6.307-6.178zM18.75 4.5H6.25A1.75 1.75 0 0 0 4.5 6.25v12.5q.001.314.103.593l6.322-6.192a2.25 2.25 0 0 1 3.02-.116l.13.116 6.322 6.193q.102-.28.103-.594V6.25a1.75 1.75 0 0 0-1.75-1.75M16 7.751a1.25 1.25 0 1 1 0 2.499 1.25 1.25 0 0 1 0-2.499"/></svg>', description: 'Galería de imágenes para tu visión' },
@@ -179,6 +181,7 @@ const WidgetManager = (() => {
         notifySubscribers();
 
         await renderAllWidgets();
+        await updateAllExpandButtons();
         return true;
     }
 
@@ -193,6 +196,7 @@ const WidgetManager = (() => {
         notifySubscribers();
 
         await renderAllWidgets();
+        await updateAllExpandButtons();
         return true;
     }
 
@@ -281,12 +285,14 @@ const WidgetManager = (() => {
         const assignment = widgetAssignments[containerId];
         if (!assignment) {
             await renderPlaceholderInContainer(containerId);
+            await updateExpandButton(containerId, false);
             return;
         }
 
         const widget = registeredWidgets.get(assignment.id);
         if (!widget) {
             await renderPlaceholderInContainer(containerId);
+            await updateExpandButton(containerId, false);
             return;
         }
 
@@ -309,21 +315,12 @@ const WidgetManager = (() => {
         }
 
         body.innerHTML = `
-            <div class="widget-content ${isExpanded ? 'widget-expanded' : 'widget-preview'}" 
-                 data-widget-id="${assignment.id}"
-                 data-container="${containerId}">
-                ${html}
-                <button class="widget-toggle-btn" data-container="${containerId}" 
-                        title="${isExpanded ? 'Colapsar' : 'Expandir'}">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        ${isExpanded ?
-                '<polyline points="18 15 12 9 6 15"/>' :
-                '<polyline points="6 9 12 15 18 9"/>'
-            }
-                    </svg>
-                </button>
-            </div>
-        `;
+        <div class="widget-content ${isExpanded ? 'widget-expanded' : 'widget-preview'}" 
+             data-widget-id="${assignment.id}"
+             data-container="${containerId}">
+            ${html}
+        </div>
+    `;
 
         // Inicializar lógica del widget
         if (isExpanded && widget.initExpanded) {
@@ -337,13 +334,50 @@ const WidgetManager = (() => {
             await widget.init(widgetElement, assignment.config);
         }
 
-        // Adjuntar evento del botón toggle
-        const toggleBtn = body.querySelector('.widget-toggle-btn');
-        if (toggleBtn) {
-            toggleBtn.addEventListener('click', (e) => {
+        // Actualizar el botón de expandir en la cabecera
+        await updateExpandButton(containerId, isExpanded);
+    }
+
+    // Actualizar el botón de expandir en la cabecera
+    async function updateExpandButton(containerId, isExpanded) {
+        const container = document.querySelector(`[data-container="${containerId}"]`);
+        if (!container) return;
+
+        const expandBtn = container.querySelector('.btn-toggle-expand');
+        if (!expandBtn) return;
+
+        const assignment = widgetAssignments[containerId];
+
+        // Mostrar botón SOLO si hay un widget asignado
+        if (assignment && assignment.id && registeredWidgets.has(assignment.id)) {
+            expandBtn.style.display = 'flex';
+            expandBtn.title = isExpanded ? 'Colapsar' : 'Expandir';
+
+            // Actualizar icono según estado
+            const iconSpan = expandBtn.querySelector('.icon-wrapper');
+            if (iconSpan) {
+                if (isExpanded) {
+                    iconSpan.setAttribute('data-svg', 'arrow-up');
+                } else {
+                    iconSpan.setAttribute('data-svg', 'arrow-down');
+                }
+                // Recargar SVG
+                if (window.SvgLoader) {
+                    const svgContent = await SvgLoader.loadIcon(isExpanded ? 'arrow-up' : 'arrow-down');
+                    iconSpan.innerHTML = svgContent;
+                }
+            }
+
+            // Remover eventos anteriores y añadir nuevo
+            const newBtn = expandBtn.cloneNode(true);
+            expandBtn.parentNode.replaceChild(newBtn, expandBtn);
+
+            newBtn.addEventListener('click', async (e) => {
                 e.stopPropagation();
-                toggleWidget(containerId);
+                await toggleWidget(containerId);
             });
+        } else {
+            expandBtn.style.display = 'none';
         }
     }
 
@@ -352,16 +386,27 @@ const WidgetManager = (() => {
         for (const containerId of CONFIG.WIDGET_CONTAINERS) {
             await renderWidgetInContainer(containerId);
         }
+        await updateAllExpandButtons();
+    }
+
+    // Actualizar todos los botones expand
+    async function updateAllExpandButtons() {
+        for (const containerId of CONFIG.WIDGET_CONTAINERS) {
+            const assignment = widgetAssignments[containerId];
+            const isExpanded = assignment?.isExpanded || false;
+            await updateExpandButton(containerId, isExpanded);
+        }
     }
 
     async function init() {
         loadState();
-
-        // Solo renderizamos los widgets existentes
-        await renderAllWidgets();
-
-        // Configurar botones de configuración global (en cada header de widget)
+        // Configurar botones ANTES de renderizar
         setupBackButtons();
+        // Renderizar todos los widgets
+        await renderAllWidgets();
+        // Asegurar que los botones expand estén actualizados
+        await updateAllExpandButtons();
+        initializationComplete = true;
     }
 
     function setupBackButtons() {
