@@ -1,13 +1,7 @@
 const PhotoGridWidget = (() => {
-    // Configuración por defecto
-    const DEFAULT_IMAGES = [
-        null, null, null, null, null, null, null, null, null
-    ];
-    
-    // Almacenamiento en localStorage
+    const DEFAULT_IMAGES = [null, null, null, null, null, null, null, null, null];
     const STORAGE_KEY = 'widget_photo_grid';
-    
-    // Función para cargar imágenes guardadas
+
     function loadStoredImages(widgetId) {
         try {
             const saved = localStorage.getItem(`${STORAGE_KEY}_${widgetId}`);
@@ -19,8 +13,7 @@ const PhotoGridWidget = (() => {
         }
         return [...DEFAULT_IMAGES];
     }
-    
-    // Función para guardar imágenes
+
     function saveImages(widgetId, images) {
         try {
             localStorage.setItem(`${STORAGE_KEY}_${widgetId}`, JSON.stringify(images));
@@ -28,38 +21,38 @@ const PhotoGridWidget = (() => {
             console.error('Error saving photo grid:', error);
         }
     }
-    
-    // Renderizar preview (versión mini)
+
+    // Obtener primeras 4 imágenes no nulas
+    function getPreviewImages(images) {
+        const existingImages = images.filter(img => img !== null);
+        const result = [];
+        for (let i = 0; i < 4; i++) {
+            result.push(existingImages[i] || null);
+        }
+        return result;
+    }
+
     function renderPreview(config, widgetId) {
         const images = loadStoredImages(widgetId);
-        const visibleImages = images.slice(0, 4); // Solo mostrar 4 en preview
-        const imageCount = images.filter(img => img !== null).length;
+        const previewImages = getPreviewImages(images);
         
         return `
-            <div class="photo-grid-preview">
+            <div class="photo-grid-preview" data-widget-id="${widgetId}">
                 <div class="photo-grid-mini">
-                    ${visibleImages.map(img => `
+                    ${previewImages.map(img => `
                         <div class="photo-mini-cell">
-                            ${img ? 
-                                `<img src="${img}" alt="Preview" loading="lazy">` : 
-                                '<span class="photo-placeholder">+</span>'
-                            }
+                            ${img ? `<img src="${img}" alt="Preview" style="width:100%;height:100%;object-fit:cover;">` : '<div class="photo-placeholder-empty"></div>'}
                         </div>
                     `).join('')}
-                </div>
-                <div class="photo-grid-stats">
-                    ${imageCount} / ${images.length} imágenes
                 </div>
             </div>
         `;
     }
-    
-    // Renderizar expandido (versión completa)
+
     function renderExpanded(config, widgetId) {
         const images = loadStoredImages(widgetId);
-        
         return `
-            <div class="photo-grid-full">
+            <div class="photo-grid-full" data-widget-id="${widgetId}">
                 <div class="photo-grid-header">
                     <h4>Galería de Visión</h4>
                     <button class="photo-grid-reset" title="Resetear todas las imágenes">
@@ -69,52 +62,51 @@ const PhotoGridWidget = (() => {
                         </svg>
                     </button>
                 </div>
-                <div class="photo-grid-container">
-                    ${images.map((img, index) => `
-                        <div class="photo-grid-cell" data-index="${index}">
-                            ${img ? `
-                                <img src="${img}" alt="Vision ${index + 1}" loading="lazy">
-                                <button class="photo-remove-btn" data-index="${index}" title="Eliminar">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="18" y1="6" x2="6" y2="18"/>
-                                        <line x1="6" y1="6" x2="18" y2="18"/>
-                                    </svg>
-                                </button>
-                            ` : `
-                                <div class="photo-empty-cell">
-                                    <span>+</span>
-                                    <small>Añadir</small>
-                                </div>
-                            `}
-                        </div>
-                    `).join('')}
+                <div class="photo-grid-scroll-container">
+                    <div class="photo-grid-container">
+                        ${images.map((img, index) => `
+                            <div class="photo-grid-cell" data-index="${index}">
+                                ${img ? `
+                                    <img src="${img}" alt="Vision ${index + 1}" style="width:100%;height:100%;object-fit:cover;">
+                                    <button class="photo-remove-btn" data-index="${index}" title="Eliminar">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="18" y1="6" x2="6" y2="18"/>
+                                            <line x1="6" y1="6" x2="18" y2="18"/>
+                                        </svg>
+                                    </button>
+                                ` : `
+                                    <div class="photo-empty-cell">
+                                        <span>+</span>
+                                        <small>Añadir</small>
+                                    </div>
+                                `}
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
-                <p class="photo-grid-hint">Haz clic en una celda para añadir o cambiar imagen</p>
             </div>
         `;
     }
-    
-    // Inicializar preview
+
     function initPreview(element, config) {
-        // No necesita inicialización especial en preview
+        // No necesita inicialización
     }
-    
-    // Inicializar expandido
+
     function initExpanded(element, config) {
-        const widgetId = element.closest('[data-container]')?.dataset.container;
+        const widgetContainer = element.closest('[data-container]');
+        const widgetId = widgetContainer?.dataset.container;
         if (!widgetId) return;
-        
+
         let images = loadStoredImages(widgetId);
-        
-        // Función para actualizar la UI
+
         function refreshGrid() {
             const container = element.querySelector('.photo-grid-container');
             if (!container) return;
-            
+
             container.innerHTML = images.map((img, index) => `
                 <div class="photo-grid-cell" data-index="${index}">
                     ${img ? `
-                        <img src="${img}" alt="Vision ${index + 1}" loading="lazy">
+                        <img src="${img}" alt="Vision ${index + 1}" style="width:100%;height:100%;object-fit:cover;">
                         <button class="photo-remove-btn" data-index="${index}" title="Eliminar">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <line x1="18" y1="6" x2="6" y2="18"/>
@@ -129,12 +121,28 @@ const PhotoGridWidget = (() => {
                     `}
                 </div>
             `).join('');
-            
-            // Re-adjuntar eventos
+
             attachEvents();
+            updatePreview();
         }
-        
-        // Manejar añadir imagen
+
+        function updatePreview() {
+            // Buscar el preview en el mismo contenedor
+            const container = document.querySelector(`[data-container="${widgetId}"]`);
+            const previewElement = container?.querySelector('.photo-grid-preview');
+            if (previewElement) {
+                const previewImages = getPreviewImages(images);
+                const miniGrid = previewElement.querySelector('.photo-grid-mini');
+                if (miniGrid) {
+                    miniGrid.innerHTML = previewImages.map(img => `
+                        <div class="photo-mini-cell">
+                            ${img ? `<img src="${img}" alt="Preview" style="width:100%;height:100%;object-fit:cover;">` : '<div class="photo-placeholder-empty"></div>'}
+                        </div>
+                    `).join('');
+                }
+            }
+        }
+
         function handleAddImage(index) {
             const input = document.createElement('input');
             input.type = 'file';
@@ -153,41 +161,43 @@ const PhotoGridWidget = (() => {
             };
             input.click();
         }
-        
-        // Manejar eliminar imagen
+
         function handleRemoveImage(index) {
             images[index] = null;
             saveImages(widgetId, images);
             refreshGrid();
         }
-        
-        // Adjuntar eventos
+
         function attachEvents() {
             const cells = element.querySelectorAll('.photo-grid-cell');
             cells.forEach(cell => {
-                const index = parseInt(cell.dataset.index);
-                const removeBtn = cell.querySelector('.photo-remove-btn');
                 
-                // Click en la celda (zona vacía o imagen) para añadir
-                cell.addEventListener('click', (e) => {
-                    if (removeBtn && removeBtn.contains(e.target)) return;
-                    handleAddImage(index);
+                // Remover eventos anteriores
+                const newCell = cell.cloneNode(true);
+                cell.parentNode.replaceChild(newCell, cell);
+                
+                const newRemoveBtn = newCell.querySelector('.photo-remove-btn');
+                const newIndex = parseInt(newCell.dataset.index);
+                
+                newCell.addEventListener('click', (e) => {
+                    if (newRemoveBtn && newRemoveBtn.contains(e.target)) return;
+                    handleAddImage(newIndex);
                 });
-                
-                // Click en botón eliminar
-                if (removeBtn) {
-                    removeBtn.addEventListener('click', (e) => {
+
+                if (newRemoveBtn) {
+                    newRemoveBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        handleRemoveImage(index);
+                        handleRemoveImage(newIndex);
                     });
                 }
             });
         }
-        
-        // Resetear todas las imágenes
+
         const resetBtn = element.querySelector('.photo-grid-reset');
         if (resetBtn) {
-            resetBtn.addEventListener('click', () => {
+            const newResetBtn = resetBtn.cloneNode(true);
+            resetBtn.parentNode.replaceChild(newResetBtn, resetBtn);
+            newResetBtn.addEventListener('click', () => {
                 if (confirm('¿Eliminar todas las imágenes de esta galería?')) {
                     images = [...DEFAULT_IMAGES];
                     saveImages(widgetId, images);
@@ -195,20 +205,17 @@ const PhotoGridWidget = (() => {
                 }
             });
         }
-        
-        attachEvents();
+        refreshGrid();
     }
-    
-    // Destruir widget (limpiar eventos)
+
     function destroy(element) {
-        // Limpiar eventos si es necesario
         const resetBtn = element.querySelector('.photo-grid-reset');
         if (resetBtn) {
             const newBtn = resetBtn.cloneNode(true);
             resetBtn.parentNode.replaceChild(newBtn, resetBtn);
         }
     }
-    
+
     return {
         id: 'photo-grid',
         name: 'Photo Grid',
@@ -221,5 +228,4 @@ const PhotoGridWidget = (() => {
         destroy
     };
 })();
-
 window.PhotoGridWidget = PhotoGridWidget;
