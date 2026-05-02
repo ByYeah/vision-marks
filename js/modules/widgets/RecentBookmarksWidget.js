@@ -45,6 +45,7 @@ const RecentBookmarksWidget = (() => {
     // Renderizar preview
     function renderPreview(config, widgetId) {
         const recent = getRecentBookmarks();
+        const totalCount = StateManager.getBookmarks().length;
 
         if (recent.length === 0) {
             return `
@@ -59,7 +60,7 @@ const RecentBookmarksWidget = (() => {
         return `
             <div class="recent-bookmarks-preview">
                 <div class="recent-list">
-                    ${recent.slice(0, 3).map(bookmark => `
+                    ${recent.map(bookmark => `
                         <div class="recent-item-preview" data-url="${bookmark.url}">
                             <img src="${getFaviconUrl(bookmark.url)}" alt="" class="recent-favicon" 
                                  onerror="this.style.display='none'">
@@ -67,7 +68,7 @@ const RecentBookmarksWidget = (() => {
                         </div>
                     `).join('')}
                 </div>
-                ${recent.length > 3 ? `<div class="recent-more">+${recent.length - 3} más</div>` : ''}
+                ${totalCount > DISPLAY_COUNT ? `<div class="recent-more">+${totalCount - DISPLAY_COUNT} marcadores</div>` : ''}
             </div>
         `;
     }

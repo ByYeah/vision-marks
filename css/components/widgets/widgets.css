@@ -506,16 +506,16 @@
 .recent-bookmarks-preview .recent-list {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
 }
 
 .recent-item-preview {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 4px;
+    gap: 10px;
+    padding: 6px 8px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 6px;
     transition: background 0.2s;
 }
 
@@ -524,23 +524,30 @@
 }
 
 .recent-favicon {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     flex-shrink: 0;
 }
 
 .recent-title {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .recent-more {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     color: var(--text-muted);
     text-align: center;
-    margin-top: 4px;
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+.recent-bookmarks-full {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .recent-bookmarks-full .recent-header {
@@ -573,7 +580,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: 300px;
+    flex: 1;
     overflow-y: auto;
 }
 
