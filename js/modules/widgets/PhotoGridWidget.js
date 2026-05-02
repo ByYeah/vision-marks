@@ -2,9 +2,9 @@ const PhotoGridWidget = (() => {
     const DEFAULT_IMAGES = [null, null, null, null, null, null, null, null, null];
     const STORAGE_KEY = 'widget_photo_grid';
 
-    function loadStoredImages(widgetId) {
+    function loadStoredImages() {
         try {
-            const saved = localStorage.getItem(`${STORAGE_KEY}_${widgetId}`);
+            const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 return JSON.parse(saved);
             }
@@ -14,34 +14,31 @@ const PhotoGridWidget = (() => {
         return [...DEFAULT_IMAGES];
     }
 
-    function saveImages(widgetId, images) {
+    function saveImages(images) {
         try {
-            localStorage.setItem(`${STORAGE_KEY}_${widgetId}`, JSON.stringify(images));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(images));
         } catch (error) {
             console.error('Error saving photo grid:', error);
         }
     }
 
-    // Obtener primeras 4 imágenes no nulas
-    function getPreviewImages(images) {
-        const existingImages = images.filter(img => img !== null);
-        const result = [];
-        for (let i = 0; i < 4; i++) {
-            result.push(existingImages[i] || null);
-        }
-        return result;
-    }
-
     function renderPreview(config, widgetId) {
-        const images = loadStoredImages(widgetId);
-        const previewImages = getPreviewImages(images);
-        
+        const images = loadStoredImages().filter(img => img !== null);
+
+        if (images.length === 0) {
+            return `
+                <div class="photo-grid-preview" data-widget-id="${widgetId}">
+                    <div class="photo-placeholder-empty"></div>
+                </div>
+            `;
+        }
+
         return `
             <div class="photo-grid-preview" data-widget-id="${widgetId}">
-                <div class="photo-grid-mini">
-                    ${previewImages.map(img => `
-                        <div class="photo-mini-cell">
-                            ${img ? `<img src="${img}" alt="Preview" style="width:100%;height:100%;object-fit:cover;">` : '<div class="photo-placeholder-empty"></div>'}
+                <div class="photo-carousel">
+                    ${images.map((img, index) => `
+                        <div class="photo-carousel-item ${index === 0 ? 'active' : ''}" 
+                             style="background-image: url('${img}');">
                         </div>
                     `).join('')}
                 </div>
@@ -50,7 +47,7 @@ const PhotoGridWidget = (() => {
     }
 
     function renderExpanded(config, widgetId) {
-        const images = loadStoredImages(widgetId);
+        const images = loadStoredImages();
         return `
             <div class="photo-grid-full" data-widget-id="${widgetId}">
                 <div class="photo-grid-header">
@@ -88,16 +85,28 @@ const PhotoGridWidget = (() => {
         `;
     }
 
-    function initPreview(element, config) {
-        // No necesita inicialización
+    function initPreview(element, config, widgetId) {
+        const items = element.querySelectorAll('.photo-carousel-item');
+        if (items.length <= 1) return;
+
+        let currentIndex = 0;
+        const intervalId = setInterval(() => {
+            // Limpieza automática si el elemento ya no está en el DOM
+            if (!element.isConnected) {
+                clearInterval(intervalId);
+                return;
+            }
+
+            items[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + 1) % items.length;
+            items[currentIndex].classList.add('active');
+        }, 7000);
+
+        element._photoCarouselInterval = intervalId;
     }
 
-    function initExpanded(element, config) {
-        const widgetContainer = element.closest('[data-container]');
-        const widgetId = widgetContainer?.dataset.container;
-        if (!widgetId) return;
-
-        let images = loadStoredImages(widgetId);
+    function initExpanded(element, config, widgetId) {
+        let images = loadStoredImages();
 
         function refreshGrid() {
             const container = element.querySelector('.photo-grid-container');
@@ -123,24 +132,6 @@ const PhotoGridWidget = (() => {
             `).join('');
 
             attachEvents();
-            updatePreview();
-        }
-
-        function updatePreview() {
-            // Buscar el preview en el mismo contenedor
-            const container = document.querySelector(`[data-container="${widgetId}"]`);
-            const previewElement = container?.querySelector('.photo-grid-preview');
-            if (previewElement) {
-                const previewImages = getPreviewImages(images);
-                const miniGrid = previewElement.querySelector('.photo-grid-mini');
-                if (miniGrid) {
-                    miniGrid.innerHTML = previewImages.map(img => `
-                        <div class="photo-mini-cell">
-                            ${img ? `<img src="${img}" alt="Preview" style="width:100%;height:100%;object-fit:cover;">` : '<div class="photo-placeholder-empty"></div>'}
-                        </div>
-                    `).join('');
-                }
-            }
         }
 
         function handleAddImage(index) {
@@ -153,7 +144,7 @@ const PhotoGridWidget = (() => {
                     const reader = new FileReader();
                     reader.onload = (event) => {
                         images[index] = event.target.result;
-                        saveImages(widgetId, images);
+                        saveImages(images);
                         refreshGrid();
                     };
                     reader.readAsDataURL(file);
@@ -164,21 +155,21 @@ const PhotoGridWidget = (() => {
 
         function handleRemoveImage(index) {
             images[index] = null;
-            saveImages(widgetId, images);
+            saveImages(images);
             refreshGrid();
         }
 
         function attachEvents() {
             const cells = element.querySelectorAll('.photo-grid-cell');
             cells.forEach(cell => {
-                
+
                 // Remover eventos anteriores
                 const newCell = cell.cloneNode(true);
                 cell.parentNode.replaceChild(newCell, cell);
-                
+
                 const newRemoveBtn = newCell.querySelector('.photo-remove-btn');
                 const newIndex = parseInt(newCell.dataset.index);
-                
+
                 newCell.addEventListener('click', (e) => {
                     if (newRemoveBtn && newRemoveBtn.contains(e.target)) return;
                     handleAddImage(newIndex);
@@ -200,7 +191,7 @@ const PhotoGridWidget = (() => {
             newResetBtn.addEventListener('click', () => {
                 if (confirm('¿Eliminar todas las imágenes de esta galería?')) {
                     images = [...DEFAULT_IMAGES];
-                    saveImages(widgetId, images);
+                    saveImages(images);
                     refreshGrid();
                 }
             });
@@ -209,6 +200,9 @@ const PhotoGridWidget = (() => {
     }
 
     function destroy(element) {
+        if (element._photoCarouselInterval) {
+            clearInterval(element._photoCarouselInterval);
+        }
         const resetBtn = element.querySelector('.photo-grid-reset');
         if (resetBtn) {
             const newBtn = resetBtn.cloneNode(true);
