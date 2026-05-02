@@ -307,11 +307,11 @@ const WidgetManager = (() => {
         // Generar HTML según modo
         let html = '';
         if (isExpanded && widget.renderExpanded) {
-            html = widget.renderExpanded(assignment.config, assignment.id);
+            html = widget.renderExpanded(assignment.config, containerId);
         } else if (widget.renderPreview) {
-            html = widget.renderPreview(assignment.config, assignment.id);
+            html = widget.renderPreview(assignment.config, containerId);
         } else {
-            html = widget.render(assignment.config, assignment.id);
+            html = widget.render(assignment.config, containerId);
         }
 
         body.innerHTML = `
@@ -325,13 +325,13 @@ const WidgetManager = (() => {
         // Inicializar lógica del widget
         if (isExpanded && widget.initExpanded) {
             const widgetElement = body.querySelector('.widget-content');
-            await widget.initExpanded(widgetElement, assignment.config);
+            await widget.initExpanded(widgetElement, assignment.config, containerId);
         } else if (widget.initPreview) {
             const widgetElement = body.querySelector('.widget-content');
-            await widget.initPreview(widgetElement, assignment.config);
+            await widget.initPreview(widgetElement, assignment.config, containerId);
         } else if (widget.init) {
             const widgetElement = body.querySelector('.widget-content');
-            await widget.init(widgetElement, assignment.config);
+            await widget.init(widgetElement, assignment.config, containerId);
         }
 
         // Actualizar el botón de expandir en la cabecera
