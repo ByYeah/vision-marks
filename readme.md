@@ -20,10 +20,17 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/JavaScript-73.7%-F7DF1E?logo=javascript" alt="JavaScript">
-  <img src="https://img.shields.io/badge/CSS-23.9%-1572B6?logo=css3" alt="CSS">
+  <img src="https://img.shields.io/badge/JavaScript-73.7%25-F7DF1E?logo=javascript" alt="JavaScript">
+  <img src="https://img.shields.io/badge/CSS-23.9%25-1572B6?logo=css3" alt="CSS">
+  <img src="https://img.shields.io/badge/HTML-2.4%25-E34F26?logo=html5" alt="HTML">
   <img src="https://img.shields.io/badge/PWA-Enabled-5A0FC8?logo=pwa" alt="PWA">
   <img src="https://img.shields.io/badge/License-MIT-green" alt="MIT License">
+</p>
+
+<p align="center">
+  <img src="https://i.imgur.com/FbDMOXp.png" alt="Vision Marks Desktop View" width="800">
+  <br>
+  <em>Desktop layout with active folders and widgets</em>
 </p>
 
 ---
