@@ -348,8 +348,11 @@ const WidgetManager = (() => {
 
         const assignment = widgetAssignments[containerId];
 
-        // Mostrar botón SOLO si hay un widget asignado
-        if (assignment && assignment.id && registeredWidgets.has(assignment.id)) {
+        // Siempre mostrar pero inhabilitar si no hay widget asignado en este contenedor
+        const hasWidget = assignment && assignment.id && registeredWidgets.has(assignment.id);
+
+        if (hasWidget) {
+            expandBtn.classList.remove('disabled');
             expandBtn.style.display = 'flex';
             expandBtn.title = isExpanded ? 'Colapsar' : 'Expandir';
 
@@ -377,7 +380,9 @@ const WidgetManager = (() => {
                 await toggleWidget(containerId);
             });
         } else {
-            expandBtn.style.display = 'none';
+            expandBtn.classList.add('disabled');
+            expandBtn.style.display = 'flex';
+            expandBtn.title = 'Seleccione un widget primero';
         }
     }
 
