@@ -71,7 +71,7 @@ Vision Marks is a fully functional **Progressive Web App (PWA)**. This means you
 
 <br>
 
-## 💾 **Local Storage & Limitations**
+## **Local Storage & Limitations**
 
 > **🔒 100% Local-First. Your data, your control.**
 
