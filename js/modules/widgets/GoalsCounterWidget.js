@@ -9,9 +9,9 @@ const GoalsCounterWidget = (() => {
     ];
     
     // Cargar metas
-    function loadGoals(widgetId) {
+    function loadGoals() {
         try {
-            const saved = localStorage.getItem(`${STORAGE_KEY}_${widgetId}`);
+            const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
                 return JSON.parse(saved);
             }
@@ -22,9 +22,9 @@ const GoalsCounterWidget = (() => {
     }
     
     // Guardar metas
-    function saveGoals(widgetId, goals) {
+    function saveGoals(goals) {
         try {
-            localStorage.setItem(`${STORAGE_KEY}_${widgetId}`, JSON.stringify(goals));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(goals));
         } catch (error) {
             console.error('Error saving goals:', error);
         }
@@ -38,10 +38,16 @@ const GoalsCounterWidget = (() => {
     
     // Renderizar preview
     function renderPreview(config, widgetId) {
-        const goals = loadGoals(widgetId);
+        const goals = loadGoals();
         const activeGoals = goals.filter(g => g.current < g.target).length;
         const completedGoals = goals.filter(g => g.current >= g.target).length;
         
+        // Agrupar metas de 2 en 2 para la rotación
+        const groups = [];
+        for (let i = 0; i < goals.length; i += 2) {
+            groups.push(goals.slice(i, i + 2));
+        }
+
         return `
             <div class="goals-preview">
                 <div class="goals-stats">
@@ -54,14 +60,18 @@ const GoalsCounterWidget = (() => {
                         <span class="stat-label">Completadas</span>
                     </div>
                 </div>
-                <div class="goals-mini-list">
-                    ${goals.slice(0, 2).map(goal => `
-                        <div class="goal-mini">
-                            <div class="goal-name">${escapeHtml(goal.name)}</div>
-                            <div class="goal-progress-mini">
-                                <div class="progress-bar-mini" style="width: ${calculateProgress(goal.current, goal.target)}%"></div>
-                            </div>
-                            <div class="goal-count">${goal.current}/${goal.target} ${goal.unit}</div>
+                <div class="goals-mini-carousel">
+                    ${groups.map((group, index) => `
+                        <div class="goals-mini-group ${index === 0 ? 'active' : ''}">
+                            ${group.map(goal => `
+                                <div class="goal-mini">
+                                    <div class="goal-name">${escapeHtml(goal.name)}</div>
+                                    <div class="goal-progress-mini">
+                                        <div class="progress-bar-mini" style="width: ${calculateProgress(goal.current, goal.target)}%"></div>
+                                    </div>
+                                    <div class="goal-count">${goal.current}/${goal.target} ${goal.unit}</div>
+                                </div>
+                            `).join('')}
                         </div>
                     `).join('')}
                 </div>
@@ -71,7 +81,7 @@ const GoalsCounterWidget = (() => {
     
     // Renderizar expandido
     function renderExpanded(config, widgetId) {
-        const goals = loadGoals(widgetId);
+        const goals = loadGoals();
         
         return `
             <div class="goals-full">
@@ -89,8 +99,9 @@ const GoalsCounterWidget = (() => {
                         <div class="goal-item" data-goal-id="${goal.id}">
                             <div class="goal-header">
                                 <div class="goal-title">
-                                    <span class="goal-name">${escapeHtml(goal.name)}</span>
-                                    <span class="goal-target">${goal.target} ${goal.unit}</span>
+                                    <span class="goal-name" contenteditable="true" data-field="name" title="Clic para editar">${escapeHtml(goal.name)}</span>
+                                    <span class="goal-target" contenteditable="true" data-field="target" title="Editar número">${goal.target}</span>
+                                    <span class="goal-unit" contenteditable="true" data-field="unit" title="Editar unidad">${escapeHtml(goal.unit)}</span>
                                 </div>
                                 <div class="goal-actions">
                                     <button class="goal-delete-btn" data-goal-id="${goal.id}" title="Eliminar">
@@ -120,15 +131,28 @@ const GoalsCounterWidget = (() => {
     
     // Inicializar preview
     function initPreview(element, config) {
-        // No necesita inicialización especial
+        const groups = element.querySelectorAll('.goals-mini-group');
+        if (groups.length <= 1) return;
+
+        let currentIndex = 0;
+        const intervalId = setInterval(() => {
+            // Limpieza automática si el elemento ya no está en el DOM
+            if (!element.isConnected) {
+                clearInterval(intervalId);
+                return;
+            }
+
+            groups[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + 1) % groups.length;
+            groups[currentIndex].classList.add('active');
+        }, 6000); // Rota cada 6 segundos
+
+        element._goalsCarouselInterval = intervalId;
     }
     
     // Inicializar expandido
     function initExpanded(element, config) {
-        const widgetId = element.closest('[data-container]')?.dataset.container;
-        if (!widgetId) return;
-        
-        let goals = loadGoals(widgetId);
+        let goals = loadGoals();
         
         function updateUI() {
             const goalsList = element.querySelector('.goals-list');
@@ -138,8 +162,9 @@ const GoalsCounterWidget = (() => {
                 <div class="goal-item" data-goal-id="${goal.id}">
                     <div class="goal-header">
                         <div class="goal-title">
-                            <span class="goal-name">${escapeHtml(goal.name)}</span>
-                            <span class="goal-target">${goal.target} ${goal.unit}</span>
+                            <span class="goal-name" contenteditable="true" data-field="name" title="Clic para editar">${escapeHtml(goal.name)}</span>
+                            <span class="goal-target" contenteditable="true" data-field="target" title="Editar número">${goal.target}</span>
+                            <span class="goal-unit" contenteditable="true" data-field="unit" title="Editar unidad">${escapeHtml(goal.unit)}</span>
                         </div>
                         <div class="goal-actions">
                             <button class="goal-delete-btn" data-goal-id="${goal.id}" title="Eliminar">
@@ -174,7 +199,7 @@ const GoalsCounterWidget = (() => {
                     const goal = goals.find(g => g.id === goalId);
                     if (goal && goal.current < goal.target) {
                         goal.current++;
-                        saveGoals(widgetId, goals);
+                        saveGoals(goals);
                         updateUI();
                     }
                 });
@@ -186,7 +211,7 @@ const GoalsCounterWidget = (() => {
                     const goal = goals.find(g => g.id === goalId);
                     if (goal && goal.current > 0) {
                         goal.current--;
-                        saveGoals(widgetId, goals);
+                        saveGoals(goals);
                         updateUI();
                     }
                 });
@@ -197,10 +222,39 @@ const GoalsCounterWidget = (() => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const goalId = btn.dataset.goalId;
-                    if (confirm('¿Eliminar esta meta?')) {
-                        goals = goals.filter(g => g.id !== goalId);
-                        saveGoals(widgetId, goals);
+                    goals = goals.filter(g => g.id !== goalId);
+                    saveGoals(goals);
+                    updateUI();
+                });
+            });
+
+            // Edición inline (Nombre, Meta y Unidad)
+            element.querySelectorAll('[contenteditable="true"]').forEach(editable => {
+                editable.addEventListener('blur', () => {
+                    const goalId = editable.closest('.goal-item').dataset.goalId;
+                    const field = editable.dataset.field;
+                    let value = editable.textContent.trim();
+                    
+                    const goal = goals.find(g => g.id === goalId);
+                    if (goal) {
+                        if (field === 'target') {
+                            const num = parseInt(value);
+                            // Validar que sea un número positivo
+                            goal[field] = isNaN(num) || num < 1 ? 1 : num;
+                            if (goal.current > goal.target) goal.current = goal.target;
+                        } else {
+                            // No permitir valores vacíos
+                            goal[field] = value || (field === 'name' ? 'Nueva Meta' : 'unid.');
+                        }
+                        saveGoals(goals);
                         updateUI();
+                    }
+                });
+
+                editable.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        editable.blur(); // Dispara el guardado
                     }
                 });
             });
@@ -219,7 +273,7 @@ const GoalsCounterWidget = (() => {
                 };
                 
                 goals.push(newGoal);
-                saveGoals(widgetId, goals);
+                saveGoals(goals);
                 updateUI();
             });
         }
@@ -228,6 +282,9 @@ const GoalsCounterWidget = (() => {
     }
     
     function destroy(element) {
+        if (element._goalsCarouselInterval) {
+            clearInterval(element._goalsCarouselInterval);
+        }
         const addBtn = element.querySelector('.goals-add-btn');
         if (addBtn) {
             const newBtn = addBtn.cloneNode(true);
