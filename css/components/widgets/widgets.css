@@ -331,8 +331,6 @@
     fill: none;
 }
 
-
-
 /** PHOTO GRID WIDGET **/
 .photo-grid-preview {
     height: 100%;
@@ -686,6 +684,11 @@
 
 /** DAILY QUOTE WIDGET **/
 .daily-quote-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
     text-align: center;
     padding: 8px;
 }
@@ -705,6 +708,12 @@
 .quote-author-preview {
     font-size: 0.7rem;
     color: var(--text-muted);
+}
+
+.daily-quote-full {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .daily-quote-full .quote-header {
@@ -734,10 +743,13 @@
 }
 
 .quote-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     text-align: center;
     position: relative;
     padding: 0 20px;
-    margin-bottom: 20px;
 }
 
 .quote-mark {
@@ -791,12 +803,6 @@
 
 /** GOALS COUNTER WIDGET **/
 .goals-preview .goals-stats {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 12px;
-}
-
-.goal-stat {
     text-align: center;
 }
 
@@ -811,10 +817,45 @@
     color: var(--text-muted);
 }
 
-.goals-mini-list {
+.goals-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+}
+
+.goals-preview .goals-stats {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.goals-mini-carousel {
+    width: 100%;
+    position: relative;
+    min-height: 130px;
+}
+
+.goals-mini-group {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.8s ease-in-out, visibility 0.8s;
+}
+
+.goals-mini-group.active {
+    opacity: 1;
+    visibility: visible;
+    z-index: 2;
 }
 
 .goal-mini {
@@ -851,6 +892,13 @@
     color: var(--text-muted);
 }
 
+.goals-full {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
 .goals-full .goals-header {
     display: flex;
     justify-content: space-between;
@@ -878,11 +926,32 @@
 }
 
 .goals-list {
+    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    max-height: 300px;
     overflow-y: auto;
+    padding-right: 5px;
+    margin-bottom: 5px;
+}
+
+/* Estilo de scrollbar para las metas */
+.goals-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.goals-list::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+    border-radius: 3px;
+}
+
+.goals-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 3px;
+}
+
+.goals-list::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
 }
 
 .goal-item {
@@ -910,9 +979,36 @@
     font-size: 0.85rem;
 }
 
+.goal-name[contenteditable="true"],
+.goal-target[contenteditable="true"],
+.goal-unit[contenteditable="true"] {
+    padding: 1px 4px;
+    border-radius: 4px;
+    outline: none;
+    transition: all var(--transition-fast);
+}
+
+.goal-name[contenteditable="true"]:hover,
+.goal-target[contenteditable="true"]:hover,
+.goal-unit[contenteditable="true"]:hover {
+    background: var(--bg-secondary);
+}
+
+.goal-name[contenteditable="true"]:focus,
+.goal-target[contenteditable="true"]:focus,
+.goal-unit[contenteditable="true"]:focus {
+    background: var(--bg-primary);
+    box-shadow: 0 0 0 1px var(--primary-color);
+}
+
 .goal-target {
     font-size: 0.7rem;
     color: var(--text-muted);
+}
+
+.goal-unit {
+    font-size: 0.65rem;
+    opacity: 0.6;
 }
 
 .goal-delete-btn {
@@ -962,9 +1058,18 @@
     border: 1px solid var(--border-color);
     background: var(--bg-primary);
     border-radius: 6px;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     font-size: 1rem;
-    transition: all 0.2s;
+    transition: all var(--transition-fast);
+    opacity: 0;
+}
+
+.goal-item:hover .goal-counter button {
+    opacity: 1;
 }
 
 .goal-counter button:hover {
