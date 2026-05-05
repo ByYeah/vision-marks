@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vision-marks-v8';
+const CACHE_NAME = 'vision-marks-v9';
 const urlsToCache = [
     '/',
     '/index.html',
