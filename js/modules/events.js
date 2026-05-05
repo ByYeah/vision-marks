@@ -13,9 +13,8 @@ const EventsManager = (() => {
         // Inicializar estado del botón de InFolder
         const btnAddInFolder = document.querySelector('[data-container="infolder"] .btn-add');
         if (btnAddInFolder && !StateManager.getState().currentFolder) {
-            btnAddInFolder.disabled = true;
-            btnAddInFolder.style.opacity = '0.3';
-            btnAddInFolder.style.cursor = 'not-allowed';
+            btnAddInFolder.classList.add('disabled');
+            btnAddInFolder.title = 'Selecciona una carpeta primero';
         }
 
         // Botones de añadir marcador

@@ -366,9 +366,9 @@ const StateManager = (() => {
         setState({ folders: state.folders, bookmarks: state.bookmarks, currentFolder: state.currentFolder });
     }
 
-    function setCurrentFolder(folderId) {
+    async function setCurrentFolder(folderId) {
         state.currentFolder = folderId;
-        setState({ currentFolder: folderId });
+        await setState({ currentFolder: folderId });
     }
 
     async function toggleFolderFavorite(id) {

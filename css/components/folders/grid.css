@@ -342,3 +342,10 @@
     font-size: 1.2rem;
     display: inline-block;
 }
+
+/* Boton desabilitado para inFolder */
+[data-container="infolder"] .btn-add.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+    cursor: default;
+}

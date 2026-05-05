@@ -36,14 +36,14 @@ const FoldersManager = (() => {
         ModalManager.openModal(modal);
     }
 
-    function openFolder(folderId) {
-        StateManager.setCurrentFolder(folderId);
+    async function openFolder(folderId) {
+        await StateManager.setCurrentFolder(folderId);
         RenderManager.renderInFolder();
         RenderManager.updateFolderNavigation();
     }
 
-    function backToFolders() {
-        StateManager.setCurrentFolder(null);
+    async function backToFolders() {
+        await StateManager.setCurrentFolder(null);
         RenderManager.renderInFolder();
         RenderManager.updateFolderNavigation();
     }

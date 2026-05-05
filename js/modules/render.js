@@ -655,20 +655,7 @@ const RenderManager = (() => {
                 emptyState.innerHTML = '<p>Selecciona una carpeta para ver su contenido</p>';
                 emptyState.style.display = 'flex';
             }
-            const btn = document.querySelector('[data-container="infolder"] .btn-add');
-            if (btn) {
-                btn.disabled = true;
-                btn.style.opacity = '0.3';
-                btn.style.cursor = 'not-allowed';
-            }
             return;
-        }
-
-        const btn = document.querySelector('[data-container="infolder"] .btn-add');
-        if (btn) {
-            btn.disabled = false;
-            btn.style.opacity = '1';
-            btn.style.cursor = 'pointer';
         }
 
         const bookmarks = StateManager.getBookmarks(currentFolderId, false);
@@ -911,6 +898,7 @@ const RenderManager = (() => {
         const nameEl = document.getElementById('currentFolderName');
         const btnBack = document.getElementById('btnBackToFolders');
         const infolder = document.querySelector('[data-container="infolder"]');
+        const btnAdd = infolder?.querySelector('.btn-add');
 
         if (fid) {
             const folder = StateManager.getFolderById(fid);
@@ -931,10 +919,18 @@ const RenderManager = (() => {
             }
             if (btnBack) btnBack.classList.remove('hidden');
             if (infolder) infolder.style.display = 'flex';
+            if (btnAdd) {
+                btnAdd.classList.remove('disabled');
+                btnAdd.title = 'Añadir marcador';
+            }
         } else {
             if (nameEl) nameEl.textContent = 'Contenido';
             if (btnBack) btnBack.classList.add('hidden');
             if (infolder) infolder.style.display = 'flex';
+            if (btnAdd) {
+                btnAdd.classList.add('disabled');
+                btnAdd.title = 'Selecciona una carpeta primero';
+            }
         }
     }
 
