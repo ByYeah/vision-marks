@@ -1,73 +1,108 @@
 const DailyQuoteWidget = (() => {
-    // Frases predeterminadas
-    const DEFAULT_QUOTES = [
+    // Almacenamiento en localStorage
+    const STORAGE_KEY = 'widget_daily_quote';
+    const API_URL = 'https://www.positive-api.online/phrase/esp';
+    // Frases de respaldo en caso de que la API falle
+    const FALLBACK_QUOTES = [
         { text: "El éxito es la suma de pequeños esfuerzos repetidos día tras día.", author: "Robert Collier" },
         { text: "No sueñes tu vida, vive tus sueños.", author: "Anónimo" },
         { text: "La única forma de hacer un gran trabajo es amar lo que haces.", author: "Steve Jobs" },
         { text: "El futuro pertenece a quienes creen en la belleza de sus sueños.", author: "Eleanor Roosevelt" },
         { text: "Cree en ti mismo y todo será posible.", author: "Anónimo" },
         { text: "La perseverancia es la clave del éxito.", author: "Anónimo" },
-        {
-            text: "Hazlo ahora. A veces, el 'después' se convierte en 'nunca'.",
-            author: "Anónimo"
-        }
+        { text: "Hazlo ahora. A veces, el 'después' se convierte en 'nunca'.", author: "Anónimo" }
     ];
 
-    const STORAGE_KEY = 'widget_daily_quote';
+    // Funciones Auxiliares
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
 
-    // Obtener cita del día (cambia según la fecha)
-    function getQuoteOfTheDay() {
-        const today = new Date().toDateString();
-
+    // Almacenamiento
+    function loadStoredQuote() {
         try {
             const saved = localStorage.getItem(STORAGE_KEY);
             if (saved) {
-                const data = JSON.parse(saved);
-                if (data.date === today) {
-                    return data.quote;
-                }
+                return JSON.parse(saved);
             }
         } catch (error) {
-            console.error('Error loading quote:', error);
+            console.error('Error loading stored quote:', error);
         }
-
-        // Generar nueva cita basada en el día del año
-        const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-        const index = dayOfYear % DEFAULT_QUOTES.length;
-        const quote = DEFAULT_QUOTES[index];
-
-        // Guardar
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                date: today,
-                quote: quote
-            }));
-        } catch (error) {
-            console.error('Error saving quote:', error);
-        }
-
-        return quote;
+        return null;
     }
 
-    // Renderizar preview
+    function saveQuoteToStorage(quoteObject) {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(quoteObject));
+        } catch (error) {
+            console.error('Error saving quote to storage:', error);
+        }
+    }
+
+    // Obtener cita guardada o de respaldo
+    function getStoredOrFallbackQuote() {
+        const storedQuote = loadStoredQuote();
+        const today = new Date().toDateString();
+        
+        if (storedQuote && storedQuote.date === today) {
+            return storedQuote;
+        }
+        
+        // Si no hay cita guardada o es de otro día, usar una de respaldo
+        const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+        const fallbackQuote = FALLBACK_QUOTES[dayOfYear % FALLBACK_QUOTES.length];
+        
+        // Guardar la cita de respaldo para futuras cargas
+        saveQuoteToStorage({
+            ...fallbackQuote,
+            date: today
+        });
+        return fallbackQuote;
+    }
+
+    // Llamada a la API
+    async function fetchQuoteFromAPI() {
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) {
+                throw new Error(`API responded with status: ${response.status}`);
+            }
+            const data = await response.json();
+            if (data && data.texto && data.autor) {
+                return {
+                    text: data.texto,
+                    author: data.autor
+                };
+            } else {
+                throw new Error('Invalid data structure from API');
+            }
+        } catch (error) {
+            console.error('Error fetching quote from API:', error);
+            return null;
+        }
+    }
+
+    // Renderizado del Widget
     function renderPreview(config, widgetId) {
-        const quote = getQuoteOfTheDay();
+        const quote = getStoredOrFallbackQuote();
+        const displayText = quote.text.length > 60 ? quote.text.substring(0, 60) + '...' : quote.text;
 
         return `
-            <div class="daily-quote-preview">
+            <div class="daily-quote-preview" data-widget-id="${widgetId}">
                 <div class="quote-icon">💬</div>
-                <div class="quote-text-preview">"${escapeHtml(quote.text.substring(0, 60))}${quote.text.length > 60 ? '...' : ''}"</div>
+                <div class="quote-text-preview">"${escapeHtml(displayText)}"</div>
                 <div class="quote-author-preview">— ${escapeHtml(quote.author)}</div>
             </div>
         `;
     }
 
-    // Renderizar expandido
     function renderExpanded(config, widgetId) {
-        const quote = getQuoteOfTheDay();
-
+        const quote = getStoredOrFallbackQuote();
         return `
-            <div class="daily-quote-full">
+            <div class="daily-quote-full" data-widget-id="${widgetId}">
                 <div class="quote-header">
                     <h4>Cita del día</h4>
                     <button class="quote-refresh" title="Nueva cita">
@@ -97,52 +132,72 @@ const DailyQuoteWidget = (() => {
         `;
     }
 
-    // Inicializar preview
+    // Inicialización y Eventos
     function initPreview(element, config) {
-        // No necesita inicialización especial
+        // El preview ya se carga con la cita guardada en renderPreview.
     }
 
-    // Inicializar expandido
-    function initExpanded(element, config) {
-        // Botón refrescar (nueva cita aleatoria)
+    async function initExpanded(element, config, containerId) {
+        const refreshWithApiQuote = async () => {
+            const apiQuote = await fetchQuoteFromAPI();
+            
+            if (apiQuote) {
+                // Guardar la nueva cita
+                const quoteToSave = {
+                    ...apiQuote,
+                    date: new Date().toDateString()
+                };
+                saveQuoteToStorage(quoteToSave);
+                
+                // Actualizar el DOM del widget expandido
+                const quoteTextDiv = element.querySelector('.quote-text');
+                const quoteAuthorDiv = element.querySelector('.quote-author');
+                if (quoteTextDiv && quoteAuthorDiv) {
+                    quoteTextDiv.textContent = apiQuote.text;
+                    quoteAuthorDiv.textContent = `— ${apiQuote.author}`;
+                }
+
+                // También actualizar el preview en el mismo contenedor
+                const previewContainer = document.querySelector(`[data-container="${containerId}"] .daily-quote-preview`);
+                if (previewContainer) {
+                    const displayText = apiQuote.text.length > 60 ? apiQuote.text.substring(0, 60) + '...' : apiQuote.text;
+                    previewContainer.innerHTML = `
+                        <div class="quote-icon">💬</div>
+                        <div class="quote-text-preview">"${escapeHtml(displayText)}"</div>
+                        <div class="quote-author-preview">— ${escapeHtml(apiQuote.author)}</div>
+                    `;
+                }
+            } else {
+                const quoteTextDiv = element.querySelector('.quote-text');
+                if (quoteTextDiv) {
+                    quoteTextDiv.textContent = "No se pudo cargar una nueva cita en este momento. Intenta de nuevo más tarde.";
+                }
+            }
+        };
+
+        // Botón refrescar
         const refreshBtn = element.querySelector('.quote-refresh');
         if (refreshBtn) {
-            refreshBtn.addEventListener('click', () => {
-                // Forzar nueva cita
-                const today = new Date().toDateString();
-                const quotes = [...DEFAULT_QUOTES];
-                const randomIndex = Math.floor(Math.random() * quotes.length);
-                const newQuote = quotes[randomIndex];
-
-                try {
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify({
-                        date: today,
-                        quote: newQuote
-                    }));
-                } catch (error) {
-                    console.error('Error saving quote:', error);
-                }
-
-                // Actualizar UI
-                const container = element.closest('[data-container]');
-                if (container && WidgetManager) {
-                    const containerId = container.dataset.container;
-                    WidgetManager.renderWidgetInContainer(containerId);
-                }
+            const newRefreshBtn = refreshBtn.cloneNode(true);
+            refreshBtn.parentNode.replaceChild(newRefreshBtn, refreshBtn);
+            newRefreshBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                await refreshWithApiQuote();
             });
         }
 
         // Botón copiar
         const copyBtn = element.querySelector('.quote-copy-btn');
         if (copyBtn) {
-            copyBtn.addEventListener('click', async () => {
+            const newCopyBtn = copyBtn.cloneNode(true);
+            copyBtn.parentNode.replaceChild(newCopyBtn, copyBtn);
+            newCopyBtn.addEventListener('click', async () => {
                 const quoteText = element.querySelector('.quote-text')?.textContent || '';
-                const quoteAuthor = element.querySelector('.quote-author')?.textContent || '';
-                const fullQuote = `"${quoteText}" ${quoteAuthor}`;
-
+                const quoteAuthor = element.querySelector('.quote-author')?.textContent?.replace('— ', '') || '';
+                const fullQuote = `"${quoteText}" — ${quoteAuthor}`;
                 try {
                     await navigator.clipboard.writeText(fullQuote);
-                    showCopyFeedback(copyBtn);
+                    showCopyFeedback(newCopyBtn);
                 } catch (error) {
                     console.error('Error copying quote:', error);
                 }
@@ -164,18 +219,11 @@ const DailyQuoteWidget = (() => {
             const newBtn = refreshBtn.cloneNode(true);
             refreshBtn.parentNode.replaceChild(newBtn, refreshBtn);
         }
-
         const copyBtn = element.querySelector('.quote-copy-btn');
         if (copyBtn) {
             const newBtn = copyBtn.cloneNode(true);
             copyBtn.parentNode.replaceChild(newBtn, copyBtn);
         }
-    }
-
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
     }
 
     return {
@@ -190,5 +238,4 @@ const DailyQuoteWidget = (() => {
         destroy
     };
 })();
-
 window.DailyQuoteWidget = DailyQuoteWidget;
