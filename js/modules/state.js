@@ -397,7 +397,7 @@ const StateManager = (() => {
                 }
             }
 
-            setState({ folders: state.folders });
+            await setState({ folders: state.folders });
             return folder;
         }
         return null;

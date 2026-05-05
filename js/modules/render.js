@@ -917,16 +917,13 @@ const RenderManager = (() => {
             if (nameEl && folder) {
                 let iconHTML = '';
 
-                // Verificar si es icono personalizado
-                if (window.IconManager && folder.iconType === 'custom' && folder.iconId) {
-                    iconHTML = IconManager.getIconHTML(folder.iconId);
-                }
-                // Verificar si es emoji
-                else if (folder.icon && !folder.icon.includes('<svg')) {
-                    iconHTML = `<span class="folder-icon-emoji">${folder.icon}</span>`;
-                }
-                // Fallback
-                else {
+                if (window.IconManager) {
+                    iconHTML = IconManager.getIconHTML(
+                        folder.iconId || folder.icon,
+                        folder.iconType || 'emoji',
+                        folder.icon || '📁'
+                    );
+                } else {
                     iconHTML = `<span class="folder-icon-emoji">📁</span>`;
                 }
 
