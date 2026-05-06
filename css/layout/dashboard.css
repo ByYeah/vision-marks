@@ -109,42 +109,74 @@
     display: none !important;
 }
 
-/** LAYOUT LIBRE (Bento Box) **/
+/** LAYOUT LIBRE (Muuri Drag and drop) **/
 .dashboard-grid.layout-free {
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(4, 1fr);
-    gap: 16px;
+    position: relative !important; /* Requisito de Muuri */
+    display: block !important; /* Eliminar grid */
+    grid-template-columns: none !important;
+    grid-template-rows: none !important;
+    min-height: 600px; /* Altura mínima para el área de drop */
 }
 
-.layout-free [data-container="favbookmarks"] {
-    grid-area: 1 / 1 / 5 / 2;
+/* Contenedores en layout libre */
+.layout-free .container-item {
+    position: absolute !important; /* Requisito de Muuri */
+    width: 250px; /* Ancho inicial, luego será configurable */
+    margin: 8px;
+    cursor: grab;
+    transition: none !important; /* Muuri maneja las animaciones */
 }
 
-.layout-free [data-container="folders"] {
-    grid-area: 1 / 2 / 3 / 4;
+/* Contenido interno - cursor grab */
+.layout-free .container-content {
+    cursor: grab !important;
 }
 
-.layout-free [data-container="infolder"] {
-    grid-area: 3 / 2 / 5 / 4;
+/* Estados de arrastre de Muuri */
+.layout-free .container-item.muuri-item-dragging {
+    z-index: 1000 !important;
+    cursor: grabbing !important;
+    opacity: 0.9;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
-.layout-free [data-container="chat"] {
-    grid-area: 1 / 4 / 3 / 5;
+.layout-free .container-item.muuri-item-releasing {
+    z-index: 900 !important;
 }
 
-.layout-free [data-container="widgets-1"] {
-    grid-area: 3 / 4 / 4 / 5;
+.layout-free .container-item.muuri-item-positioning {
+    z-index: 800;
+}
+
+/* Placeholder durante el drag */
+.layout-free .muuri-item-placeholder {
+    opacity: 0.3;
+    border: 2px dashed #667eea;
+    border-radius: 8px;
+    z-index: 1;
+}
+
+/* Mostrar todos los contenedores en layout libre */
+.layout-free [data-container] {
     display: flex !important;
+    min-height: 150px;
+    max-height: none;
 }
 
-.layout-free [data-container="widgets-2"] {
-    grid-area: 4 / 4 / 5 / 5;
-    display: flex !important;
-}
-
-.layout-free [data-container="widgets-3"],
-.layout-free [data-container="widgets-4"] {
-    display: none;
+/* Responsive: mantener funcionalidad en móviles */
+@media (max-width: 1100px) {
+    .dashboard-grid.layout-free {
+        position: relative !important;
+        display: block !important;
+        flex-direction: column;
+        overflow-y: auto;
+    }
+    
+    .layout-free .container-item {
+        position: relative !important;
+        width: 100% !important;
+        margin: 8px 0;
+    }
 }
 
 /** RESPONSIVE PARA DASHBOARD **/
@@ -152,8 +184,7 @@
     .dashboard-grid,
     .dashboard-grid.layout-double,
     .dashboard-grid.layout-extended,
-    .dashboard-grid.layout-widgets,
-    .dashboard-grid.layout-free {
+    .dashboard-grid.layout-widgets {
         grid-template-columns: 1fr;
         grid-template-rows: auto;
         display: flex;

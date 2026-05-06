@@ -501,11 +501,27 @@ const SettingsManager = (() => {
     }
 
     function updateLayout(layout) {
+        const previousLayout = settings.layout;
         settings.layout = layout;
         saveSettings();
         applyLayout();
 
-        // Solo forzar renderizado, NO estilos manuales
+        // Manejar Muuri según el layout
+        if (layout === 'free') {
+            // Activar Muuri cuando se cambia a layout libre
+            if (window.MuuriLayoutManager) {
+                setTimeout(() => {
+                    window.MuuriLayoutManager.init();
+                }, 100);
+            }
+        } else if (previousLayout === 'free') {
+            // Desactivar Muuri cuando se sale del layout libre
+            if (window.MuuriLayoutManager) {
+                window.MuuriLayoutManager.destroy();
+            }
+        }
+
+        // Forzar renderizado
         if (window.RenderManager) {
             setTimeout(() => {
                 RenderManager.renderAll();
@@ -651,6 +667,13 @@ const SettingsManager = (() => {
         }
         applySettings();
         startAutoThemeWatcher();
+
+        // Inicializar Muuri si el layout actual es 'free'
+        if (settings.layout === 'free' && window.MuuriLayoutManager) {
+            setTimeout(() => {
+                window.MuuriLayoutManager.init();
+            }, 200);
+        }
     }
 
     function getSettings() {
