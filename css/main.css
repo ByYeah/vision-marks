@@ -7,6 +7,7 @@
 @import url('layout/topbar.css');
 @import url('layout/dashboard.css');
 @import url('layout/containers.css');
+@import url('layout/free.css');
 
 /** Componentes - Bookmarks **/
 @import url('components/bookmarks/list.css');
