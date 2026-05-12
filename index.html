@@ -46,6 +46,11 @@
 
             <!-- Acciones: Settings + Profile -->
             <div class="topbar-actions">
+                <!-- Botón Layout -->
+                <button id="btn-configure-layout" class="icon-btn" title="Configurar Dashboard" style="display: none;">
+                    <span class="icon-wrapper" data-svg="add-container"></span>
+                </button>
+                
                 <!-- Botón Configuración -->
                 <button class="icon-btn" id="settingsBtn" aria-label="Configuración" title="Configuración">
                     <span class="icon-wrapper" data-svg="config"></span>
@@ -268,7 +273,8 @@
     <!-- Modules -->
     <script src="js/modules/storage.js"></script>
     <script src="js/modules/state.js"></script>
-    <script src="js/modules/muuriLayoutManager.js"></script>
+    <script src="js/modules/FreeLayout/muuriLayoutManager.js"></script>
+    <script src="js/modules/FreeLayout/layoutVisibilityManager.js"></script>
     <script src="js/modules/settings.js"></script>
     <script src="js/modules/modals.js"></script>
     <script src="js/modules/bookmarks.js"></script>
