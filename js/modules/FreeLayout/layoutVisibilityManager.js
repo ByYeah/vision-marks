@@ -43,11 +43,13 @@ const LayoutVisibilityManager = (() => {
     // Controla la visibilidad del botón en la topbar
     function updateButtonVisibility() {
         const btn = document.getElementById('btn-configure-layout');
-        if (!btn) return;
+        const separator = document.getElementById('layout-separator');
 
         const isFreeLayout = window.MuuriLayoutManager && typeof window.MuuriLayoutManager.isActive === 'function' && window.MuuriLayoutManager.isActive();
+        const display = isFreeLayout ? 'inline-flex' : 'none';
 
-        btn.style.setProperty('display', isFreeLayout ? 'inline-flex' : 'none', 'important');
+        if (btn) btn.style.setProperty('display', display, 'important');
+        if (separator) separator.style.setProperty('display', isFreeLayout ? 'block' : 'none', 'important');
     }
 
     // Aplica el estado guardado al cargar la página

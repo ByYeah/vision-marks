@@ -281,6 +281,16 @@
     stroke: currentColor;
 }
 
+/* Estilo para el separador de la topbar */
+.topbar-separator {
+    width: 1px;
+    height: 22px;
+    background-color: var(--border-color);
+    margin: 0 12px;
+    align-self: center;
+    opacity: 0.6;
+}
+
 /* Responsive para topbar */
 @media (max-width: 768px) {
     .topbar {
