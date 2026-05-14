@@ -102,7 +102,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }, 650);
 
-        // 13. Suscribirse a cambios de estado (para mantener AppState sincronizado)
+        // Inicializar LayoutVisibilityManager
+        if (window.LayoutVisibilityManager) {
+            LayoutVisibilityManager.init();
+        }
+
+        // Suscribirse a cambios de estado (para mantener AppState sincronizado)
         StateManager.subscribe((newState) => {
             AppState.containers = newState.containers;
             AppState.bookmarks = newState.bookmarks;

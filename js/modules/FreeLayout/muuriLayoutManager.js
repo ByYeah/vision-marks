@@ -6,13 +6,11 @@ const MuuriLayoutManager = (() => {
     function init() {
         const grid = document.getElementById('dashboardGrid');
         if (!grid) {
-            console.error('Dashboard grid no encontrado');
             return;
         }
 
         // Solo inicializar si existe Muuri
         if (typeof Muuri === 'undefined') {
-            console.error('Muuri no está cargado. Añade el script en index.html');
             return;
         }
 
@@ -30,8 +28,8 @@ const MuuriLayoutManager = (() => {
             items: items,
             dragEnabled: true,
             dragSort: true,
-            dragHandle: '.container-header', // Permite arrastrar solo desde el título
-            layoutOnInit: false, // Evita layout automático antes de cargar el orden
+            dragHandle: '.container-header',
+            layoutOnInit: false,
 
             // Simplificar interacciones
             dragSortHeuristics: {
@@ -70,12 +68,16 @@ const MuuriLayoutManager = (() => {
         // Cargar orden guardado
         setTimeout(() => {
             loadOrder();
+            
+            // Asegurar que la visibilidad se aplique después de que el CSS de layout-free entre en acción
+            if (window.LayoutVisibilityManager) {
+                LayoutVisibilityManager.applySavedVisibility();
+            }
             refreshLayout();
             if (window.LayoutVisibilityManager) LayoutVisibilityManager.updateButtonVisibility();
         }, 100);
 
         isInitialized = true;
-        console.log('Muuri inicializado en layout libre');
     }
 
     // Guarda el orden actual de los contenedores
@@ -173,18 +175,16 @@ const MuuriLayoutManager = (() => {
         
         if (newElements.length > 0) {
             muuriGrid.add(newElements);
-            console.log('➕ Elementos añadidos a Muuri:', newElements.length);
+            console.log('Elementos añadidos a Muuri:', newElements.length);
         }
         
         if (removedElements.length > 0) {
             removedElements.forEach(el => {
                 muuriGrid.remove(el);
             });
-            console.log('➖ Elementos eliminados de Muuri:', removedElements.length);
+            console.log('Elementos eliminados de Muuri:', removedElements.length);
         }
 
-        // Si hubo cambios en los elementos, re-aplicamos el orden guardado
-        // para que los elementos que vuelven a aparecer lo hagan en su posición original.
         if (newElements.length > 0 || removedElements.length > 0) {
             loadOrder();
         }

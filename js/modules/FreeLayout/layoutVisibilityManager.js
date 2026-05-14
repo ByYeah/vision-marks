@@ -10,6 +10,23 @@ const LayoutVisibilityManager = (() => {
         { id: 'widgets-4', label: 'Widget de Sistema 4' }
     ];
 
+    // Valores por defecto para la primera vez
+    const DEFAULTS = {
+        'chat': true,
+        'widgets-1': true,
+        'widgets-2': true,
+        'widgets-3': false,
+        'widgets-4': false
+    };
+
+    // Obtiene la configuración actual mezclando localStorage con los valores por defecto
+    function getSettings() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        const parsed = saved ? JSON.parse(saved) : {};
+
+        return { ...DEFAULTS, ...parsed };
+    }
+
     function init() {
         applySavedVisibility();
         updateButtonVisibility();
@@ -28,7 +45,6 @@ const LayoutVisibilityManager = (() => {
         const btn = document.getElementById('btn-configure-layout');
         if (!btn) return;
 
-        // Dependemos únicamente de si el Manager de Muuri está inicializado
         const isFreeLayout = window.MuuriLayoutManager && typeof window.MuuriLayoutManager.isActive === 'function' && window.MuuriLayoutManager.isActive();
 
         btn.style.setProperty('display', isFreeLayout ? 'inline-flex' : 'none', 'important');
@@ -36,13 +52,13 @@ const LayoutVisibilityManager = (() => {
 
     // Aplica el estado guardado al cargar la página
     function applySavedVisibility() {
-        const settings = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+        const settings = getSettings();
 
         OPTIONAL_ITEMS.forEach(item => {
-            const isVisible = settings[item.id] !== false; // Por defecto true
+            const isVisible = settings[item.id];
             const element = document.querySelector(`[data-container="${item.id}"]`);
             if (element) {
-                element.style.display = isVisible ? 'block' : 'none';
+                element.style.setProperty('display', isVisible ? 'flex' : 'none', 'important');
             }
         });
 
@@ -53,11 +69,11 @@ const LayoutVisibilityManager = (() => {
     }
 
     function showConfigModal() {
-        const settings = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+        const settings = getSettings();
 
         let html = '<div class="visibility-config-list">';
         OPTIONAL_ITEMS.forEach(item => {
-            const isVisible = settings[item.id] !== false;
+            const isVisible = settings[item.id];
             html += `
                 <div class="visibility-config-item" style="display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center;">
                     <span>${item.label}</span>
@@ -100,6 +116,6 @@ const LayoutVisibilityManager = (() => {
         applySavedVisibility();
     }
 
-    return { init, updateButtonVisibility };
+    return { init, updateButtonVisibility, applySavedVisibility };
 })();
 window.LayoutVisibilityManager = LayoutVisibilityManager;
