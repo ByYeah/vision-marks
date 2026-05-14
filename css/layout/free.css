@@ -1,12 +1,12 @@
 /* El contenedor debe tener posición relativa para Muuri */
 #dashboardGrid.layout-free {
     position: relative;
-    height: calc(100vh - 80px); /* Ajuste para que no desborde el viewport */
+    height: calc(100vh - 80px);
     overflow-y: auto;
     padding: 15px;
     box-sizing: border-box;
     scrollbar-gutter: stable;
-    display: block !important; /* Asegurar que no use grid de otros layouts */
+    display: block !important;
 }
 
 /* Estilo para los items del grid */
@@ -17,13 +17,13 @@
     height: 380px !important;
     margin: 10px;
     z-index: 1;
-    position: absolute; /* Muuri lo gestiona, pero ayuda a evitar saltos iniciales */
+    position: absolute;
     display: flex !important;
     flex-direction: column;
     background-color: var(--bg-secondary);
     border: 1px solid var(--border-color) !important;
-    border-radius: 12px !important; /* Redondeo suave consistente */
-    overflow: hidden; /* Importante para que no crezca por el contenido */
+    border-radius: 12px !important;
+    overflow: hidden;
     box-shadow: var(--shadow-sm);
 }
 
@@ -38,7 +38,7 @@
     justify-content: space-between;
     overflow: hidden !important;
     border-bottom: 1px solid var(--border-color);
-    background-color: inherit; /* Permite que el color personalizado del header fluya */
+    background-color: inherit;
     flex-shrink: 0;
 }
 
@@ -53,10 +53,10 @@
     text-overflow: ellipsis;
 }
 
-/* Corrección para los botones de acción (topbar actions) */
+/* Corrección para los botones de acción */
 #dashboardGrid.layout-free .container-actions {
     display: flex !important;
-    flex-direction: row !important; /* Fuerza orientación horizontal */
+    flex-direction: row !important;
     gap: 4px;
     align-items: center !important;
     height: 100% !important;
