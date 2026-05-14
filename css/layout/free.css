@@ -1,21 +1,45 @@
 /* El contenedor debe tener posición relativa para Muuri */
 #dashboardGrid.layout-free {
     position: relative;
-    height: calc(100vh - 80px);
-    overflow-y: auto;
+    max-height: calc(100vh - 80px) !important;
+    height: auto;
+    overflow-y: auto !important;
+    overflow-x: hidden;
     padding: 15px;
     box-sizing: border-box;
     scrollbar-gutter: stable;
     display: block !important;
+
+    /* Definimos variables de control para el cálculo dinámico */
+    --grid-gap: 8px;
+    --cols: 3;
+    /* El tamaño se calcula restando los márgenes del ancho total y dividiendo por columnas */
+    --bento-item-size: min(calc((100% / var(--cols)) - (var(--grid-gap) * 2.1)), 400px);
+    /* Aumentamos la altura base para resoluciones grandes */
+    --bento-item-height: calc(var(--bento-item-size) + 100px);
+}
+
+/* Breakpoints dinámicos para evitar el desbordamiento y los huecos */
+@media (max-width: 1300px) {
+    #dashboardGrid.layout-free { 
+        --cols: 2; 
+        /* Volvemos a comportamiento cuadrado para resoluciones menores */
+        --bento-item-height: var(--bento-item-size);
+    }
+}
+
+@media (max-width: 750px) {
+    #dashboardGrid.layout-free { --cols: 1; }
+    #dashboardGrid.layout-free { padding: 10px; }
 }
 
 /* Estilo para los items del grid */
 #dashboardGrid.layout-free .container-item,
 #dashboardGrid.layout-free .container-item.expanded,
 #dashboardGrid.layout-free .container-item.minimized {
-    width: 380px !important; 
-    height: 380px !important;
-    margin: 10px;
+    width: var(--bento-item-size) !important;
+    height: var(--bento-item-height) !important; 
+    margin: var(--grid-gap); 
     z-index: 1;
     position: absolute;
     display: flex !important;
@@ -113,6 +137,15 @@
 .muuri-item-placeholder {
     z-index: 0;
     margin: 0 !important;
+}
+
+/* Ajustes para pantallas pequeñas (móviles) */
+@media (max-width: 600px) {
+    #dashboardGrid.layout-free .container-item {
+        width: calc(100vw - 40px) !important;
+        height: calc(100vw - 40px) !important;
+        margin: 10px 0;
+    }
 }
 
 /* Switches en el modal de visibilidad */
