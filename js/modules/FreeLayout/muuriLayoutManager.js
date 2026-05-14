@@ -1,6 +1,7 @@
 const MuuriLayoutManager = (() => {
     let muuriGrid = null;
     let isInitialized = false;
+    let resizeTimer = null;
 
     // Inicializa Muuri en el dashboard
     function init() {
@@ -40,11 +41,11 @@ const MuuriLayoutManager = (() => {
             layoutDuration: 300,
             layoutEasing: 'ease',
             
-            // Sin redimensionamiento por ahora
             layout: {
                 fillGaps: true,
                 horizontal: false,
-                rounding: true
+                rounding: false,
+                alignRight: false // Asegura que se peguen a la izquierda
             },
             
             // Mantener orden
@@ -69,6 +70,9 @@ const MuuriLayoutManager = (() => {
         setTimeout(() => {
             loadOrder();
             
+            // Escuchar cambios de tamaño de ventana para refrescar layout fluido
+            window.addEventListener('resize', handleResize);
+            
             // Asegurar que la visibilidad se aplique después de que el CSS de layout-free entre en acción
             if (window.LayoutVisibilityManager) {
                 LayoutVisibilityManager.applySavedVisibility();
@@ -78,6 +82,16 @@ const MuuriLayoutManager = (() => {
         }, 100);
 
         isInitialized = true;
+    }
+
+    // Maneja el redimensionado de la ventana con debounce
+    function handleResize() {
+        if (!muuriGrid) return;
+        
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            refreshLayout();
+        }, 150);
     }
 
     // Guarda el orden actual de los contenedores
@@ -142,6 +156,9 @@ const MuuriLayoutManager = (() => {
             muuriGrid.destroy();
             muuriGrid = null;
             isInitialized = false;
+            
+            // Limpiar evento de resize
+            window.removeEventListener('resize', handleResize);
             
             // Ocultar botón de visibilidad en la topbar
             if (window.LayoutVisibilityManager) {
