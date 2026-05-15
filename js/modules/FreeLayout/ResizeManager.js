@@ -25,7 +25,7 @@ const ResizeManager = (() => {
     }
 
     function toggleEditMode() {
-        const isFreeLayout = window.MuuriLayoutManager && window.MuuriLayoutManager.isActive();
+        const isFreeLayout = window.MuuriManager && window.MuuriManager.isActive();
         if (!isFreeLayout) {
             deactivate();
             return;

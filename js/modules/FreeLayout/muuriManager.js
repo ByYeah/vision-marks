@@ -74,11 +74,11 @@ const MuuriManager = (() => {
             window.addEventListener('resize', handleResize);
             
             // Asegurar que la visibilidad se aplique después de que el CSS de layout-free entre en acción
-            if (window.LayoutVisibilityManager) {
+            if (window.VisibilityManager) {
                 VisibilityManager.applySavedVisibility();
             }
             refreshLayout();
-            if (window.LayoutVisibilityManager) VisibilityManager.updateButtonVisibility();
+            if (window.VisibilityManager) VisibilityManager.updateButtonVisibility();
         }, 100);
 
         isInitialized = true;
@@ -161,7 +161,7 @@ const MuuriManager = (() => {
             window.removeEventListener('resize', handleResize);
             
             // Ocultar botón de visibilidad en la topbar
-            if (window.LayoutVisibilityManager) {
+            if (window.VisibilityManager) {
                 VisibilityManager.updateButtonVisibility();
             }
             

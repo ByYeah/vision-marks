@@ -48,7 +48,7 @@ const VisibilityManager = (() => {
         const separator = document.getElementById('layout-separator');
 
         // Dependemos únicamente de si el Manager de Muuri está inicializado
-        const isFreeLayout = window.MuuriLayoutManager && typeof window.MuuriLayoutManager.isActive === 'function' && window.MuuriLayoutManager.isActive();
+        const isFreeLayout = window.MuuriManager && typeof window.MuuriManager.isActive === 'function' && window.MuuriManager.isActive();
         const display = isFreeLayout ? 'inline-flex' : 'none';
 
         if (btn) btn.style.setProperty('display', display, 'important');
@@ -73,8 +73,8 @@ const VisibilityManager = (() => {
         });
 
         // Si Muuri está activo, actualizarlo
-        if (window.MuuriLayoutManager && window.MuuriLayoutManager.isActive()) {
-            window.MuuriLayoutManager.updateItems();
+        if (window.MuuriManager && window.MuuriManager.isActive()) {
+            window.MuuriManager.updateItems();
         }
     }
 

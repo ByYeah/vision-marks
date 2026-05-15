@@ -527,8 +527,8 @@ const SettingsManager = (() => {
 
         // Si salimos de layout libre, destruimos Muuri ANTES de aplicar el nuevo layout
         if (previousLayout === 'free' && layout !== 'free') {
-            if (window.MuuriLayoutManager) {
-                window.MuuriLayoutManager.destroy();
+            if (window.MuuriManager) {
+                window.MuuriManager.destroy();
             }
         }
 
@@ -536,9 +536,9 @@ const SettingsManager = (() => {
         applyLayout();
 
         if (layout === 'free') {
-            if (window.MuuriLayoutManager) {
+            if (window.MuuriManager) {
                 setTimeout(() => {
-                    window.MuuriLayoutManager.init();
+                    window.MuuriManager.init();
                 }, 100);
             }
         }
@@ -691,9 +691,9 @@ const SettingsManager = (() => {
         startAutoThemeWatcher();
 
         // Inicializar Muuri si el layout actual es 'free'
-        if (settings.layout === 'free' && window.MuuriLayoutManager) {
+        if (settings.layout === 'free' && window.MuuriManager) {
             setTimeout(() => {
-                window.MuuriLayoutManager.init();
+                window.MuuriManager.init();
             }, 200);
         }
     }
