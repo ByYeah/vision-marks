@@ -17,89 +17,69 @@ const AppState = {
 // Inicialización de la aplicación
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        // 1. Inicializar DatabaseManager
+        // Inicializar DatabaseManager
         if (window.DatabaseManager) {
             await DatabaseManager.init();
         }
 
-        // 2. Inicializar IconManager
+        // Inicializar IconManager
         if (window.IconManager) {
             await IconManager.init();
-            console.log('🎨 IconManager inicializado');
         }
 
-        // 3. Cargar SettingsManager (esto aplica tema y layout)
+        // Cargar SettingsManager (esto aplica tema y layout)
         if (window.SettingsManager) {
             SettingsManager.loadSettings();
-            console.log('⚙️ SettingsManager cargado');
         }
 
-        // 4. Cargar StateManager (carga marcadores y carpetas desde IndexedDB)
+        // Cargar StateManager (carga marcadores y carpetas desde IndexedDB)
         if (window.StateManager) {
             await StateManager.loadState();
         }
 
-        // 5. Sincronizar AppState con StateManager
+        // Sincronizar AppState con StateManager
         const state = StateManager.getState();
         AppState.containers = state.containers;
         AppState.bookmarks = state.bookmarks;
         AppState.folders = state.folders;
         AppState.settings = state.settings;
 
-        // Debug: mostrar settings actuales
-        setTimeout(() => {
-            if (window.SettingsManager) {
-                const s = SettingsManager.getSettings();
-                console.log('⚙️ Settings actuales:', {
-                    layout: s.layout,
-                    favDisplay: s.containers?.favbookmarks?.display,
-                    theme: s.theme
-                });
-            }
-        }, 200);
-
-        // 6. Renderizar inicial
+        // Renderizar inicial
         if (window.RenderManager) {
             RenderManager.renderAll();
         }
 
-        // 7. Inicializar ReorderManager
+        // Inicializar ReorderManager
         if (window.ReorderManager && typeof ReorderManager.init === 'function') {
             ReorderManager.init(StorageManager, StateManager, RenderManager);
         }
 
-        // 8. Inicializar eventos
+        // Inicializar eventos
         if (window.EventsManager) {
             EventsManager.init();
         }
 
-        // 9. Inicializar SearchManager (con delay)
+        // Inicializar SearchManager (con delay)
         setTimeout(() => {
             if (window.SearchManager) {
-                SearchManager.init();
-                console.log('🔍 SearchManager initialized');
-            }
+                SearchManager.init();}
         }, 500);
 
-        // 10. Inicializar ChatManager (con delay)
+        // Inicializar ChatManager (con delay)
         setTimeout(() => {
             if (window.ChatManager) {
-                ChatManager.init();
-                console.log('💬 ChatManager initialized');
-            }
+                ChatManager.init();}
         }, 600);
 
-        // 11. Registrar widgets ANTES de inicializar WidgetManager
+        // Registrar widgets antes de inicializar WidgetManager
         if (window.registerAllWidgets) {
             window.registerAllWidgets();
         }
 
-        // 12. Inicializar WidgetManager (después de registrar widgets)
+        // Inicializar WidgetManager
         setTimeout(() => {
             if (window.WidgetManager) {
-                WidgetManager.init();
-                console.log('🎲 WidgetManager initialized');
-            }
+                WidgetManager.init();}
         }, 650);
 
         // Inicializar LayoutVisibilityManager
@@ -115,15 +95,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             AppState.settings = newState.settings;
         });
 
-        // 14. Cargar iconos SVG
+        // Cargar iconos SVG
         if (window.SvgLoader) {
             SvgLoader.loadAll();
         }
 
-        console.log('✅ Vision Marks iniciado correctamente');
-
     } catch (error) {
-        console.error('❌ Error en inicialización:', error);
         // Fallback a inicialización básica
         if (window.RenderManager) {
             RenderManager.renderAll();
@@ -227,9 +204,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Función de verificación
 window.checkStorage = async function () {
-    console.log('%c📦 VERIFICACIÓN DE ALMACENAMIENTO', 'font-size:16px; font-weight:bold;');
-
-    console.group('📀 IndexedDB:');
     if (DatabaseManager) {
         const folders = await DatabaseManager.folders.getAll();
         const bookmarks = await DatabaseManager.bookmarks.getAll();
@@ -237,24 +211,13 @@ window.checkStorage = async function () {
         console.log('Carpetas:', folders.length);
         console.log('Marcadores:', bookmarks.length);
         console.log('Settings:', settings);
-    } else {
-        console.log('No disponible');
     }
     console.groupEnd();
 
-    console.group('⚙️ SettingsManager real:');
     if (SettingsManager) {
         console.log(SettingsManager.getSettings());
     }
     console.groupEnd();
-
-    console.group('💾 localStorage:');
-    console.log('vmarks_settings:', localStorage.getItem('vmarks_settings'));
-    console.log('vmarks_settings_backup:', localStorage.getItem('vmarks_settings_backup'));
-    console.log('bookmarkManagerContainers:', localStorage.getItem('bookmarkManagerContainers'));
-    console.groupEnd();
-
-    console.log('%c✅ Verificación completa', 'color:green');
 };
 
 // Registro del Service Worker
