@@ -1,8 +1,8 @@
 /* El contenedor debe tener posición relativa para Muuri */
 #dashboardGrid.layout-free {
     position: relative;
-    max-height: calc(100vh - 80px) !important;
-    height: auto;
+    height: calc(100vh - 1000px) !important; /* Forzamos el uso del 100% del alto disponible */
+    min-height: calc(100vh - 80px) !important;
     overflow-y: auto !important;
     overflow-x: hidden;
     padding: 15px;
@@ -14,9 +14,9 @@
     --grid-gap: 8px;
     --cols: 3;
     /* El tamaño se calcula restando los márgenes del ancho total y dividiendo por columnas */
-    --bento-item-size: min(calc((100% / var(--cols)) - (var(--grid-gap) * 2.1)), 400px);
+    --bento-item-size: min(calc((100% / var(--cols)) - (var(--grid-gap) * 2.1)), 500px);
     /* Aumentamos la altura base para resoluciones grandes */
-    --bento-item-height: calc(var(--bento-item-size) + 100px);
+    --bento-item-height: calc(var(--bento-item-size) + 110px);
 }
 
 /* Breakpoints dinámicos para evitar el desbordamiento y los huecos */
