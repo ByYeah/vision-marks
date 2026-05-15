@@ -1,4 +1,4 @@
-const MuuriLayoutManager = (() => {
+const MuuriManager = (() => {
     let muuriGrid = null;
     let isInitialized = false;
     let resizeTimer = null;
@@ -75,10 +75,10 @@ const MuuriLayoutManager = (() => {
             
             // Asegurar que la visibilidad se aplique después de que el CSS de layout-free entre en acción
             if (window.LayoutVisibilityManager) {
-                LayoutVisibilityManager.applySavedVisibility();
+                VisibilityManager.applySavedVisibility();
             }
             refreshLayout();
-            if (window.LayoutVisibilityManager) LayoutVisibilityManager.updateButtonVisibility();
+            if (window.LayoutVisibilityManager) VisibilityManager.updateButtonVisibility();
         }, 100);
 
         isInitialized = true;
@@ -162,14 +162,15 @@ const MuuriLayoutManager = (() => {
             
             // Ocultar botón de visibilidad en la topbar
             if (window.LayoutVisibilityManager) {
-                LayoutVisibilityManager.updateButtonVisibility();
+                VisibilityManager.updateButtonVisibility();
             }
             
             // Limpiar estilos inline de items
             const grid = document.getElementById('dashboardGrid');
             if (grid) {
                 grid.querySelectorAll('.container-item').forEach(item => {
-                    item.removeAttribute('style');
+                    const muuriProps = ['position', 'top', 'left', 'width', 'height', 'z-index', 'opacity', 'transform', 'display'];
+                    muuriProps.forEach(prop => item.style.removeProperty(prop));
                 });
             }
             console.log('Muuri destruido');
@@ -223,4 +224,4 @@ const MuuriLayoutManager = (() => {
         loadOrder
     };
 })();
-window.MuuriLayoutManager = MuuriLayoutManager;
+window.MuuriManager = MuuriManager;

@@ -1,4 +1,4 @@
-const LayoutVisibilityManager = (() => {
+const VisibilityManager = (() => {
     const STORAGE_KEY = 'vmarks_visibility_settings';
 
     // Configuración de los elementos opcionales
@@ -23,7 +23,8 @@ const LayoutVisibilityManager = (() => {
     function getSettings() {
         const saved = localStorage.getItem(STORAGE_KEY);
         const parsed = saved ? JSON.parse(saved) : {};
-
+        
+        // Retornamos una mezcla: priorizamos lo guardado, si no existe usamos DEFAULTS
         return { ...DEFAULTS, ...parsed };
     }
 
@@ -43,17 +44,24 @@ const LayoutVisibilityManager = (() => {
     // Controla la visibilidad del botón en la topbar
     function updateButtonVisibility() {
         const btn = document.getElementById('btn-configure-layout');
+        const btnResize = document.getElementById('btn-resize-layout');
         const separator = document.getElementById('layout-separator');
 
+        // Dependemos únicamente de si el Manager de Muuri está inicializado
         const isFreeLayout = window.MuuriLayoutManager && typeof window.MuuriLayoutManager.isActive === 'function' && window.MuuriLayoutManager.isActive();
         const display = isFreeLayout ? 'inline-flex' : 'none';
 
         if (btn) btn.style.setProperty('display', display, 'important');
+        if (btnResize) btnResize.style.setProperty('display', display, 'important');
         if (separator) separator.style.setProperty('display', isFreeLayout ? 'block' : 'none', 'important');
     }
 
     // Aplica el estado guardado al cargar la página
     function applySavedVisibility() {
+        const currentLayout = window.SettingsManager ? window.SettingsManager.getSettings().layout : 'double';
+
+        if (currentLayout !== 'free') return;
+
         const settings = getSettings();
 
         OPTIONAL_ITEMS.forEach(item => {
@@ -71,11 +79,12 @@ const LayoutVisibilityManager = (() => {
     }
 
     function showConfigModal() {
-        const settings = getSettings();
+        const saved = localStorage.getItem(STORAGE_KEY);
+        const settings = saved ? JSON.parse(saved) : DEFAULTS;
 
         let html = '<div class="visibility-config-list">';
         OPTIONAL_ITEMS.forEach(item => {
-            const isVisible = settings[item.id];
+            const isVisible = settings.hasOwnProperty(item.id) ? settings[item.id] : DEFAULTS[item.id];
             html += `
                 <div class="visibility-config-item" style="display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center;">
                     <span>${item.label}</span>
@@ -120,4 +129,4 @@ const LayoutVisibilityManager = (() => {
 
     return { init, updateButtonVisibility, applySavedVisibility };
 })();
-window.LayoutVisibilityManager = LayoutVisibilityManager;
+window.VisibilityManager = VisibilityManager;
