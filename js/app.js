@@ -82,9 +82,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 WidgetManager.init();}
         }, 650);
 
-        // Inicializar LayoutVisibilityManager
-        if (window.LayoutVisibilityManager) {
-            LayoutVisibilityManager.init();
+        // Inicializar VisibilityManager
+        if (window.VisibilityManager) {
+            VisibilityManager.init();
+        }
+
+        // Inicializar ResizeManager
+        if (window.ResizeManager) {
+            ResizeManager.init();
         }
 
         // Suscribirse a cambios de estado (para mantener AppState sincronizado)
