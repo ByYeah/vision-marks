@@ -44,6 +44,7 @@
     display: flex;
     gap: var(--spacing-xs);
     flex-shrink: 0;
+    align-items: center;
 }
 
 /* Botones de acción en widgets */
@@ -62,6 +63,8 @@
     justify-content: center;
     transition: all var(--transition-fast);
     color: var(--text-secondary);
+    flex-shrink: 0;
+    align-self: center;
 }
 
 [data-container="widgets-1"] .btn-add:hover,
@@ -140,6 +143,8 @@
     justify-content: center;
     transition: all var(--transition-fast);
     color: var(--text-secondary);
+    flex-shrink: 0;
+    align-self: center;
 }
 
 .btn-toggle-expand.disabled {
@@ -180,6 +185,7 @@
     display: flex;
     gap: var(--spacing-xs);
     flex-shrink: 0;
+    align-items: center;
 }
 
 
