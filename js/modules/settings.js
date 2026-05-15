@@ -177,6 +177,27 @@ const SettingsManager = (() => {
             grid.style.gridTemplateRows = '';
         }
 
+        // Gestión de visibilidad para layouts fijos (Doble, Extendido, Widgets)
+        if (settings.layout !== 'free') {
+            const layout = settings.layout;
+            
+            // Chat (Asistente): Solo visible en layout 'double'
+            const chatContainer = document.querySelector('[data-container="chat"]');
+            if (chatContainer) {
+                chatContainer.style.display = (layout === 'double') ? 'flex' : 'none';
+            }
+
+            // Widgets: 1 y 2 visibles en 'widgets', otros siempre ocultos
+            document.querySelectorAll('[data-container^="widgets-"]').forEach(w => {
+                const containerId = w.dataset.container;
+                if (layout === 'widgets' && (containerId === 'widgets-1' || containerId === 'widgets-2')) {
+                    w.style.display = 'flex';
+                } else {
+                    w.style.display = 'none';
+                }
+            });
+        }
+
         // Limpiar estilos inline de contenedores cuando no estamos en widgets
         if (settings.layout !== 'widgets') {
             document.querySelectorAll('[data-container="folders"], [data-container="infolder"], [data-container="widgets-1"], [data-container="widgets-2"]').forEach(el => {
@@ -503,21 +524,22 @@ const SettingsManager = (() => {
     function updateLayout(layout) {
         const previousLayout = settings.layout;
         settings.layout = layout;
+
+        // Si salimos de layout libre, destruimos Muuri ANTES de aplicar el nuevo layout
+        if (previousLayout === 'free' && layout !== 'free') {
+            if (window.MuuriLayoutManager) {
+                window.MuuriLayoutManager.destroy();
+            }
+        }
+
         saveSettings();
         applyLayout();
 
-        // Manejar Muuri según el layout
         if (layout === 'free') {
-            // Activar Muuri cuando se cambia a layout libre
             if (window.MuuriLayoutManager) {
                 setTimeout(() => {
                     window.MuuriLayoutManager.init();
                 }, 100);
-            }
-        } else if (previousLayout === 'free') {
-            // Desactivar Muuri cuando se sale del layout libre
-            if (window.MuuriLayoutManager) {
-                window.MuuriLayoutManager.destroy();
             }
         }
 
