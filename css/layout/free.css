@@ -49,6 +49,7 @@
     border-radius: 12px !important;
     overflow: hidden;
     box-shadow: var(--shadow-sm);
+    cursor: default;
 }
 
 /* Header compacto para evitar que las acciones (botones) lo deformen */
@@ -64,6 +65,7 @@
     border-bottom: 1px solid var(--border-color);
     background-color: inherit;
     flex-shrink: 0;
+    cursor: grab;
 }
 
 #dashboardGrid.layout-free .container-header h2 {
@@ -141,6 +143,7 @@ main.dashboard.edit-mode {
 
 /* Desactivar cursor de drag cuando estamos en modo edición */
 main.dashboard.edit-mode #dashboardGrid.layout-free .container-item,
+main.dashboard.edit-mode #dashboardGrid.layout-free .container-header,
 main.dashboard.edit-mode #dashboardGrid.layout-free .container-content {
     cursor: default !important;
 }
@@ -183,6 +186,10 @@ main.dashboard.edit-mode #dashboardGrid.layout-free .container-content {
 /* Manejo de estados de Muuri */
 .muuri-item-dragging {
     z-index: 100;
+}
+
+.muuri-item-dragging .container-header {
+    cursor: grabbing !important;
 }
 
 .muuri-item-releasing {

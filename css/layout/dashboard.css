@@ -123,13 +123,18 @@
     position: absolute !important; /* Requisito de Muuri */
     width: 250px; /* Ancho inicial, luego será configurable */
     margin: 8px;
-    cursor: grab;
+    cursor: default;
     transition: none !important; /* Muuri maneja las animaciones */
 }
 
-/* Contenido interno - cursor grab */
+/* Contenido interno - cursor normal */
 .layout-free .container-content {
-    cursor: grab !important;
+    cursor: default !important;
+}
+
+/* El header es el único que permite el drag */
+.layout-free .container-header {
+    cursor: grab;
 }
 
 /* Estados de arrastre de Muuri */
