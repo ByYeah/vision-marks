@@ -214,6 +214,13 @@ const MuuriManager = (() => {
         return isInitialized && muuriGrid !== null;
     }
 
+    // Habilita o deshabilita el drag and drop
+    function setDragEnabled(enabled) {
+        if (!muuriGrid) return;
+        muuriGrid.updateSettings({ dragEnabled: enabled });
+        console.log(`Muuri Drag: ${enabled ? 'HABILITADO' : 'DESHABILITADO'}`);
+    }
+
     return {
         init,
         destroy,
@@ -221,7 +228,8 @@ const MuuriManager = (() => {
         updateItems,
         isActive,
         saveOrder,
-        loadOrder
+        loadOrder,
+        setDragEnabled
     };
 })();
 window.MuuriManager = MuuriManager;

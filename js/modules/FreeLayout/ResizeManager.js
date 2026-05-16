@@ -21,6 +21,9 @@ const ResizeManager = (() => {
 
         if (btn) btn.classList.remove('active');
         if (dashboard) dashboard.classList.remove('edit-mode');
+        
+        if (window.MuuriManager) window.MuuriManager.setDragEnabled(true);
+        
         console.log('🛠️ Modo Edición: FINALIZADO');
     }
 
@@ -39,6 +42,7 @@ const ResizeManager = (() => {
         if (isEditMode) {
             if (btn) btn.classList.add('active');
             if (dashboard) dashboard.classList.add('edit-mode');
+            if (window.MuuriManager) window.MuuriManager.setDragEnabled(false);
             
             // Mostrar ayuda visual la primera vez
             if (!localStorage.getItem(STORAGE_KEY)) {
@@ -47,6 +51,7 @@ const ResizeManager = (() => {
         } else {
             if (btn) btn.classList.remove('active');
             if (dashboard) dashboard.classList.remove('edit-mode');
+            if (window.MuuriManager) window.MuuriManager.setDragEnabled(true);
         }
 
         console.log(`🛠️ Modo Edición: ${isEditMode ? 'ACTIVADO' : 'DESACTIVADO'}`);

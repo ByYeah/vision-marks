@@ -139,6 +139,12 @@ main.dashboard.edit-mode {
     transition: outline 0.3s ease;
 }
 
+/* Desactivar cursor de drag cuando estamos en modo edición */
+main.dashboard.edit-mode #dashboardGrid.layout-free .container-item,
+main.dashboard.edit-mode #dashboardGrid.layout-free .container-content {
+    cursor: default !important;
+}
+
 /* Overlay de ayuda al redimensionar */
 .resize-help-overlay {
     position: absolute;
